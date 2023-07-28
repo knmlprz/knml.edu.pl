@@ -5,6 +5,8 @@ permalink: /privacy-policy/
 comments: false
 ---
 
+Strona w przebudowie. Zapraszam później.
+
 ### Information that is gathered from visitors
 In common with other websites, log files are stored on the web server saving details such as the visitor's IP address, browser type, referring page and time of visit.
 
