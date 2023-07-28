@@ -139,6 +139,27 @@ small, .small {
     padding: 5rem 5rem;
 }
 
+/* Media query for small devices (e.g., mobile phones) */
+@media (max-width: 767.98px) {
+    .hero {
+      padding: 2rem; /* Add some padding to reduce the overall size */
+    }
+    .hero h1 {
+      font-size: 2rem; /* Decrease the font size for the heading */
+    }
+    .hero p {
+      font-size: 1rem; /* Decrease the font size for the paragraph */
+    }
+    .hero .intro {
+      height: 300px; /* Reduce the height of the image for small devices */
+    }
+}
+
+.work-in-progress {
+    background: #cc4523;
+    padding: 5rem 5rem;
+}
+
 @media only screen and (max-width: 1024px) {
     .page-header.big {
         font-size:3.5em;
