@@ -5,11 +5,21 @@ permalink: "/about/"
 image: assets/images/screenshot.png
 ---
 
-This website is a demonstration to see **Affiliates Jekyll theme** in action. 
+Jesteśmy kołem naukowym zrzeszającym entuzjastów oraz osób zainteresowanych uczeniem maszynowym, sztuczną inteligencją, IoT i Data Science.
 
-The theme is compatible with Github pages. This demo is created with Github Pages and hosted with Github. 
+# Cele
 
-Everything is ready for your quick setup: Blog, Categories, About, Privacy Policy, Terms of Use, Contact form, Mailchimp
+Nasza działalność ma na celu rozwój w obszarze zbierania i przetwarzania danych za pomocą algorytmów sztucznej inteligencji oraz tworzenie narzędzi przy ich pomocy. Skupiamy się głównie na przetwarzaniu obrazów i tekstu, ale jesteśmy otwarci na inne wyzwania.
 
-[Get it here](https://bootstrapstarter.com/jekyll-theme-memoirs/)
+# Osiągnięcia
 
+Wśród naszych największych osiągnięć znajduje się projekt [LoveSpeachHelper](https://github.com/knmlprz/BITEHack), który zajął drugie miejsce w kategorii AI na BITEHack 2022. 
+
+# Szkolenia
+
+Prowadzimy szkolenia mające na celu przekazanie podstaw programowania oraz używania gotowych rozwiązań sztucznej inteligencji.
+Wszystkie archiwalne materiały można znaleźć [tutaj](https://github.com/knmlprz/poradniki).
+
+# Linki
+
+Zapraszamy na nasz profil organizacji na [Githubie](https://github.com/knmlprz/), na którym znajdują się repozytoria naszych projektów, oraz stronę na [Linktree](https://linktr.ee/knml.prz), gdzie można znaleźć wszystkie oficjalne linki.
