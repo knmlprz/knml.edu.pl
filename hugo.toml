@@ -1,3 +1,4 @@
 baseURL = 'http://knml.edu.pl/'
 languageCode = 'pl-PL'
 title = 'Koło Naukowe Machine Learning Politechniki Rzeszowskiej'
+theme = 'hugo-profile'
