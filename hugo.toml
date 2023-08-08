@@ -66,22 +66,20 @@ animate = true
 
     [params.hero.button]
     enable = true
-    name = "Resume"
-    url = "#"
-    download = true
-    newPage = false
+    name = "Linktree"
+    url = "https://linktr.ee/knml.prz"
+    download = false
+    newPage = true
 
 [[params.hero.socialLinks.fontAwesomeIcons]]
 icon = "fab fa-github"
-url = "https://example.com"
+url = "https://github.com/knmlprz"
 
 [[params.hero.socialLinks.fontAwesomeIcons]]
-icon = "fab fa-twitter"
-url = "https://example.com"
+icon = "fab fa-facebook"
+url = "https://www.facebook.com/knmlprz"
 
-[[params.hero.socialLinks.customIcons]]
-icon = "/fav.png"
-url = "https://example.com"
+
 
   [params.about]
   enable = true
@@ -318,11 +316,10 @@ enable = true
 disableFeaturedImage = false
 
 [params.footer.socialNetworks]
-github = "https://github.com"
-linkedin = "https://linkedin.com"
-twitter = "https://twitter.com"
-instagram = "https://instagram.com"
-facebook = "https://facebook.com"
+github = "https://github.com/knmlprz"
+linkedin = "https://www.linkedin.com/company/knmlprz/"
+instagram = "https://www.instagram.com/knml.prz/"
+facebook = "https://www.facebook.com/knmlprz"
 
   [params.listPages]
   disableFeaturedImage = false
