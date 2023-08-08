@@ -28,7 +28,7 @@ url = "/gallery"
 weight = 2
 
 [params]
-title = "Hugo Profile"
+title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej"
 description = "Text about my cool site"
 favicon = "/fav.png"
 useBootstrapCDN = false
@@ -42,8 +42,8 @@ animate = true
 
   [params.navbar]
   align = "ms-auto"
-  brandName = "Hugo Profile"
-  disableSearch = false
+  brandName = "KNML"
+  disableSearch = true
 
     [params.navbar.menus]
     disableAbout = false
@@ -238,7 +238,7 @@ Extracurricular Activities
     content = "Developed a product using Artificial Intelligence."
 
     [[params.achievements.items]]
-    title = "Hugo Profile"
+    title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej"
     content = "Developed a theme and getting 1K+ downloads per month."
     url = "https://github.com/gurusabarish/hugo-profile"
 
@@ -255,7 +255,7 @@ Extracurricular Activities
   enable = true
 
     [[params.projects.items]]
-    title = "Hugo Profile"
+    title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej"
     content = "A highly customizable and mobile first Hugo template for personal portfolio and blog."
     image = "/images/projects/profile.png"
     badges = [ "Hugo", "Bootstrap", "Javascript" ]
@@ -291,7 +291,7 @@ Extracurricular Activities
       url = "https://github.com/gurusabarish/converter"
 
     [[params.projects.items]]
-    title = "Hugo Profile V2"
+    title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej V2"
     content = "A clean and simple Hugo template for personal portfolio and blog."
     image = "/images/projects/profile2.jpg"
     badges = [ "Hugo", "Bootstrap", "Javascript" ]
