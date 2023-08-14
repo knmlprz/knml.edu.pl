@@ -29,7 +29,7 @@ weight = 2
 
 [params]
 title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej"
-description = "Text about my cool site"
+description = "Strona główna Koła Naukowego Machine Learning"
 favicon = "/fav.png"
 useBootstrapCDN = false
 animate = true
