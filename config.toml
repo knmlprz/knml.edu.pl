@@ -62,7 +62,7 @@ animate = true
   image = "/images/hero.svg"
 
     [params.hero.bottomImage]
-    enable = true
+    enable = false
 
     [params.hero.button]
     enable = true
