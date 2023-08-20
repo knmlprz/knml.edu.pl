@@ -79,8 +79,8 @@ enableRobotsTXT = true
     image = "/images/profile.jpeg"
     content = """
 Jesteśmy grupą studentów zafascynowanych analizą danych, uczeniem maszynowym
-i sieciami neuronowymi. W naszym zespole są głównie studenci Inżynierii i 
-analizy danych, jednak każdy jest mile widziany. 
+i sieciami neuronowymi. W naszym zespole są głównie studenci Inżynierii i
+analizy danych, jednak każdy jest mile widziany.
 
 Naszym celem jest rozwijanie umiejętności w zakresie uczenia maszynowego,
 a także wykorzystanie ich w praktyce. W tym celu uczestniczymy w konkursach
