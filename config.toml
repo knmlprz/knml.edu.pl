@@ -7,84 +7,77 @@ Paginate = 3
 enableRobotsTXT = true
 
 [outputs]
-home = ["HTML", "RSS", "JSON"]
-page = ["HTML", "RSS"]
+    home = ["HTML", "RSS", "JSON"]
+    page = ["HTML", "RSS"]
 
 [markup.goldmark.renderer]
-unsafe = true
+    unsafe = true
 
 [[Menus.main]]
-identifier = "blog"
-name = "Blog"
-title = "Blog posts"
-url = "/blogs"
-weight = 1
-
-[[Menus.main]]
-identifier = "gallery"
-name = "Gallery"
-title = "Blog posts"
-url = "/gallery"
-weight = 2
+    identifier = "blog"
+    name = "Blog"
+    title = "Blog"
+    url = "/blog"
+    weight = 1
 
 [params]
-title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej"
-description = "Strona główna Koła Naukowego Machine Learning"
-favicon = "/fav.png"
-useBootstrapCDN = false
-animate = true
+    title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej"
+    description = "Strona główna Koła Naukowego Machine Learning"
+    favicon = "/fav.png"
+    useBootstrapCDN = false
+    animate = true
 
 [params.font]
-fontSize = "1rem"
-fontWeight = 400
-lineHeight = 1.5
-textAlign = "left"
+    fontSize = "1rem"
+    fontWeight = 400
+    lineHeight = 1.5
+    textAlign = "left"
 
 [params.navbar]
-align = "ms-auto"
-brandName = "KNML"
-disableSearch = true
+    align = "ms-auto"
+    brandName = "KNML"
+    disableSearch = true
 
 [params.navbar.menus]
-disableAbout = false
-disableExperience = true
-disableEducation = true
-disableProjects = false
-disableAchievements = false
-disableContact = false
+    disableAbout = false
+    disableExperience = true
+    disableEducation = true
+    disableProjects = false
+    disableAchievements = false
+    disableContact = false
 
 [params.hero]
-enable = true
-intro = "Cześć, jesteś na stronie głównej"
-title = "Koła naukowego Machine Learning"
-subtitle = "Politechniki Rzeszowskiej"
-content = "Wykorzystujemy uczenie maszynowe do rozwiązywania niecodziennych problemów. Zapraszamy do współpracy!"
-image = "/images/hero.svg"
+    enable = true
+    intro = "Cześć, jesteś na stronie głównej"
+    title = "Koła naukowego Machine Learning"
+    subtitle = "Politechniki Rzeszowskiej"
+    content = "Wykorzystujemy uczenie maszynowe do rozwiązywania niecodziennych problemów. Zapraszamy do współpracy!"
+    image = "/images/hero.svg"
 
 [params.hero.bottomImage]
-enable = false
+    enable = false
 
 [params.hero.button]
-enable = true
-name = "Linktree"
-url = "https://linktr.ee/knml.prz"
-download = false
-newPage = true
+    enable = true
+    name = "Linktree"
+    url = "https://linktr.ee/knml.prz"
+    download = false
+    newPage = true
 
 [[params.hero.socialLinks.fontAwesomeIcons]]
-icon = "fab fa-github"
-url = "https://github.com/knmlprz"
+    icon = "fab fa-github"
+    url = "https://github.com/knmlprz"
 
 [[params.hero.socialLinks.fontAwesomeIcons]]
-icon = "fab fa-facebook"
-url = "https://www.facebook.com/knmlprz"
+    icon = "fab fa-facebook"
+    url = "https://www.facebook.com/knmlprz"
 
 
 [params.about]
-enable = true
-title = "O nas"
-image = "/images/profile.jpeg"
-content = """
+    enable = true
+    title = "O nas"
+    image = "/images/profile.jpeg"
+    content = """
 Jesteśmy grupą studentów zafascynowanych analizą danych, uczeniem maszynowym
 i sieciami neuronowymi. W naszym zespole są głównie studenci Inżynierii i 
 analizy danych, jednak każdy jest mile widziany. 
@@ -97,71 +90,71 @@ Jeśli jesteś zainteresowany, dołącz do nas na naszym Discordzie!
 """
 
 [params.achievements]
-enable = true
-title = "Nasze osiągnięcia"
+    enable = true
+    title = "Nasze osiągnięcia"
 
 [[params.achievements.items]]
-title = "II miejsce na BITEHack 2022 | AI"
-content = "Wykrywanie negatywnych emocji w sieci; drugie miejsce na BITEHack 2022 w kategorii AI"
-url = "https://w.prz.edu.pl/uczelnia/aktualnosci/sukces-studentow-kola-naukowego-machine-learning-2131.html"
+    title = "II miejsce na BITEHack 2022 | AI"
+    content = "Wykrywanie negatywnych emocji w sieci; drugie miejsce na BITEHack 2022 w kategorii AI"
+    url = "https://w.prz.edu.pl/uczelnia/aktualnosci/sukces-studentow-kola-naukowego-machine-learning-2131.html"
 
 [[params.achievements.items]]
-title = "Wyróżnienie na BITEHack 2023 | AI"
-content = "Analiza zużycia energii w budynkach; wyróżnienie na BITEHack 2023 w kategorii AI"
+    title = "Wyróżnienie na BITEHack 2023 | AI"
+    content = "Analiza zużycia energii w budynkach; wyróżnienie na BITEHack 2023 w kategorii AI"
 
 [params.projects]
-title = "Projekty"
-enable = true
+    title = "Projekty"
+    enable = true
 
 [[params.projects.items]]
-title = "LoveSpeechHelper"
-content = "Wykrywanie negatywnych emocji w sieci; drugie miejsce na BITEHack 2022 w kategorii AI"
-image = "/images/projects/love-speech-helper.png"
-badges = ["Python", "pytorch", "Tensorflow"]
+    title = "LoveSpeechHelper"
+    content = "Wykrywanie negatywnych emocji w sieci; drugie miejsce na BITEHack 2022 w kategorii AI"
+    image = "/images/projects/love-speech-helper.png"
+    badges = ["Python", "pytorch", "Tensorflow"]
 
 [params.projects.items.featured]
-name = "Repozytorium"
-link = "https://github.com/knmlprz/BITEHack"
+    name = "Repozytorium"
+    link = "https://github.com/knmlprz/BITEHack"
 
 
 [params.contact]
-title = "Kontakt"
-enable = true
-content = "Jeśli masz jakieś pytania/propozycje, napisz do nas maila!"
-email = "contact.knml.prz@gmail.com"
-btnName = "Napisz do nas"
+    title = "Kontakt"
+    enable = true
+    content = "Jeśli masz jakieś pytania/propozycje, napisz do nas maila!"
+    email = "contact.knml.prz@gmail.com"
+    btnName = "Napisz do nas"
 
 [params.footer.recentPosts]
-path = "blogs"
-count = 3
-title = "Recent Posts"
-enable = true
-disableFeaturedImage = false
+    path = "blog"
+    count = 3
+    title = "Najnowsze wpisy"
+    enable = true
+    disableFeaturedImage = false
 
 [params.footer.socialNetworks]
-github = "https://github.com/knmlprz"
-linkedin = "https://www.linkedin.com/company/knmlprz/"
-instagram = "https://www.instagram.com/knml.prz/"
-facebook = "https://www.facebook.com/knmlprz"
+    github = "https://github.com/knmlprz"
+    linkedin = "https://www.linkedin.com/company/knmlprz/"
+    instagram = "https://www.instagram.com/knml.prz/"
+    facebook = "https://www.facebook.com/knmlprz"
 
 [params.listPages]
-disableFeaturedImage = false
+    disableFeaturedImage = false
 
 [params.singlePages.readTime]
-enable = true
-content = "min read"
+    enable = true
+    content = "min read"
 
 [params.singlePages.scrollprogress]
-enable = true
+    enable = true
 
 [params.terms]
-read = "Read"
-toc = "Table Of Contents"
-copyright = "All rights reserved"
-pageNotFound = "Page not found"
-emailText = "Check out this site"
+    read = "Read"
+    toc = "Spis treści"
+    copyright = "All rights reserved"
+    pageNotFound = "Page not found"
+    emailText = "Check out this site"
 
 [params.datesFormat]
-article = "Jan 2, 2006"
-articleList = "Jan 2, 2006"
-articleRecent = "Jan 2, 2006"
+    article = "Jan 2, 2006"
+    articleList = "Jan 2, 2006"
+    articleRecent = "Jan 2, 2006"
