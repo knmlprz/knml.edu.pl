@@ -34,8 +34,6 @@ Demonstracja funkcji wyszukiwania. W polu "wyszukaj" wpisać można frazę, wed�
 Wyszukiwanie wszystkich artykułów zawierających oba słowa tj. zarówno "pożar" jak i "rzeszów":
 <image src="2.png" alt="Wyszukiwanie wszystkich artykułów zawierających oba słowa tj. zarówno pożar jak i rzeszów" />
 
-
-
 ### Dobór technologii i metod
 
 #### Zbieranie danych
