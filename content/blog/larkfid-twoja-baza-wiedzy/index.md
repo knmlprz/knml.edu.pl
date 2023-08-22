@@ -7,14 +7,14 @@ author: "Piotr Krawiec"
 tags:
   - projekt
   - python
-image: /blog/larkfid-twoja-baza-wiedzy/larkfid-arch.png
+image: /blog/larkfid-twoja-baza-wiedzy/1.png
 ---
+
+## Wstęp
 
 W ramach naszego koła naukowego czasami organizujemy całoroczne hackathony, nasi członkowie zbierają się w grupy i przygotowują aplikacje, które konkurują o tytuł najlepszej. Aplikacja, którą wam opiszę — LARKFid powstała właśnie na takim hackathonie.
 
-Naszym celem, jako grupy uczestniczącej w Hackathonie, było stworzenie aplikacji zbierającej, de duplikującej, przetwarzającej i umożliwiającej dostęp do informacji z regionu tj. województwa podkarpackiego. Informacje te mogłyby być dostosowane do klienta. Czym są te funkcje i jak je zrealizować?
-
-## Opis funkcji aplikacji
+Naszym celem, jako grupy uczestniczącej w Hackathonie, było stworzenie aplikacji zbierającej, de duplikującej, przetwarzającej i umożliwiającej dostęp do informacji z regionu tj. województwa podkarpackiego. Informacje te mogłyby być dostosowane do klienta.
 
 Zbieranie danych z regionu polega na przeszukiwaniu stron internetowych, forów i grup dyskusyjnych z regionu w poszukiwaniu informacji. Przykładami takich informacji mogą być: ogłoszenia o zaginionych psach, dzikach chodzących po ulicach itp. - w skrócie, wszystko.
 
@@ -24,21 +24,31 @@ Jak możesz się domyślać lub nie, wiele z tych źródeł będzie powielało t
 
 Tak zebrane informacje powinny być przetworzone do jakieś wspólnej postaci zawierającej np. datę i miejsce wydarzenia (fakty). I przedstawione w postaci łatwej w do przyswojenia np. w postaci skrótów wiadomości i pinesek na mapie.
 
-Ponieważ każdy z tych kroków wymagał interakcji z językiem, zaczęliśmy od researchu.
+### Interfejs użytkownika
+
+Oto interfejs użytkownika, który został stworzony w ramach projektu. Poniżej zamieszczone zostały opisy funkcji wraz ze zdjęciami je prezenującymi.
+
+Demonstracja funkcji wyszukiwania. W polu "wyszukaj" wpisać można frazę, według której odfiltrowane będą artykuły, zaktualizuje się widok stron, ich treść i oś czasu. Tutaj przykład dla "pijany nietrzeźwy kierowca":
+<image src="1.png" alt="Demonstracja funkcji wyszukiwania" />
+
+Wyszukiwanie wszystkich artykułów zawierających oba słowa tj. zarówno "pożar" jak i "rzeszów":
+<image src="2.png" alt="Wyszukiwanie wszystkich artykułów zawierających oba słowa tj. zarówno pożar jak i rzeszów" />
+
+
 
 ### Dobór technologii i metod
 
 #### Zbieranie danych
 
-Zbieranie danych to klasyczny problem web scrapingu, do ich zebrania należało zaprogramować "pająki" chodzące po wskazanych przez nas stronach i pobierające np. artykuły lub posty na forum/grupach. Technologie, które można by do tego wykorzystać to np. RSS, Python (Scrapy).
+Zbieranie danych to klasyczny problem web scrapingu, do ich zebrania można zaprogramować "pająki" chodzące po wskazanych stronach i pobierające np. artykuły lub posty na forum/grupach. Technologie, które można by do tego wykorzystać to np. RSS, Python (Scrapy).
 
 #### Ekstrakcja informacji (faktów)
 
-Każdy artykuł/post/wpis to tylko tekst ze zdjęciami, nie zawiera on metadanych o miejscu/wydarzeniu, które moglibyśmy odczytać. Aby to zrobić, musimy przetworzyć tekst, który mamy np. poszukując dat, nazw miejsc, osób i nazwisk. Do tego zadania można wykorzystać Morfeusza 2 (dla języka polskiego), modele LLM (ChatGPT, LLama), i techniki NLP: Entity recognition.
+Każdy artykuł/post/wpis to tylko tekst ze zdjęciami, nie zawiera on metadanych o miejscu/wydarzeniu, które można by odczytać. Aby to zrobić, trzeba przetworzyć pobrany tekst w poszukiwaniu dat, nazw miejsc, osób i nazwisk. Do tego zadania można wykorzystać np. Morfeusza 2 (dla języka polskiego), modele LLM (ChatGPT, LLama), i techniki NLP: Entity recognition.
 
 #### Deduplikacja
 
-Deduplikacja to jest jeden z trudniejszych problemów, bo dla każdego z artykułów musimy zdecydować, czy artykuł o tym samym temacie/treści nie znajduje się już w naszej bazie. Żeby to zrobić, możemy porównać:
+Deduplikacja to jest jeden z trudniejszych problemów, bo dla każdego z artykułów należy zdecydować, czy artykuł o tym samym temacie/treści nie znajduje się już w bazie. Żeby to zrobić, można porównać:
 
 1. Tytuły — czy są identyczne/przekazują tę samą informację różnymi słowami?
 2. Treści — identycznie jak Tytuły.
@@ -50,7 +60,7 @@ Technologie: Python (NLP: Text similarity, Semantic Textual Similarity), Mozilla
 
 ## Implementacja
 
-_Nie będę ukrywać, że po pierwsze nie mieliśmy doświadczenia w tworzeniu tego typu aplikacji, a po drugie: zbyt wcześnie myśleliśmy o skali, o tym, jak wiele wiadomości możemy przetworzyć i jak zaprojektować system tak by najpierw działał. Więc to, co stworzyliśmy, było zdecydowanie zbyt skomplikowane._
+_Nie będę ukrywać, że po pierwsze nie mieliśmy doświadczenia w tworzeniu tego typu aplikacji, a po drugie: zbyt wcześnie myśleliśmy o skali, o tym, jak wiele wiadomości możemy przetworzyć i jak zaprojektować system tak by najpierw działał. Więc to, co stworzyliśmy, było zdecydowanie zbyt skomplikowane. Natomiast pozwoliło nam "pobawić" się wieloma ciekawymi technologiami i napotkać problemy, których inaczej napotkać się nie da. Była to dla nas wszystkich cenna lekcja._
 
 Oto cała architektura:
 <image src="larkfid-arch.png" alt="Architektura aplikacji LARKFid" />
@@ -81,7 +91,7 @@ Query: healthy breakfast
 
 Dodatkowo poprzez serwis OpenSearch Dashboards użytkownik ma możliwość bezpośredniego przeszukiwania bazy danych.
 
-I na tym zakończyliśmy implementację w ramach projektu. Jak mogłeś/as zauważyć, nie jest ona kompletna. Brakuje m.in.:
+Na tym zakończyliśmy implementację w ramach projektu. Jak mogłeś/as zauważyć, nie jest ona kompletna. Brakuje m.in.:
 
 - deduplikacji
 - ekstrakcji faktów (częściowo robi to Readability)
