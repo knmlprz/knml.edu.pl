@@ -14,11 +14,11 @@ image: /blog/larkfid-twoja-baza-wiedzy/1.png
 
 W ramach naszego koła naukowego czasami organizujemy całoroczne hackathony, nasi członkowie zbierają się w grupy i przygotowują aplikacje, które konkurują o tytuł najlepszej. Aplikacja, którą wam opiszę — LARKFid powstała właśnie na takim hackathonie.
 
-Naszym celem, jako grupy uczestniczącej w Hackathonie, było stworzenie aplikacji zbierającej, de duplikującej, przetwarzającej i umożliwiającej dostęp do informacji z regionu tj. województwa podkarpackiego. Informacje te mogłyby być dostosowane do klienta.
+Naszym celem, jako grupy uczestniczącej w Hackathonie, było stworzenie aplikacji zbierającej, deduplikującej, przetwarzającej i umożliwiającej dostęp do informacji z regionu tj. województwa podkarpackiego. Informacje te mogłyby być dostosowane do klienta.
 
 Zbieranie danych z regionu polega na przeszukiwaniu stron internetowych, forów i grup dyskusyjnych z regionu w poszukiwaniu informacji. Przykładami takich informacji mogą być: ogłoszenia o zaginionych psach, dzikach chodzących po ulicach itp. - w skrócie, wszystko.
 
-Jak możesz się domyślać lub nie, wiele z tych źródeł będzie powielało te same informacje, stąd aplikacja powinna móc je de duplikować.
+Jak możesz się domyślać lub nie, wiele z tych źródeł będzie powielało te same informacje, stąd aplikacja powinna móc je deduplikować.
 
 > Deduplikacja danych to krok, który ma połączyć/usunąć te same informacje, pochodzące z różnych źródeł np. z dwóch portali piszących o tym samym wydarzeniu.
 
