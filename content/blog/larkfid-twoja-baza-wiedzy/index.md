@@ -55,6 +55,7 @@ Każdy artykuł/post/wpis to tylko tekst ze zdjęciami, nie zawiera on metadanyc
 Morfeusz 2 to narzędzie do analizy morfologicznej języka polskiego. Pozwala ono na podział tekstu na wyrazy, a następnie na analizę morfologiczną tych wyrazów. Dzięki temu można np. wyodrębnić nazwy miejsc, osób i nazwisk.
 
 Modele LLM to modele językowe, które można wykorzystać do generowania tekstu. W tym przypadku można wykorzystać je do wygenerowania krótkiego podsumowania artykułu.
+
 #### Deduplikacja
 
 Deduplikacja to jest jeden z trudniejszych problemów, bo dla każdego z artykułów należy zdecydować, czy artykuł o tym samym temacie/treści nie znajduje się już w bazie. Żeby to zrobić, można porównać:
