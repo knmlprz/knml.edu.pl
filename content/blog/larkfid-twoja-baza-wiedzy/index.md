@@ -28,7 +28,7 @@ Tak zebrane informacje powinny być przetworzone do wspólnej postaci zawierają
 
 ### Interfejs użytkownika
 
-Oto interfejs użytkownika, który został stworzony w ramach projektu. Poniżej zamieszczone zostały opisy funkcji wraz ze zdjęciami je prezenującymi.
+Oto interfejs użytkownika, który został stworzony w ramach projektu. Poniżej zamieszczone zostały opisy funkcji wraz ze zdjęciami je prezentującymi.
 
 W polu "wyszukaj" wpisać można frazę, według której odfiltrowane będą artykuły, zaktualizuje się widok stron, ich treść i oś czasu.
 
