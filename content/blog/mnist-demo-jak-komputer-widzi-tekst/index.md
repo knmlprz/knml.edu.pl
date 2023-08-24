@@ -16,3 +16,8 @@ image: /blog/mnist-demo-jak-komputer-widzi-tekst/mnist_demo_interface_showcase.p
 
 Nasze koło chętnie uczestniczy w wydarzeniach organizowanych na Politechnice Rzeszowskiej m.in. poprzez przygotowywanie stoiska z ciekawymi, interaktywnymi demami pokazującymi możliwości uczenia maszynowego. Podczas Kolażu Kół Naukowych jednym z takich dem było rozpoznawanie narysowanej cyfry.
 
+# Wykonanie
+
+Całą aplikację stworzyliśmy w Pythonie; jest jednym z najpopularniejszych języków używanych do analizy danych i uczenia maszynowego oraz z pomocą nieoficjalnych modułów pozawala na tworzenie prostych intefejsów.
+
+Demo można podzielić na dwie części: model i interfejs.
