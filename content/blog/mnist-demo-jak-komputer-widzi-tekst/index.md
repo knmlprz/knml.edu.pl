@@ -9,7 +9,7 @@ tags:
   - python
   - pytorch
   - mnist
-  - digit-detection
+  - digit detection
   - streamlit
 image: /blog/mnist-demo-jak-komputer-widzi-tekst/mnist_demo_interface_showcase.png
 ---
@@ -39,6 +39,7 @@ Konwolucji można użyć również do innych zastosowań niż uczenie maszynowe 
 ![Maska wykrywająca krawędzie w obrazie](convolution_outline.png)
 
 Demo[^2] ze strony *setosa.io* pozwala na eksperymentowanie z maskami konwolucyjnymi.
+
 
 
 # Odnośniki
