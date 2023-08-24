@@ -40,9 +40,22 @@ Konwolucji można użyć również do innych zastosowań niż uczenie maszynowe 
 
 Demo[^2] ze strony *setosa.io* pozwala na eksperymentowanie z maskami konwolucyjnymi.
 
+### Implementacja
 
+Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefiniowane wastwy neuronów oraz konwolucyjne, co ułatwiło zdefiniowanie architektury.
+
+### Trenowanie
+
+Zgodnie z nazwą projektu, przetrenowaliśmy model na zestawie MNIST[^3]. Podczas wstępnych testów napotkaliśmy kilka problemów polegających na różnicach między zestawem uzytym do treningu a danymi, które model otrzymywał podczas testowania.
+
+Pierwszym z nich była odwrócona paleta kolorów: zestaw MNIST zawiera obrazy cyfr narysowanych białym kolorem na czarnym tle, natomiast kanwa w naszym interfejsie stosowała odwrotną kolorystykę. Powodowało to zadowalającą dokładność modelu podczas treningu oraz słabą dokładność podczas testowania go w aplikacji. Rozwiązanie było proste - wystarczyło przetworzyć obrazek pobierany od użytkownika, odwracając na nim kolory.
+
+
+Drugi problem był nieco bardziej skomplikowany. Obszar do rysowania dany użytkownikowi pozwalał mu na rysowanie cyfr dowolnej wielkości i w dowolnym miejscu(małe, duże, bliżej któregoś rogu kanwy etc.), co zmniejszało dokładność modelu(zestaw MNIST posiada cyfry o podobnej do siebie wielkości). Na szczęście członek naszego koła, Vitalii Morskyi przygotował wcześniej rozwiązanie - funkcja `prepare_image()` z repozytorium *handwritten-digits*[^4] dostosowuje obrazek do formatu bardziej przypominającego ten z zestawu treningowego naszego modelu. funkcję tą należało zastosować zarówno przy klasyfikacji, jak i przy treningu - ustandaryzowało to dane treningowe, co zwiększyło dokładność modelu.
 
 # Odnośniki
 
 [^1]: [Intuitively Understanding Convolutions for Deep Learning](https://towardsdatascience.com/intuitively-understanding-convolutions-for-deep-learning-1f6f42faee1)
 [^2]: [Image Kernels](https://setosa.io/ev/image-kernels/)
+[^3]: [MNIST-JPG](https://github.com/teavanist/MNIST-JPG)
+[^4]: [handwritten-digits](https://github.com/knmlprz/handwritten-digits)
