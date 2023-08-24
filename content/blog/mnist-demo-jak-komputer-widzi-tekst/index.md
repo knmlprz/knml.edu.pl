@@ -10,6 +10,9 @@ tags:
   - pytorch
   - mnist
   - digit-detection
-  - 
+  - streamlit
 image: /blog/mnist-demo-jak-komputer-widzi-tekst/mnist_demo_interface_showcase.png
 ---
+
+Nasze koło chętnie uczestniczy w wydarzeniach organizowanych na Politechnice Rzeszowskiej m.in. poprzez przygotowywanie stoiska z ciekawymi, interaktywnymi demami pokazującymi możliwości uczenia maszynowego. Podczas Kolażu Kół Naukowych jednym z takich dem było rozpoznawanie narysowanej cyfry.
+
