@@ -32,7 +32,7 @@ Konwolucja polega na pewnego rodzaju kompresji informacji z kilku punktów(lub, 
 
 ![Wizualizacja konwolucji dwuwymiarowej](https://miro.medium.com/v2/resize:fit:640/1*Zx-ZMLKab7VOCQTxdZ1OAw.gif)
 
-Artykuł[^1], z którego pochodzi powyższa animacja, świetnie opisuje koncept konwolucji.
+Artykuł[^1], z którego pochodzi powyższa animacja, świetnie opisuje cały koncept.
 
 Konwolucji można użyć również do innych zastosowań niż uczenie maszynowe - przy użyciu odpowiedniej maski(tj. wag uzywanych podczas operacji sumy ważonej) można uzyskać filtr wykrywający krawędzie.
 
@@ -42,7 +42,7 @@ Demo[^2] ze strony *setosa.io* pozwala na eksperymentowanie z maskami konwolucyj
 
 ### Implementacja
 
-Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefiniowane wastwy neuronów oraz konwolucyjne, co ułatwiło zdefiniowanie architektury.
+Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefiniowane wastwy neuronów oraz konwolucyjne, co ułatwiło zbudowanie architektury.
 
 ### Trenowanie
 
