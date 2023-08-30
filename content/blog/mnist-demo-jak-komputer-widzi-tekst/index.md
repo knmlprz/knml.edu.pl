@@ -25,6 +25,9 @@ Demo można podzielić na dwie części: model i interfejs.
 ## Model
 
 Postanowiliśmy użyć konwolucyjnej sieci neuronowej; same sieci neuronowe są popularnym wyborem przy problemie klasyfikacji cyfr, a konwolucja często ułatwia zadania związane z przetwarzaniem obrazów.
+Tak wygląda architektura modelu:
+
+![Model](mnist-demo-model-diagram.svg)
 
 ### Konwolucja
 
