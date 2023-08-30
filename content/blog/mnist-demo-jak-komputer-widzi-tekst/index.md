@@ -25,9 +25,6 @@ Demo można podzielić na dwie części: model i interfejs.
 ## Model
 
 Postanowiliśmy użyć konwolucyjnej sieci neuronowej; same sieci neuronowe są popularnym wyborem przy problemie klasyfikacji cyfr, a konwolucja często ułatwia zadania związane z przetwarzaniem obrazów.
-Tak wygląda architektura modelu:
-
-![Model](mnist-demo-model-diagram.svg)
 
 ### Konwolucja
 
@@ -47,13 +44,28 @@ Demo[^2] ze strony *setosa.io* pozwala na eksperymentowanie z maskami konwolucyj
 
 Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefiniowane wastwy neuronów oraz konwolucyjne, co ułatwiło zbudowanie architektury.
 
+![Model](mnist-demo-model-diagram.svg)
+
+Składa się ona z kilku wyróżniających się części:
+
+- **Warstwa konwolucyjna**: Przeprowadza konwolucję na podanych do niej danych.
+- **Funkcja ReLU**(**Re**ctified **L**inear **U**nit): Funkcja aktywacji zerująca liczby ujemne.
+- **Max pooling**: Operacja kompresująca dane poprzez wybieranie największej wartości z obszaru pokrywanego przez jądro:
+![max pooling](https://media.geeksforgeeks.org/wp-content/uploads/20190721025744/Screenshot-2019-07-21-at-2.57.13-AM.png)
+
+Źródło[^3] obrazka dokładniej tłumaczy pojęcie poolingu oraz podaje przykładowy kod wykorzystania go w Pythonie.
+
+- **Dropout**: Losowe zerowanie wartości z pewnym pradwopodobieństwem. Operacja ta utrudnia przeuczenie modelu m.in. w przypadku małego zestawu danych treningowych.
+- **Flatten**: Spłaszczenie danych do postaci jednowymiarowego wektora wartości.
+- **Funkcja log softmax**: Funkcja aktywacji.
+
 ### Trenowanie
 
-Zgodnie z nazwą projektu, przetrenowaliśmy model na zestawie MNIST[^3]. Podczas wstępnych testów napotkaliśmy kilka problemów polegających na różnicach między zestawem uzytym do treningu a danymi, które model otrzymywał podczas testowania.
+Zgodnie z nazwą projektu, przetrenowaliśmy model na zestawie MNIST[^4]. Podczas wstępnych testów napotkaliśmy kilka problemów polegających na różnicach między zestawem uzytym do treningu a danymi, które model otrzymywał podczas testowania.
 
 Pierwszym z nich była odwrócona paleta kolorów: zestaw MNIST zawiera obrazy cyfr narysowanych białym kolorem na czarnym tle, natomiast kanwa w naszym interfejsie stosowała odwrotną kolorystykę. Powodowało to zadowalającą dokładność modelu podczas treningu oraz słabą dokładność podczas testowania go w aplikacji. Rozwiązanie było proste - wystarczyło przetworzyć obrazek pobierany od użytkownika, odwracając na nim kolory.
 
-Drugi problem był nieco bardziej skomplikowany. Obszar do rysowania dany użytkownikowi pozwalał mu na rysowanie cyfr dowolnej wielkości i w dowolnym miejscu (małe, duże, bliżej któregoś rogu kanwy etc.), co zmniejszało dokładność modelu(zestaw MNIST posiada cyfry o podobnej do siebie wielkości). Na szczęście członek naszego koła, Vitalii Morskyi przygotował wcześniej rozwiązanie - funkcja `prepare_image()` z repozytorium *handwritten-digits*[^4] dostosowuje obrazek do formatu bardziej przypominającego ten z zestawu treningowego naszego modelu. funkcję tą należało zastosować zarówno przy klasyfikacji, jak i przy treningu - ustandaryzowało to dane treningowe, co zwiększyło dokładność modelu.
+Drugi problem był nieco bardziej skomplikowany. Obszar do rysowania dany użytkownikowi pozwalał mu na rysowanie cyfr dowolnej wielkości i w dowolnym miejscu (małe, duże, bliżej któregoś rogu kanwy etc.), co zmniejszało dokładność modelu(zestaw MNIST posiada cyfry o podobnej do siebie wielkości). Na szczęście członek naszego koła, Vitalii Morskyi przygotował wcześniej rozwiązanie - funkcja `prepare_image()` z repozytorium *handwritten-digits*[^5] dostosowuje obrazek do formatu bardziej przypominającego ten z zestawu treningowego naszego modelu. funkcję tą należało zastosować zarówno przy klasyfikacji, jak i przy treningu - ustandaryzowało to dane treningowe, co zwiększyło dokładność modelu.
 
 # Interfejs
 Celem interfejsu było proste pokazanie wyników naszego modelu. W tym celu postawiliśmy na szybki w wykonaniu interfejs Gradio. Wykorzystanie takiej technologi pozwala nam w szybki i prosty sposób połączyć interfejs użytkownika z kodem w pythonie. Początkowy zarys projektu zakładał trzy podstawowe komponenty:
@@ -73,6 +85,7 @@ Klasyfikacja cyfr to dobry początek w świecie uczenia maszynowego: zbiór dany
 # Odnośniki
 
 [^1]: [Intuitively Understanding Convolutions for Deep Learning](https://towardsdatascience.com/intuitively-understanding-convolutions-for-deep-learning-1f6f42faee1)
+[^3]: [CNN | Introduction to Pooling Layer](https://www.geeksforgeeks.org/cnn-introduction-to-pooling-layer/)
 [^2]: [Image Kernels](https://setosa.io/ev/image-kernels/)
-[^3]: [MNIST-JPG](https://github.com/teavanist/MNIST-JPG)
-[^4]: [handwritten-digits](https://github.com/knmlprz/handwritten-digits)
+[^4]: [MNIST-JPG](https://github.com/teavanist/MNIST-JPG)
+[^5]: [handwritten-digits](https://github.com/knmlprz/handwritten-digits)
