@@ -59,7 +59,7 @@ Składa się ona z kilku wyróżniających się części:
 
 Źródło[^3] obrazka dokładniej tłumaczy pojęcie poolingu oraz podaje przykładowy kod wykorzystania go w Pythonie.
 
-- **Dropout**: Losowe zerowanie wartości z pewnym pradwopodobieństwem. Operacja ta utrudnia przeuczenie modelu m.in. w przypadku małego zestawu danych treningowych.
+- **Dropout**: Losowe zerowanie wartości z pewnym prawdopodobieństwem. Operacja ta utrudnia przeuczenie modelu m.in. w przypadku małego zestawu danych treningowych.
 - **Flatten**: Spłaszczenie danych do postaci jednowymiarowego wektora wartości.
 - **Funkcja log softmax**: Funkcja aktywacji.
 
