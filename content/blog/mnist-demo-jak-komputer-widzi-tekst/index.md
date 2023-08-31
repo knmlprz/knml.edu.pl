@@ -81,7 +81,7 @@ Celem interfejsu było proste pokazanie wyników naszego modelu. W tym celu post
 
 ![web_page_concept.png](web_page_concept.png)
 
-W dalszej części porzuciliśmy plan z wizualizacją sieci na rzecz prostszego interfejsu przystosowanego na urządzenia mobilne oraz zmieniliśmy technologię z Gradio na rzecz Streamlit z powodów błędów występujących przy tworzeniu kanwy.
+Ostatecznie porzuciliśmy plan wizualizacji sieci na rzecz prostszego interfejsu dostosowanego do urządzeń mobilnych oraz zmieniliśmy technologię z Gradio na Streamlit ze względu na błędy występujące podczas tworzenia kanwy.
 
 # Podsumowanie
 
