@@ -18,27 +18,31 @@ Nasze koło chętnie uczestniczy w wydarzeniach organizowanych na Politechnice R
 
 # Wykonanie
 
-Całą aplikację stworzyliśmy w Pythonie; jest jednym z najpopularniejszych języków używanych do analizy danych i uczenia maszynowego oraz z pomocą nieoficjalnych modułów pozawala na tworzenie prostych intefejsów.
+Całą aplikację stworzyliśmy w Pythonie. Jest on jednym z najpopularniejszych języków używanych do analizy danych i uczenia maszynowego oraz z pomocą nieoficjalnych modułów pozwala na tworzenie prostych intefejsów.
 
 Demo można podzielić na dwie części: model i interfejs.
 
 ## Model
 
-Postanowiliśmy użyć konwolucyjnej sieci neuronowej; same sieci neuronowe są popularnym wyborem przy problemie klasyfikacji cyfr, a konwolucja często ułatwia zadania związane z przetwarzaniem obrazów.
+Postanowiliśmy użyć konwolucyjnej sieci neuronowej, ponieważ same sieci neuronowe są popularnym wyborem przy problemie klasyfikacji cyfr, a konwolucja często ułatwia zadania związane z przetwarzaniem obrazów.
 
 ### Konwolucja
 
-Konwolucja polega na pewnego rodzaju kompresji informacji z kilku punktów(lub, jak w naszym przypadku, pikseli) za pomocą sumy ważonej:
+Konwolucja (lub inaczej splot) polega na pewnego rodzaju kompresji informacji z kilku punktów (lub, jak w naszym przypadku, pikseli) za pomocą sumy ważonej:
 
 ![Wizualizacja konwolucji dwuwymiarowej](https://miro.medium.com/v2/resize:fit:640/1*Zx-ZMLKab7VOCQTxdZ1OAw.gif)
 
-Artykuł[^1], z którego pochodzi powyższa animacja, świetnie opisuje cały koncept.
+Powyższa animacja pokazuje jądro konwolucji, które "przesuwa" się po dwuwymiarowej macierzy, mnoży wartości komórek przez wagi, sumuje je i zapisuje wynik w innym miejscu. Najczęściej skutkuje to macierzą mniejszą niż oryginał (choć zmiana parametrów konwolucji może wpłynąć na końcowy rozmiar).
 
-Konwolucji można użyć również do innych zastosowań niż uczenie maszynowe - przy użyciu odpowiedniej maski(tj. wag uzywanych podczas operacji sumy ważonej) można uzyskać filtr wykrywający krawędzie.
+Artykuł[^1], z którego pochodzi animacja, świetnie opisuje cały koncept.
+
+Podczas przeprowadzania konwolucji obraz traktuje się jako zbiór macierzy zawierających wartości kolorów dla odpowiednich pikseli - może to być na przykład zbiór macierzy wartości RGB lub macierz odcieni szarości.
+
+Konwolucji można użyć również do innych zastosowań niż uczenie maszynowe - przy użyciu odpowiedniej maski (tj. wag używanych podczas operacji sumy ważonej) można uzyskać filtr wykrywający krawędzie.
 
 ![Maska wykrywająca krawędzie w obrazie](convolution_outline.png)
 
-Demo[^2] ze strony *setosa.io* pozwala na eksperymentowanie z maskami konwolucyjnymi.
+Demo[^2] ze strony [setosa.io](https://setosa.io) pozwala na eksperymentowanie z maskami konwolucyjnymi.
 
 ### Implementacja
 
@@ -49,7 +53,7 @@ Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefinio
 Składa się ona z kilku wyróżniających się części:
 
 - **Warstwa konwolucyjna**: Przeprowadza konwolucję na podanych do niej danych.
-- **Funkcja ReLU**(**Re**ctified **L**inear **U**nit): Funkcja aktywacji zerująca liczby ujemne.
+- **Funkcja ReLU** (**Re**ctified **L**inear **U**nit): Funkcja aktywacji zerująca liczby ujemne.
 - **Max pooling**: Operacja kompresująca dane poprzez wybieranie największej wartości z obszaru pokrywanego przez jądro:
 ![max pooling](https://media.geeksforgeeks.org/wp-content/uploads/20190721025744/Screenshot-2019-07-21-at-2.57.13-AM.png)
 
@@ -61,17 +65,19 @@ Składa się ona z kilku wyróżniających się części:
 
 ### Trenowanie
 
-Zgodnie z nazwą projektu, przetrenowaliśmy model na zestawie MNIST[^4]. Podczas wstępnych testów napotkaliśmy kilka problemów polegających na różnicach między zestawem uzytym do treningu a danymi, które model otrzymywał podczas testowania.
+Zgodnie z nazwą projektu, przetrenowaliśmy model na zestawie MNIST[^4]. Podczas wstępnych testów napotkaliśmy kilka problemów polegających na różnicach między zestawem użytym do treningu, a danymi, które model otrzymywał podczas testowania.
 
-Pierwszym z nich była odwrócona paleta kolorów: zestaw MNIST zawiera obrazy cyfr narysowanych białym kolorem na czarnym tle, natomiast kanwa w naszym interfejsie stosowała odwrotną kolorystykę. Powodowało to zadowalającą dokładność modelu podczas treningu oraz słabą dokładność podczas testowania go w aplikacji. Rozwiązanie było proste - wystarczyło przetworzyć obrazek pobierany od użytkownika, odwracając na nim kolory.
+Pierwszym z nich była odwrócona paleta kolorów: zestaw MNIST zawiera obrazy cyfr narysowanych białym kolorem na czarnym tle, natomiast kanwa w naszym interfejsie stosowała odwrotną kolorystykę. Powodowało to zadowalającą dokładność modelu podczas treningu oraz niezadowalające wyniki podczas testowania go w aplikacji. Rozwiązanie było proste - wystarczyło przetworzyć obrazek pobierany od użytkownika, odwracając w nim kolory.
 
-Drugi problem był nieco bardziej skomplikowany. Obszar do rysowania dany użytkownikowi pozwalał mu na rysowanie cyfr dowolnej wielkości i w dowolnym miejscu (małe, duże, bliżej któregoś rogu kanwy etc.), co zmniejszało dokładność modelu(zestaw MNIST posiada cyfry o podobnej do siebie wielkości). Na szczęście członek naszego koła, Vitalii Morskyi przygotował wcześniej rozwiązanie - funkcja `prepare_image()` z repozytorium *handwritten-digits*[^5] dostosowuje obrazek do formatu bardziej przypominającego ten z zestawu treningowego naszego modelu. funkcję tą należało zastosować zarówno przy klasyfikacji, jak i przy treningu - ustandaryzowało to dane treningowe, co zwiększyło dokładność modelu.
+Drugi problem był nieco bardziej skomplikowany. Obszar do rysowania dany użytkownikowi pozwalał mu na rysowanie cyfr dowolnej wielkości i w dowolnym miejscu (małe, duże, bliżej któregoś rogu kanwy etc.), co zmniejszało dokładność modelu (zestaw MNIST posiada cyfry o podobnej do siebie wielkości). Na szczęście członek naszego koła, [Vitalii Morskyi](https://github.com/FrightenedFox) przygotował wcześniej rozwiązanie - funkcja `prepare_image()` z repozytorium *handwritten-digits*[^5] dostosowuje obrazek do formatu bardziej przypominającego ten z zestawu treningowego naszego modelu. funkcję tą należało zastosować zarówno przy klasyfikacji, jak i przy treningu - ustandaryzowało to dane treningowe, co zwiększyło dokładność modelu.
 
 # Interfejs
-Celem interfejsu było proste pokazanie wyników naszego modelu. W tym celu postawiliśmy na szybki w wykonaniu interfejs Gradio. Wykorzystanie takiej technologi pozwala nam w szybki i prosty sposób połączyć interfejs użytkownika z kodem w pythonie. Początkowy zarys projektu zakładał trzy podstawowe komponenty:
-- Kanwę, po której użytkownik może rysować wraz z przyciskami zatwierdzania
-- Wyświetlanie przewidywania 
-- Wyświetlanie wizualizacji sieci neuronowej
+
+Celem interfejsu było proste pokazanie wyników naszego modelu. W tym celu postawiliśmy na szybki w wykonaniu interfejs Gradio. Wykorzystanie takiej technologii pozwala nam w szybki i prosty sposób połączyć interfejs użytkownika z kodem w Pythonie. Początkowy zarys projektu zakładał trzy podstawowe komponenty:
+
+- Kanwę, po której użytkownik może rysować wraz z przyciskami zatwierdzania,
+- Wyświetlanie prognozy,
+- Wyświetlanie wizualizacji sieci neuronowej.
 
 ![web_page_concept.png](web_page_concept.png)
 
