@@ -87,7 +87,7 @@ Ostatecznie porzuciliśmy plan wizualizacji sieci na rzecz prostszego interfejsu
 
 Klasyfikacja cyfr to dobry początek w świecie uczenia maszynowego: zbiór danych jest łatwo dostępny, a samo zadanie można wykonać przy pomocy różnych modeli - poza sieciami neuronowymi(z użyciem konwolucji lub bez) częstym rozwiązaniem jest również użycie maszyny wektorów nośnych. Ze względu na popularność problemu klasyfikacji cyfr, łatwo można znaleźć inne modele dające nawet większą dokładność oraz sposoby na zwiększenie jej przez przekształcanie zbioru danych.
 
-
+Dzięki możliwościom frameworku Streamlit, przygotowane przez nas demo jest dostępne online: https://knmlprz-mnist.streamlit.app/ (czasami uruchomienie aplikacji może zająć kilka - kilkanaście minut).
 
 # Odnośniki
 
