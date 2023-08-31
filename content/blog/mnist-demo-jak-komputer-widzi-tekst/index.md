@@ -36,7 +36,7 @@ Powyższa animacja pokazuje jądro konwolucji, które "przesuwa" się po dwuwymi
 
 Artykuł[^1], z którego pochodzi animacja, świetnie opisuje cały koncept.
 
-Podczas przeprowadzania konwolucji obraz traktuje się jako zbiór macierzy zawierających wartości kolorów dla odpowiednich pikseli - może to być na przykład zbiór macierzy wartości RGB lub macierz odcieni szarości.
+Podczas przeprowadzania konwolucji obraz traktuje się jak macierz, której komórkami są kolorowe piksele. Obraz można zapisać jako trzy macierze RGB (jedna dla każdego z kanałów) lub macierz odcieni szarości.
 
 Konwolucji można użyć również do innych zastosowań niż uczenie maszynowe - przy użyciu odpowiedniej maski (tj. wag używanych podczas operacji sumy ważonej) można uzyskać filtr wykrywający krawędzie.
 
