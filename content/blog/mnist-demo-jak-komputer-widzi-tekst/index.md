@@ -18,7 +18,7 @@ Nasze koło chętnie uczestniczy w wydarzeniach organizowanych na Politechnice R
 
 # Wykonanie
 
-Całą aplikację stworzyliśmy w Pythonie. Jest on jednym z najpopularniejszych języków używanych do analizy danych i uczenia maszynowego oraz z pomocą nieoficjalnych modułów pozwala na tworzenie prostych intefejsów.
+Całą aplikację stworzyliśmy w języku Python. Jest to jeden z najpopularniejszych języków używanych do analizy danych oraz uczenia maszynowego. Dodatkowo, dzięki wsparciu modułów takich jak Streamlit czy Gradio, możliwe jest tworzenie prostych interfejsów.
 
 Demo można podzielić na dwie części: model i interfejs.
 
