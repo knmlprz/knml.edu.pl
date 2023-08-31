@@ -18,7 +18,7 @@ Nasze koło chętnie uczestniczy w wydarzeniach organizowanych na Politechnice R
 
 # Wykonanie
 
-Całą aplikację stworzyliśmy w języku Python. Jest to jeden z najpopularniejszych języków używanych do analizy danych oraz uczenia maszynowego. Dodatkowo, dzięki wsparciu modułów takich jak Streamlit czy Gradio, możliwe jest tworzenie prostych interfejsów.
+Całą aplikację stworzyliśmy w Pythonie. Jest on jednym z najpopularniejszych języków używanych do analizy danych i uczenia maszynowego oraz z pomocą nieoficjalnych modułów pozwala na tworzenie prostych intefejsów.
 
 Demo można podzielić na dwie części: model i interfejs.
 
@@ -36,7 +36,7 @@ Powyższa animacja pokazuje jądro konwolucji, które "przesuwa" się po dwuwymi
 
 Artykuł[^1], z którego pochodzi animacja, świetnie opisuje cały koncept.
 
-Podczas przeprowadzania konwolucji obraz traktuje się jak macierz, której komórkami są kolorowe piksele. Obraz można zapisać jako trzy macierze RGB (jedna dla każdego z kanałów) lub macierz odcieni szarości.
+Podczas przeprowadzania konwolucji obraz traktuje się jako zbiór macierzy zawierających wartości kolorów dla odpowiednich pikseli - może to być na przykład zbiór macierzy wartości RGB lub macierz odcieni szarości.
 
 Konwolucji można użyć również do innych zastosowań niż uczenie maszynowe - przy użyciu odpowiedniej maski (tj. wag używanych podczas operacji sumy ważonej) można uzyskać filtr wykrywający krawędzie.
 
@@ -46,7 +46,7 @@ Demo[^2] ze strony [setosa.io](https://setosa.io) pozwala na eksperymentowanie z
 
 ### Implementacja
 
-Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefiniowane warstwy neuronów oraz konwolucyjne, co ułatwiło zbudowanie architektury.
+Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefiniowane wastwy neuronów oraz konwolucyjne, co ułatwiło zbudowanie architektury.
 
 ![Model](mnist-demo-model-diagram.svg)
 
@@ -86,6 +86,7 @@ Ostatecznie porzuciliśmy plan wizualizacji sieci na rzecz prostszego interfejsu
 # Podsumowanie
 
 Klasyfikacja cyfr to dobry początek w świecie uczenia maszynowego: zbiór danych jest łatwo dostępny, a samo zadanie można wykonać przy pomocy różnych modeli - poza sieciami neuronowymi(z użyciem konwolucji lub bez) częstym rozwiązaniem jest również użycie maszyny wektorów nośnych. Ze względu na popularność problemu klasyfikacji cyfr, łatwo można znaleźć inne modele dające nawet większą dokładność oraz sposoby na zwiększenie jej przez przekształcanie zbioru danych.
+
 
 
 # Odnośniki
