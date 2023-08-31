@@ -1,6 +1,6 @@
 ---
 title: "MNIST Demo - jak komputer widzi tekst"
-date: 2023-08-24T12:00:00+02:00
+date: 2023-08-31T12:00:00+02:00
 draft: false
 github_link: "https://github.com/knmlprz/"
 author: "Krystian Urban"
