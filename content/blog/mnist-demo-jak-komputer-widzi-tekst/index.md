@@ -55,7 +55,7 @@ Składa się ona z kilku wyróżniających się części:
 - **Warstwa konwolucyjna**: Przeprowadza konwolucję na podanych do niej danych.
 - **Funkcja ReLU** (**Re**ctified **L**inear **U**nit): Funkcja aktywacji zerująca liczby ujemne.
 - **Max pooling**: Operacja kompresująca dane poprzez wybieranie największej wartości z obszaru pokrywanego przez jądro:
-![max pooling](https://media.geeksforgeeks.org/wp-content/uploads/20190721025744/Screenshot-2019-07-21-at-2.57.13-AM.png)
+  ![max pooling](https://media.geeksforgeeks.org/wp-content/uploads/20190721025744/Screenshot-2019-07-21-at-2.57.13-AM.png)
 
 Źródło[^3] obrazka dokładniej tłumaczy pojęcie poolingu oraz podaje przykładowy kod wykorzystania go w Pythonie.
 
@@ -69,7 +69,7 @@ Zgodnie z nazwą projektu, przetrenowaliśmy model na zestawie MNIST[^4]. Podcza
 
 Pierwszym z nich była odwrócona paleta kolorów: zestaw MNIST zawiera obrazy cyfr narysowanych białym kolorem na czarnym tle, natomiast kanwa w naszym interfejsie stosowała odwrotną kolorystykę. Powodowało to zadowalającą dokładność modelu podczas treningu oraz niezadowalające wyniki podczas testowania go w aplikacji. Rozwiązanie było proste - wystarczyło przetworzyć obrazek pobierany od użytkownika, odwracając w nim kolory.
 
-Drugi problem był nieco bardziej skomplikowany. Obszar do rysowania dany użytkownikowi pozwalał mu na rysowanie cyfr dowolnej wielkości i w dowolnym miejscu (małe, duże, bliżej któregoś rogu kanwy etc.), co zmniejszało dokładność modelu (zestaw MNIST posiada cyfry o podobnej do siebie wielkości). Na szczęście członek naszego koła, [Vitalii Morskyi](https://github.com/FrightenedFox) przygotował wcześniej rozwiązanie - funkcja `prepare_image()` z repozytorium *handwritten-digits*[^5] dostosowuje obrazek do formatu bardziej przypominającego ten z zestawu treningowego naszego modelu. Funkcję tę należało zastosować zarówno przy klasyfikacji, jak i przy treningu - ustandaryzowało to dane treningowe, co zwiększyło dokładność modelu.
+Drugi problem był nieco bardziej skomplikowany. Obszar do rysowania dany użytkownikowi pozwalał mu na rysowanie cyfr dowolnej wielkości i w dowolnym miejscu (małe, duże, bliżej któregoś rogu kanwy etc.), co zmniejszało dokładność modelu (zestaw MNIST posiada cyfry o podobnej do siebie wielkości). Na szczęście członek naszego koła, [Vitalii Morskyi](https://github.com/FrightenedFox) przygotował wcześniej rozwiązanie - funkcja `prepare_image()` z repozytorium _handwritten-digits_[^5] dostosowuje obrazek do formatu bardziej przypominającego ten z zestawu treningowego naszego modelu. Funkcję tę należało zastosować zarówno przy klasyfikacji, jak i przy treningu - ustandaryzowało to dane treningowe, co zwiększyło dokładność modelu.
 
 # Interfejs
 
