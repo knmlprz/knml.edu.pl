@@ -46,7 +46,7 @@ Demo[^2] ze strony [setosa.io](https://setosa.io) pozwala na eksperymentowanie z
 
 ### Implementacja
 
-Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefiniowane wastwy neuronów oraz konwolucyjne, co ułatwiło zbudowanie architektury.
+Do zaimplementowania modelu użyliśmy biblioteki PyTorch - posiada ona zdefiniowane warstwy neuronów oraz konwolucyjne, co ułatwiło zbudowanie architektury.
 
 ![Model](mnist-demo-model-diagram.svg)
 
