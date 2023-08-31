@@ -1,0 +1,6 @@
+[submodule "themes/hugo-profile-knml.edu.pl"]
+	path = themes/hugo-profile-knml.edu.pl
+	url = https://github.com/knmlprz/hugo-theme-knml.edu.pl
+[submodule "themes/knml.edu.pl"]
+	path = themes/knml.edu.pl
+	url = https://github.com/knmlprz/hugo-theme-knml.edu.pl
