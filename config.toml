@@ -102,6 +102,16 @@ Jeśli jesteś zainteresowany, dołącz do nas na naszym Discordzie!
     title = "Wyróżnienie na BITEHack 2023 | AI"
     content = "Analiza zużycia energii w budynkach; wyróżnienie na BITEHack 2023 w kategorii AI"
 
+[[params.achievements.items]]
+    title = "Nagroda w KoKoN 2022 | Cyfryzacja"
+    content = "LARKFiD (Open Gov Data oraz stworzenie innowacyjnych aplikacji z wykorzystaniem technologii GPU)"
+    url = "https://wmifs.prz.edu.pl/aktualnosci/pierwsza-nagroda-dla-kola-naukowego-machine-learning-363.html"
+
+[[params.achievements.items]]
+    title = "Wyróżnienie w StRuNa 2021"
+    content = "Debiut Roku"
+    url = "https://wmifs.prz.edu.pl/aktualnosci/kolo-naukowe-machine-learning-wyroznione-w-kategorii-debiut-roku-2021-298.html"
+
 [params.projects]
     title = "Projekty"
     enable = true
