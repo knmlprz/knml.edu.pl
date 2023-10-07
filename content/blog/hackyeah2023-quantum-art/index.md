@@ -8,6 +8,8 @@ tags:
   - python
   - art
   - quantum computing
+  - hackathon
+  - hackyeah
 image: /blog/hackyeah2023-quantum-art/attachment/cover.png
 ---
 
