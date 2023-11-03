@@ -20,6 +20,13 @@ enableRobotsTXT = true
     url = "/blog"
     weight = 1
 
+[[Menus.main]]
+    identifier = "wiki"
+    name = "Wiki"
+    title = "Wiki"
+    url = "https://wiki.knml.edu.pl"
+    weight = 1
+
 [params]
     title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej"
     description = "Strona główna Koła Naukowego Machine Learning"
