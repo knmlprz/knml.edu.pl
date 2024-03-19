@@ -59,7 +59,7 @@ enableRobotsTXT = true
     title = "Koła naukowego Machine Learning"
     subtitle = "Politechniki Rzeszowskiej"
     content = "Wykorzystujemy uczenie maszynowe do rozwiązywania niecodziennych problemów. Zapraszamy do współpracy!"
-    image = "/images/hero.svg"
+    image = "logo_minified.svg"
 
 [params.hero.bottomImage]
     enable = false
