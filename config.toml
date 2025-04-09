@@ -52,10 +52,12 @@ enableRobotsTXT = true
 
 [params.stickySidebar]
     socialDisable = true
+
 [params.navbar]
     align = "ms-auto"
     brandName = "KNML"
     disableSearch = true
+    showBrandLogo = false
 
 [params.navbar.menus]
     disableAbout = false
@@ -71,7 +73,7 @@ enableRobotsTXT = true
     title = "Koła naukowego Machine Learning"
     subtitle = "Politechniki Rzeszowskiej"
     content = "Wykorzystujemy uczenie maszynowe do rozwiązywania niecodziennych problemów. Zapraszamy do współpracy!"
-    image = "logo_minified.svg"
+    image = "/logo_minified.svg"
 
 [params.hero.bottomImage]
     enable = false
