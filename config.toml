@@ -50,6 +50,8 @@ enableRobotsTXT = true
     lineHeight = 1.5
     textAlign = "left"
 
+[params.stickySidebar]
+    socialDisable = true
 [params.navbar]
     align = "ms-auto"
     brandName = "KNML"
