@@ -14,7 +14,7 @@ Konferencja stanowi przestrzeń do wymiany wiedzy, prezentacji innowacyjnych pro
 
 **Miejsce:** Politechnika Rzeszowska budynek V Sale V.17 i V. 18
 
-Do uczestnictwa zapraszamy wszystkich. Aby wziąć udział jako prelegent lub osoba słuchająca prosimy o wypełnienie [formularza](https://forms.office.com/Pages/DesignPageV2.aspx?subpage=design&FormId=Ny4a2I7R7EKIOZot4VhuDBlMqJOG2K9Hp3sm6lQBchhUMFFQTThRSlBJVEs4WjNQOUo5WTBXRzFRTS4u&Token=fb29525e1a0c4966bc51e00a41754fe6)
+Do uczestnictwa zapraszamy wszystkich. Aby wziąć udział jako prelegent lub osoba słuchająca prosimy o wypełnienie [formularza](https://forms.office.com/e/Dj0AsHCM61)
 
 ## Plan wydarzenia
 Dokładny harmonogram i lista prezentacji zostanie udostępniona w dniu 26.05.
