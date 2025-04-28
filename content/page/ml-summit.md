@@ -29,7 +29,6 @@ Dokładny harmonogram i lista prezentacji zostanie udostępniona w dniu 26.05.
 
 **14:00** - zakończenie wydarzenia
 
-Regulamin wydarzenia będzie dostępny wkrótce.
-
+Regulamin wydarzenia jest dostępny [tutaj](/page/ml-summit/regulaminMlSummit2025.pdf)
 ## Kontakt
 W razie pytań prosimy o kontakt poprzez adres contact.knml.prz@gmail.com
