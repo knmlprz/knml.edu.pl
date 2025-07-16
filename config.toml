@@ -26,13 +26,6 @@ enableRobotsTXT = true
     url = "https://wiki.knml.edu.pl"
     weight = 1
 
-[[Menus.main]]
-    identifier = "ML Summit"
-    name = "ML Summit"
-    title = "ML Summit"
-    url = "/page/ml-summit"
-    weight = 1
-
 [params]
     title = "Koło Naukowe Machine Learning Politechniki Rzeszowskiej"
     description = "Strona główna Koła Naukowego Machine Learning"
