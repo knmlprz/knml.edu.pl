@@ -86,6 +86,10 @@ enableRobotsTXT = true
     icon = "fab fa-facebook"
     url = "https://www.facebook.com/knmlprz"
 
+[[params.hero.socialLinks.fontAwesomeIcons]]
+    icon = "fab fa-discord"
+    url = "https://discord.gg/ZYJdXXgE6H"
+
 
 [params.about]
     enable = true
@@ -97,10 +101,12 @@ i sieciami neuronowymi. W naszym zespole są głównie studenci Inżynierii i
 analizy danych, jednak każdy jest mile widziany.
 
 Naszym celem jest rozwijanie umiejętności w zakresie uczenia maszynowego,
-a także wykorzystanie ich w praktyce. W tym celu uczestniczymy w konkursach
-i hackatonach, a także organizujemy własne wydarzenia.
+a także wykorzystanie ich w praktyce. Poza ML tworzymy też oprogramowanie
+i elektronikę, m.in. systemy wykrywania dronów i algorytmy jazdy autonomicznej.
+W tym celu uczestniczymy w konkursach i hackatonach, a także organizujemy
+własne wydarzenia.
 
-Jeśli jesteś zainteresowany, dołącz do nas na naszym Discordzie!
+Jeśli jesteś zainteresowany, dołącz do nas na naszym [Discordzie](https://discord.gg/ZYJdXXgE6H)!
 """
 
 [params.partners]
@@ -115,6 +121,21 @@ Jeśli jesteś zainteresowany, dołącz do nas na naszym Discordzie!
 [params.achievements]
     enable = true
     title = "Nasze osiągnięcia"
+
+[[params.achievements.items]]
+    title = "I miejsce na SpaceShield Hack 2026 | Space"
+    content = "Analiza dostępności transportu publicznego w Stalowej Woli z wykorzystaniem danych satelitarnych i geoprzestrzennych; 10 000 zł oraz 20 000 zł w usługach CloudFerro"
+    url = "https://w.prz.edu.pl/uczelnia/aktualnosci/kolejny-sukces-kola-naukowego-machine-learning-3023.html"
+
+[[params.achievements.items]]
+    title = "Nagroda Podkarpackiego Centrum Innowacji 2026"
+    content = "Rozproszona sieć czujników wykrywających drony; nagroda w konkursie PCI dla kół naukowych na najlepsze projekty innowacyjne"
+    url = "https://prz.edu.pl/uczelnia/aktualnosci/pci-nagrodzilo-innowacyjne-projekty-kol-naukowych-2997.html"
+
+[[params.achievements.items]]
+    title = "I miejsce na EDTH Detect & Defend 2026"
+    content = "Inteligentna sieć czujników (m.in. akustycznych) w architekturze mesh do wykrywania dronów; zwycięstwo w międzynarodowym hackathonie Euro Defense Tech Hackathon w Rzeszowie"
+    url = "https://prz.edu.pl/uczelnia/aktualnosci/sukces-studentow-kola-naukowego-machine-learninga-2978.html"
 
 [[params.achievements.items]]
     title = "II miejsce na BITEHack 2022 | AI"
