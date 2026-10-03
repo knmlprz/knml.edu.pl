@@ -103,6 +103,15 @@ i hackatonach, a także organizujemy własne wydarzenia.
 Jeśli jesteś zainteresowany, dołącz do nas na naszym Discordzie!
 """
 
+[params.partners]
+    enable = true
+    title = "Partnerzy"
+
+[[params.partners.items]]
+    name = "Miasto Rzeszów"
+    logo = "/images/logo_rz_pl.jpg"
+    url = "https://www.erzeszow.pl"
+
 [params.achievements]
     enable = true
     title = "Nasze osiągnięcia"
@@ -169,3 +178,5 @@ Jeśli jesteś zainteresowany, dołącz do nas na naszym Discordzie!
     article = "Jan 2, 2006"
     articleList = "Jan 2, 2006"
     articleRecent = "Jan 2, 2006"
+
+
