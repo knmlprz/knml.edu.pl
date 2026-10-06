@@ -32,7 +32,7 @@ enableRobotsTXT = true
     favicon = "/fav.png"
     useBootstrapCDN = false
     animate = true
-    
+
 [params.theme]
     defaultTheme = "light"
     disableThemeToggle = true
@@ -94,7 +94,7 @@ enableRobotsTXT = true
 [params.about]
     enable = true
     title = "O nas"
-    image = "/images/profile.jpeg"
+    image = "/images/hackyeach2026.jpeg"
     content = """
 Jesteśmy grupą studentów zafascynowanych analizą danych, uczeniem maszynowym
 i sieciami neuronowymi. W naszym zespole są głównie studenci Inżynierii i
@@ -199,5 +199,3 @@ Jeśli jesteś zainteresowany, dołącz do nas na naszym [Discordzie](https://di
     article = "Jan 2, 2006"
     articleList = "Jan 2, 2006"
     articleRecent = "Jan 2, 2006"
-
-
