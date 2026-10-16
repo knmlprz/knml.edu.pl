@@ -1,0 +1,16 @@
+---
+// Etykieta: accent (lawenda) dla głównej kategorii, neutral dla pozostałych.
+interface Props {
+  variant?: 'accent' | 'neutral';
+}
+
+const { variant = 'neutral' } = Astro.props;
+---
+
+<span class:list={['tag', `tag--${variant}`]}><slot /></span>
+
+<style>
+  .tag { display: inline-flex; font-size: 13px; padding: 5px 12px; border-radius: var(--radius-pill); }
+  .tag--accent { background: var(--color-accent); color: var(--ink); font-weight: 600; }
+  .tag--neutral { background: var(--tag-bg); color: var(--ink-3); }
+</style>

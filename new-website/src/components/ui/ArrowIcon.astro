@@ -1,0 +1,10 @@
+---
+// Strzałka „→” używana w przyciskach i linkach „więcej”. Rozmiar ustawia rodzic.
+interface Props {
+  strokeWidth?: number;
+}
+
+const { strokeWidth = 1.8 } = Astro.props;
+---
+
+<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width={strokeWidth}><path d="M3 8h10M9 4l4 4-4 4" /></svg>

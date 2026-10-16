@@ -1,18 +1,23 @@
 ---
 // Link wyglądający jak przycisk. Warianty z design/index.html.
 // highlight (limonka) i ghostDark tylko na ciemnym tle — patrz CLAUDE.md.
+import ArrowIcon from './ArrowIcon.astro';
+
 interface Props {
   href: string;
   variant?: 'primary' | 'outline' | 'highlight' | 'ghostDark';
   size?: 'md' | 'sm';
+  /** Strzałka w jasnym kółku po prawej (główne CTA w hero). */
+  withIcon?: boolean;
   class?: string;
 }
 
-const { href, variant = 'primary', size = 'md', class: className } = Astro.props;
+const { href, variant = 'primary', size = 'md', withIcon = false, class: className } = Astro.props;
 ---
 
-<a class:list={['btn', `btn--${variant}`, { 'btn--sm': size === 'sm' }, className]} href={href}>
+<a class:list={['btn', `btn--${variant}`, { 'btn--sm': size === 'sm', 'btn--with-icon': withIcon }, className]} href={href}>
   <slot />
+  {withIcon && <span class="btn__icon"><ArrowIcon /></span>}
 </a>
 
 <style>
@@ -33,4 +38,6 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
   .btn--ghostDark { border: 1.5px solid color-mix(in srgb, var(--bg) 60%, transparent); color: var(--bg); }
   .btn--ghostDark:hover { background: color-mix(in srgb, var(--on-brand) 10%, transparent); }
   .btn--sm { height: 46px; padding: 0 22px; font-size: 15px; }
+  .btn--with-icon { padding: 0 8px 0 26px; gap: 14px; }
+  .btn__icon { width: 40px; height: 40px; border-radius: 50%; background: color-mix(in srgb, var(--on-brand) 14%, transparent); display: inline-flex; align-items: center; justify-content: center; }
 </style>

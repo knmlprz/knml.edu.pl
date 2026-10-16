@@ -1,0 +1,18 @@
+---
+// Link „Wszystkie wpisy →” pod nagłówkiem sekcji.
+import ArrowIcon from './ArrowIcon.astro';
+
+interface Props {
+  href: string;
+}
+
+const { href } = Astro.props;
+---
+
+<a class="more-link" href={href}><slot /> <ArrowIcon strokeWidth={1.6} /></a>
+
+<style>
+  .more-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; font-weight: 500; color: var(--ink-3); text-decoration: none; }
+  .more-link:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+  .more-link :global(svg) { width: 16px; height: 16px; }
+</style>
