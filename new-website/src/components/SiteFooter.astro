@@ -1,0 +1,88 @@
+---
+import { Image } from 'astro:assets';
+import KnmlLogo from './KnmlLogo.astro';
+import { cityPartner, email, footerNav, linktreeUrl, socials, wikiUrl } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer id="kontakt" class="site-footer on-dark">
+  <div class="container site-footer__in">
+    <div class="site-footer__top">
+      <div class="footer-brand">
+        <div class="footer-brand__logo">
+          <KnmlLogo />
+          <span class="footer-brand__name"><strong>KNML</strong><small>Politechnika Rzeszowska</small></span>
+        </div>
+        <p>Koło Naukowe Machine Learning działa przy Wydziale Matematyki i Fizyki Stosowanej PRz. Wykorzystujemy uczenie maszynowe do rozwiązywania niecodziennych problemów.</p>
+        <div class="socials">
+          {socials.map((social) => <a href={social.href}>{social.label}</a>)}
+        </div>
+        <a class="footer-mail" href={`mailto:${email}`}>{email}</a>
+      </div>
+
+      <div class="footer-cols">
+        <nav class="footer-col" aria-label="Stopka">
+          <span class="footer-col__title">Strona</span>
+          {footerNav.map((link) => <a href={link.href}>{link.label}</a>)}
+        </nav>
+        <div class="footer-col">
+          <span class="footer-col__title">Zasoby</span>
+          <a href={wikiUrl}>Wiki ↗</a>
+          <a href={linktreeUrl}>Linktree ↗</a>
+          <a href="#">[Statut i regulaminy]</a>
+          <a href="#">[Polityka prywatności]</a>
+        </div>
+      </div>
+
+      <div class="footer-orgs">
+        <span class="footer-orgs__label">Działamy przy</span>
+        <div class="org-tile"><span class="placeholder">[LOGO PRz]</span></div>
+        <span class="footer-orgs__label">Wspierają nas</span>
+        <div class="org-grid">
+          <div class="org-tile"><span class="placeholder">[SPONSOR]</span></div>
+          <a class="org-tile" href={cityPartner.href} aria-label={cityPartner.name}>
+            <Image src={cityPartner.logo} alt={cityPartner.logoAlt} height={80} />
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="site-footer__bottom">
+      <span>© {year} Koło Naukowe Machine Learning Politechniki Rzeszowskiej</span>
+      <a href="#main">Do góry ↑</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--color-brand); color: var(--on-dark); }
+  .site-footer__in { padding-block: 72px 32px; display: flex; flex-direction: column; gap: 56px; }
+  .site-footer__top { display: flex; flex-wrap: wrap; gap: 48px clamp(32px, 5vw, 80px); justify-content: space-between; }
+  .footer-brand { flex: 2 1 340px; max-width: 440px; display: flex; flex-direction: column; gap: 20px; }
+  .footer-brand__logo { display: flex; align-items: center; gap: 14px; }
+  .footer-brand__logo :global(svg) { width: 48px; height: 48px; }
+  .footer-brand__name { display: flex; flex-direction: column; gap: 2px; }
+  .footer-brand__name strong { font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+  .footer-brand__name small { font-size: 13px; color: var(--on-dark-caption); }
+  .footer-brand p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--on-dark-2); }
+  .socials { display: flex; flex-wrap: wrap; gap: 8px; }
+  .socials a { display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border: 1px solid var(--dark-line); border-radius: var(--radius-pill); font-size: 14px; color: var(--on-dark-link); text-decoration: none; transition: border-color .15s, color .15s; }
+  .socials a:hover { border-color: var(--color-accent); color: var(--on-brand); }
+  .footer-mail { font-size: 16px; font-weight: 500; text-underline-offset: 4px; }
+  .footer-cols { flex: 1 1 340px; display: flex; flex-wrap: wrap; gap: 32px 56px; }
+  .footer-col { display: flex; flex-direction: column; gap: 12px; }
+  .footer-col__title { font-size: 13px; color: var(--on-dark-3); margin-bottom: 4px; }
+  .footer-col a { color: var(--color-accent); font-size: 15px; text-decoration: none; }
+  .footer-col a:hover { color: var(--on-brand); }
+  .footer-orgs { flex: 1 1 300px; max-width: 360px; display: flex; flex-direction: column; gap: 16px; }
+  .footer-orgs__label { font-size: 13px; color: var(--on-dark-3); }
+  .footer-orgs__label + .footer-orgs__label { margin-top: 8px; }
+  .org-tile { height: 84px; background: var(--bg); border-radius: 16px; display: flex; align-items: center; justify-content: center; padding: 12px; }
+  .org-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .org-grid .org-tile { height: 72px; border-radius: 14px; }
+  .org-tile img { max-height: 40px; width: auto; mix-blend-mode: multiply; }
+  .org-tile .placeholder { padding: 8px 10px; font-size: 12px; }
+  .site-footer__bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 24px; border-top: 1px solid var(--dark-line); font-size: 13px; color: var(--on-dark-3); }
+  .site-footer__bottom a { color: var(--on-dark-3); text-decoration: none; }
+  .site-footer__bottom a:hover { color: var(--on-brand); }
+</style>

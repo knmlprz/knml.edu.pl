@@ -1,0 +1,63 @@
+---
+// Logo z oryginalnego pliku SVG (geometrii nie zmieniamy). Kolor bierze z `color` rodzica.
+import LogoSvg from '../assets/knml-logo.svg';
+
+interface Props {
+  /** Kolejne pojawianie się elementów i pulsowanie węzłów (tylko w hero). */
+  animated?: boolean;
+  /** Tekst dla czytników ekranu. Bez niego logo jest ozdobą (aria-hidden). */
+  label?: string;
+  class?: string;
+}
+
+const { animated = false, label, class: className } = Astro.props;
+---
+
+<LogoSvg
+  class:list={[className, { 'knml-logo--animated': animated }]}
+  fill="currentColor"
+  fill-rule="evenodd"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+/>
+
+<style is:global>
+  /* is:global, bo elementy wewnątrz SVG pochodzą z pliku i nie dostają klas zakresu Astro.
+     Klasy outer_circle, edge_*, node_* są w src/assets/knml-logo.svg. */
+  .knml-logo--animated .outer_circle { opacity: 0; animation: knml-logo-fade .9s ease forwards; }
+
+  .knml-logo--animated path[class^='edge_'],
+  .knml-logo--animated g[class^='edge_'] > path {
+    opacity: 0; transform-box: fill-box; transform-origin: center;
+    animation: knml-logo-in .9s cubic-bezier(.2,.7,.2,1) forwards;
+    animation-delay: calc(.35s + var(--delay));
+  }
+  .knml-logo--animated .edge_1_4 { --delay: 0s; }
+  .knml-logo--animated .edge_1_2 { --delay: .04s; }
+  .knml-logo--animated .edge_2_3 { --delay: .1s; }
+  .knml-logo--animated .edge_3_4 { --delay: .12s; }
+  .knml-logo--animated .edge_2_5 { --delay: .18s; }
+  .knml-logo--animated .edge_4_5 { --delay: .2s; }
+
+  .knml-logo--animated [class^='node_'] {
+    opacity: 0; transform-box: fill-box; transform-origin: center;
+    animation: knml-logo-in .9s cubic-bezier(.2,.7,.2,1) forwards, knml-logo-pulse 2.8s ease-in-out infinite;
+  }
+  .knml-logo--animated .node_1 { animation-delay: .8s, 1.8s; }
+  .knml-logo--animated .node_3 { animation-delay: .9s, 2.05s; }
+  .knml-logo--animated .node_5 { animation-delay: 1s, 2.3s; }
+  .knml-logo--animated .node_2 { animation-delay: 1.1s, 2.55s; }
+  .knml-logo--animated .node_4 { animation-delay: 1.2s, 2.8s; }
+
+  @keyframes knml-logo-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes knml-logo-in { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
+  @keyframes knml-logo-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .knml-logo--animated .outer_circle,
+    .knml-logo--animated path[class^='edge_'],
+    .knml-logo--animated g[class^='edge_'] > path,
+    .knml-logo--animated [class^='node_'] { animation: none; opacity: 1; }
+  }
+</style>

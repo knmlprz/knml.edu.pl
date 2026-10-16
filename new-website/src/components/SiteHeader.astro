@@ -1,0 +1,74 @@
+---
+import KnmlLogo from './KnmlLogo.astro';
+import Button from './ui/Button.astro';
+import { discordUrl, mainNav, wikiUrl } from '../data/site';
+---
+
+<header class="site-header">
+  <div class="container site-header__in">
+    <a class="brand" href="/" aria-label="KNML — strona główna">
+      <KnmlLogo />
+      <span class="brand__name">KNML</span>
+    </a>
+    <nav class="pill-nav" aria-label="Główna nawigacja">
+      {mainNav.map((link) => <a href={link.href}>{link.label}</a>)}
+      <a href={wikiUrl}>Wiki ↗</a>
+    </nav>
+    <div class="site-header__actions">
+      <Button class="header-cta" href={discordUrl} size="sm">Dołącz</Button>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Otwórz menu">
+        Menu
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16M4 15h16" /></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobilne" hidden>
+    {mainNav.map((link) => <a href={link.href}>{link.label}</a>)}
+    <Button href={discordUrl}>Dołącz na Discordzie</Button>
+  </nav>
+</header>
+
+<script>
+  const menuButton = document.querySelector<HTMLButtonElement>('.menu-btn');
+  const mobileMenu = document.querySelector<HTMLElement>('#mobile-menu');
+
+  function setMenuOpen(open: boolean) {
+    if (!menuButton || !mobileMenu) return;
+    menuButton.setAttribute('aria-expanded', String(open));
+    menuButton.setAttribute('aria-label', open ? 'Zamknij menu' : 'Otwórz menu');
+    mobileMenu.hidden = !open;
+  }
+
+  menuButton?.addEventListener('click', () => setMenuOpen(menuButton.getAttribute('aria-expanded') !== 'true'));
+  // Po kliknięciu linku (np. /#blog na tej samej stronie) chowamy menu.
+  mobileMenu?.addEventListener('click', (event) => {
+    if (event.target instanceof Element && event.target.closest('a')) setMenuOpen(false);
+  });
+</script>
+
+<style>
+  .site-header { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(14px); }
+  .site-header__in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; flex: 1 1 0; }
+  .brand :global(svg) { width: 36px; height: 36px; }
+  .brand__name { font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: .02em; }
+  .pill-nav { display: flex; align-items: center; gap: 2px; padding: 5px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-pill); }
+  .pill-nav a { text-decoration: none; font-size: 15px; font-weight: 500; padding: 10px 14px; border-radius: var(--radius-pill); color: var(--nav-ink); transition: background .15s; }
+  .pill-nav a:hover { background: var(--nav-hover-bg); }
+  .site-header__actions { flex: 1 1 0; display: flex; justify-content: flex-end; gap: 10px; }
+  .menu-btn { display: none; align-items: center; gap: 10px; height: 46px; padding: 0 18px; background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font: 500 15px var(--font-body); cursor: pointer; }
+  .menu-btn svg { width: 18px; height: 18px; }
+  .mobile-menu { margin: 0 16px 12px; padding: 8px 20px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; display: flex; flex-direction: column; }
+  .mobile-menu[hidden] { display: none; }
+  .mobile-menu a { padding: 16px 0; border-bottom: 1px solid var(--line); text-decoration: none; font-family: var(--font-display); font-size: 22px; }
+  .mobile-menu :global(.btn) { margin-top: 12px; justify-content: center; height: 54px; }
+
+  @media (max-width: 1000px) {
+    .pill-nav, .site-header :global(.header-cta) { display: none; }
+    .menu-btn { display: inline-flex; }
+  }
+  /* Menu otwarte na wąskim ekranie nie zostaje po poszerzeniu okna. */
+  @media (min-width: 1001px) {
+    .mobile-menu { display: none; }
+  }
+</style>

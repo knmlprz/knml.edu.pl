@@ -1,0 +1,36 @@
+---
+// Link wyglądający jak przycisk. Warianty z design/index.html.
+// highlight (limonka) i ghostDark tylko na ciemnym tle — patrz CLAUDE.md.
+interface Props {
+  href: string;
+  variant?: 'primary' | 'outline' | 'highlight' | 'ghostDark';
+  size?: 'md' | 'sm';
+  class?: string;
+}
+
+const { href, variant = 'primary', size = 'md', class: className } = Astro.props;
+---
+
+<a class:list={['btn', `btn--${variant}`, { 'btn--sm': size === 'sm' }, className]} href={href}>
+  <slot />
+</a>
+
+<style>
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    height: 56px; padding: 0 26px;
+    border-radius: var(--radius-pill);
+    font-weight: 600; font-size: 17px; text-decoration: none;
+    transition: filter .15s, background .15s, color .15s;
+  }
+  .btn :global(svg) { width: 16px; height: 16px; }
+  .btn--primary { background: var(--color-brand); color: var(--on-brand); }
+  .btn--primary:hover { filter: brightness(1.15); }
+  .btn--outline { border: 1.5px solid var(--ink); color: var(--ink); font-weight: 500; }
+  .btn--outline:hover { background: var(--ink); color: var(--on-brand); }
+  .btn--highlight { background: var(--color-highlight); color: var(--ink); }
+  .btn--highlight:hover { filter: brightness(0.95); }
+  .btn--ghostDark { border: 1.5px solid color-mix(in srgb, var(--bg) 60%, transparent); color: var(--bg); }
+  .btn--ghostDark:hover { background: color-mix(in srgb, var(--on-brand) 10%, transparent); }
+  .btn--sm { height: 46px; padding: 0 22px; font-size: 15px; }
+</style>
