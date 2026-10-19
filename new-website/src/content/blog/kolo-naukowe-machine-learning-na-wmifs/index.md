@@ -20,7 +20,7 @@ Zagadnienia, którymi zajmujemy się w ramach działalności koła obejmują sze
 
 Opiekunem koła jest pani dr Ewa Rejwer-Kosińska z WMiFS. W prace koła zaangażowany jest również pan dr Michał Piętal z WEiI wspierający merytorycznie studentów.
 
-Więcej informacji można znaleźć na stronie internetowej: http://knml.prz.edu.pl
+Więcej informacji można znaleźć na stronie internetowej: https://knml.edu.pl
 
 lub na stronie zespołu w MS Teams: Koło ML (kod: lgjklos).
 

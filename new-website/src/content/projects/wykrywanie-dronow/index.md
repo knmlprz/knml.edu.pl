@@ -7,6 +7,7 @@ tags:
   - mesh
 meta: 2026 · I miejsce EDTH Detect & Defend · Nagroda PCI
 cover: ./cover.jpg
+post: studenci-z-kola-naukowego-machine-learning-zwyciezcami-hackathonu-detect-defend
 order: 1
 ---
 

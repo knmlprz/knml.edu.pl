@@ -3,6 +3,8 @@ import '@fontsource-variable/unbounded';
 import '@fontsource-variable/geist';
 import '../styles/tokens.css';
 import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { getPartners } from '../lib/partners';
@@ -10,14 +12,30 @@ import { getPartners } from '../lib/partners';
 interface Props {
   title?: string;
   description?: string;
+  /** Obrazek podglądu linku (Open Graph). Bez niego: public/og-default.png. */
+  image?: ImageMetadata;
+  /** 'article' dla wpisów na blogu. */
+  type?: 'website' | 'article';
+  /** Strona, której wyszukiwarki nie mają indeksować (np. 404). */
+  noindex?: boolean;
 }
 
+const siteName = 'Koło Naukowe Machine Learning Politechniki Rzeszowskiej';
 const {
-  title = 'KNML — Koło Naukowe Machine Learning Politechniki Rzeszowskiej',
+  title = `KNML — ${siteName}`,
   description = 'Koło Naukowe Machine Learning Politechniki Rzeszowskiej. Analiza danych, sieci neuronowe, wykrywanie dronów i algorytmy jazdy autonomicznej.',
+  image,
+  type = 'website',
+  noindex = false,
 } = Astro.props;
 
-const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const pageUrl = new URL(Astro.url.pathname, Astro.site);
+// 1200×630 to format podglądu linku (okładki bywają pionowe, więc przycinamy).
+// JPEG zamiast WebP, bo nie każdy serwis (np. starsze podglądy w komunikatorach) czyta WebP.
+const ogImagePath = image
+  ? (await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpeg' })).src
+  : '/og-default.png';
+const ogImageUrl = new URL(ogImagePath, Astro.site);
 const partners = await getPartners();
 ---
 
@@ -28,9 +46,20 @@ const partners = await getPartners();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonicalUrl} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={pageUrl} />}
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
     <a class="skip-link" href="#main">Przejdź do treści</a>

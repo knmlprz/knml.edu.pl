@@ -1,6 +1,5 @@
 ---
 import { Image } from 'astro:assets';
-import MoreLink from '../components/ui/MoreLink.astro';
 import Tag from '../components/ui/Tag.astro';
 import { getProjects, projectUrl } from '../lib/projects';
 
@@ -10,7 +9,6 @@ const featuredProjects = (await getProjects()).slice(0, 4);
 <section id="projekty" class="container projects" aria-labelledby="h-proj">
   <div class="section-head">
     <h2 id="h-proj" class="section-title">Projekty</h2>
-    <MoreLink href="/projekty">Wszystkie projekty</MoreLink>
   </div>
   <div class="proj-grid">
     {featuredProjects.map((project) => (

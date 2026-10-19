@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://knml.edu.pl/sitemap.xml

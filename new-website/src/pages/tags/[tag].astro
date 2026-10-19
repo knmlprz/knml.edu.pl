@@ -2,20 +2,12 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostGrid from '../../components/PostGrid.astro';
 import MoreLink from '../../components/ui/MoreLink.astro';
-import { getPosts, tagSlug, type Post } from '../../lib/posts';
+import { getTags, type Post } from '../../lib/posts';
 
 // Jedna strona na tag, pod tym samym adresem co w Hugo (np. /tags/quantum-computing/).
 export async function getStaticPaths() {
-  const posts = await getPosts();
-  const tags = new Map<string, { name: string; posts: Post[] }>();
-  for (const post of posts) {
-    for (const tag of post.data.tags) {
-      const slug = tagSlug(tag);
-      if (!tags.has(slug)) tags.set(slug, { name: tag, posts: [] });
-      tags.get(slug)!.posts.push(post);
-    }
-  }
-  return [...tags].map(([slug, { name, posts }]) => ({ params: { tag: slug }, props: { name, posts } }));
+  const tags = await getTags();
+  return tags.map(({ slug, name, posts }) => ({ params: { tag: slug }, props: { name, posts } }));
 }
 
 const { name, posts } = Astro.props as { name: string; posts: Post[] };
@@ -25,7 +17,7 @@ const { name, posts } = Astro.props as { name: string; posts: Post[] };
   <section class="container page" aria-labelledby="h-tag">
     <div class="section-head">
       <h1 id="h-tag" class="section-title">#{name}</h1>
-      <MoreLink href="/blog/">Wszystkie wpisy</MoreLink>
+      <MoreLink href="/tags/">Wszystkie tagi</MoreLink>
     </div>
     <PostGrid posts={posts} />
   </section>

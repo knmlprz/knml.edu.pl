@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MoreLink from '../../components/ui/MoreLink.astro';
+import { getTags, tagUrl } from '../../lib/posts';
+
+const tags = await getTags();
+---
+
+<BaseLayout title="Tagi — Blog KNML" description="Wszystkie tagi wpisów na blogu Koła Naukowego Machine Learning.">
+  <section class="container page" aria-labelledby="h-tags">
+    <div class="section-head">
+      <h1 id="h-tags" class="section-title">Tagi</h1>
+      <MoreLink href="/blog/">Wszystkie wpisy</MoreLink>
+    </div>
+    <ul class="tag-list">
+      {tags.map((tag) => (
+        <li><a href={tagUrl(tag.name)}>#{tag.name} <span class="tag-list__count">{tag.posts.length}</span></a></li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .page { padding-block: 40px clamp(56px, 7vw, 96px); }
+  .tag-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .tag-list a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px; border-radius: var(--radius-pill); background: var(--tag-bg); color: var(--ink-3); font-size: 16px; text-decoration: none; }
+  .tag-list a:hover { text-decoration: underline; }
+  .tag-list__count { font-size: 13px; color: var(--muted); }
+</style>

@@ -1,5 +1,4 @@
 ---
-import MoreLink from '../components/ui/MoreLink.astro';
 import { stats } from '../data/site';
 ---
 
@@ -7,7 +6,6 @@ import { stats } from '../data/site';
   <div class="about__text">
     <h2 id="h-onas" class="about__label">O nas</h2>
     <p class="about__statement">Jesteśmy grupą studentów zafascynowanych analizą danych, uczeniem maszynowym i sieciami neuronowymi. Uczymy się w praktyce: na konkursach, hackathonach i we <span class="marker">własnych projektach</span>.</p>
-    <MoreLink href="/o-nas">Poznaj koło</MoreLink>
   </div>
   <dl class="stats">
     {stats.map((stat) => (

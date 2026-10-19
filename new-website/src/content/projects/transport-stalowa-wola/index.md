@@ -7,6 +7,7 @@ tags:
   - analiza danych
 meta: 2026 · I miejsce SpaceShield Hack
 cover: ./cover.jpg
+post: zwyciestwo-studentow-kola-naukowego-machine-learning-w-hackathonie-spaceshield-hack
 order: 2
 ---
 

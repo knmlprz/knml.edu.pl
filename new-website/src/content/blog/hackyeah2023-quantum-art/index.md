@@ -20,7 +20,7 @@ Na HackYeah 2023 czekało na nas sporo ciekawych wyzwań. Zdecydowaliśmy się p
 
 Quantum Art to rodzaj sztuki, w której tworzeniu biorą udział komputery kwantowe. Wykorzystuje się przy tym zjawiska takie jak superpozycja kubitów, splątanie kwantowe, czy fakt, iż komputery kwantowe nie są idealne — ich wyniki obarczone są pewnym błędem.
 
-![](attachment/04501973682c9b1fcb5e3b537a82d744.png)
+![Fraktal: czerwono-żółte spirale zbioru Julii na białym tle](attachment/04501973682c9b1fcb5e3b537a82d744.png)
 *Julia set stworzony z liczby wygenerowanej przez komputer kwantowy.*
 
 Znaleźliśmy kilka sposobów na generowanie kwantowej sztuki, większość z nich wykorzystywała komputer kwantowy jako generator liczb losowych. 
@@ -29,7 +29,7 @@ Komputer kwantowy może generować liczby losowe poprzez dokonywanie pomiaru pra
 1. Wygenerowania fraktali w różnych paletach kolorów.
 2. Animacji kolejnych iteracji tworzenia fraktala (patrz obrazek poniżej).
 
-![](attachment/18f5e7a874f7ada2b5d820f1acdec1c8.gif)
+![Animacja kolejnych iteracji tworzenia fraktala w odcieniach czerwieni i żółci](attachment/18f5e7a874f7ada2b5d820f1acdec1c8.gif)
 
 Fraktale, które tworzyliśmy to zbiory Julii [^4]. Do ich generowania wykorzystaliśmy funkcję:
 
@@ -76,25 +76,25 @@ def julia_set2CN1(c0=0, c1=0, height=heightsize, width=widthsize, x=0, y=0, zoom
 
 Oto przykładowe fraktale, które wygenerowaliśmy:
 
-![](attachment/b5ce4ea4061e31a00947a9bd870b35c4.png)
+![Fraktal: czarne, niebieskie, fioletowe i pomarańczowe koła na białym tle](attachment/b5ce4ea4061e31a00947a9bd870b35c4.png)
 
-![](attachment/f1a4ef65a6152a3cbc3a004a8cc9511c.png)
+![Fraktal: fioletowe i niebieskie kształty na żółtym tle](attachment/f1a4ef65a6152a3cbc3a004a8cc9511c.png)
 
-![](attachment/2902f83f4ef3bc8b517a1f8774216c38.png)
+![Fraktal: łańcuchy kolorowych kół biegnące ukośnie przez białe tło](attachment/2902f83f4ef3bc8b517a1f8774216c38.png)
 
-![](attachment/a1409c1df2b5b32eb3f44decefc32877.png)
+![Fraktal: gęsty wzór niebieskich i czarnych kół na białym tle](attachment/a1409c1df2b5b32eb3f44decefc32877.png)
 
-![](attachment/8629e1fd41bbe69d73f8ed69bc3214de.png)
+![Fraktal: zielone kształty na jasnożółtym tle](attachment/8629e1fd41bbe69d73f8ed69bc3214de.png)
 
 A oto ich wersje animowane:
 
-![](attachment/4797d2464127495aae2ae803e64ce974.gif)
+![Animacja fraktala z zielonymi kształtami na jasnożółtym tle](attachment/4797d2464127495aae2ae803e64ce974.gif)
 
-![](attachment/eff36e9f43dea3efb3c84d12b3ef9602.gif)
+![Animacja fraktala z fioletowymi kształtami na żółtym tle](attachment/eff36e9f43dea3efb3c84d12b3ef9602.gif)
 
-![](attachment/629353c6d387cf0a728ef67c217a18ff.gif)
+![Animacja fraktala z łańcuchami kolorowych kół na białym tle](attachment/629353c6d387cf0a728ef67c217a18ff.gif)
 
-![](attachment/7011b6d84756d529ed6e48d80403acdd.gif)
+![Animacja fraktala z niebieskimi i czarnymi kołami na białym tle](attachment/7011b6d84756d529ed6e48d80403acdd.gif)
 
 
 ## Bibliografia

@@ -35,14 +35,14 @@ W polu "wyszukaj" wpisać można frazę, według której odfiltrowane będą art
 
 <figure>
 
-![](opensearch-example-query-1.png)
+![Panel OpenSearch Dashboards z wynikami zapytania „nietrzeźwy pijany kierowca”: najczęstsze tagi i serwisy, wykres liczby artykułów w czasie i lista artykułów](opensearch-example-query-1.png)
 
   <figcaption>Demonstracja funkcji wyszukiwania.</figcaption>
 </figure>
 
 <figure>
 
-![](opensearch-example-query-2.png)
+![Panel OpenSearch Dashboards dla zapytania „pożar AND rzeszów”: 34 artykuły, najczęstsze tagi i serwisy oraz wykres liczby artykułów w czasie](opensearch-example-query-2.png)
 
 <figcaption>Wyszukiwanie wszystkich artykułów zawierających oba słowa tj. zarówno pożar jak i rzeszów.</figcaption>
 </figure>
@@ -79,7 +79,7 @@ _Nie będę ukrywać, że po pierwsze nie mieliśmy doświadczenia w tworzeniu t
 
 <figure>
 
-![](larkfid-arch.png)
+![Schemat architektury LARKFiD: kanały RSS, pobieranie i parsowanie artykułów, tagowanie, wektoryzacja i zapis do OpenSearch, połączone kolejkami, z polami danych JSON na każdym etapie](larkfid-arch.png)
 
   <figcaption>Architektura aplikacji LARKFiD.</figcaption>
 </figure>

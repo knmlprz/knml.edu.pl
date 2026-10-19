@@ -4,7 +4,7 @@ import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MoreLink from '../../components/ui/MoreLink.astro';
 import Tag from '../../components/ui/Tag.astro';
-import { categoryLabels, formatDate, getPosts, isoDate, tagUrl, type Post } from '../../lib/posts';
+import { categoryLabels, formatDate, getPosts, isoDate, postDescription, tagUrl, type Post } from '../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -16,7 +16,7 @@ const { title, date, author, category, tags, cover, githubLink } = post.data;
 const { Content } = await render(post);
 ---
 
-<BaseLayout title={`${title} — KNML`} description={post.data.excerpt ?? title}>
+<BaseLayout title={`${title} — KNML`} description={postDescription(post)} image={cover} type="article">
   <article class="container article">
     <header class="article__head">
       <p class="article__meta">

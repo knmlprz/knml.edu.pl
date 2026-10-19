@@ -31,7 +31,9 @@ const achievements = await getAchievements();
 <style>
   .achievements { background: var(--section); padding-block: clamp(56px, 7vw, 96px); }
   .achievements__hint { font-size: 15px; color: var(--muted); }
-  .rail { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 0 18px; margin: 0; list-style: none; }
+  /* Boczny padding robi miejsce na obrys focusu (overflow ucina wszystko poza listą),
+     ujemny margines oddaje to miejsce, żeby karty zostały w linii z nagłówkiem. */
+  .rail { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 6px; padding: 6px 6px 18px; margin: 0 -6px; list-style: none; }
   .rail > li { flex: 0 0 300px; display: flex; scroll-snap-align: start; }
   .ach { flex: 1 1 auto; min-height: 340px; padding: 28px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); color: var(--ink); text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; transition: transform .25s; }
   .ach:hover { transform: translateY(-4px); }

@@ -23,11 +23,17 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
       treść każdego pliku to placeholder `[Pełny opis projektu: cel, zespół, użyte technologie,
       linki do GitHuba i demo]`. Brakuje pełnych opisów, technologii, zespołów, linków.
 
-## Strony, do których już linkujemy, a których jeszcze nie ma (404)
+## Ukryte linki — przywrócić, gdy powstaną podstrony
 
-- [ ] `/projekty`, `/projekty/wykrywanie-dronow`, `/projekty/transport-stalowa-wola`.
-- [ ] `/o-nas` (link „Poznaj koło”).
-- [ ] `[Statut i regulaminy]`, `[Polityka prywatności]` (stopka) — dziś `#`.
+- [ ] „Wszystkie projekty” → `/projekty/` (`src/sections/Projects.astro`, w `section-head`
+      obok nagłówka: `<MoreLink href="/projekty/">Wszystkie projekty</MoreLink>`).
+      Karty projektów prowadzą dziś do wpisów na blogu (pole `post`); po dodaniu stron
+      `/projekty/<id>/` usuń `post` z projektów, które mają mieć własną stronę.
+- [ ] „Poznaj koło” → `/o-nas/` (`src/sections/About.astro`, pod akapitem:
+      `<MoreLink href="/o-nas/">Poznaj koło</MoreLink>`).
+- [ ] „Statut i regulaminy” i „Polityka prywatności” (`src/components/SiteFooter.astro`,
+      kolumna „Zasoby”) — czekają na treść od zarządu.
+- [ ] Nowe podstrony dopisz do `staticPages` w `src/pages/sitemap.xml.ts`.
 
 ## Blog i migracja z Hugo
 
@@ -37,8 +43,12 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
 - Migracja (19.10.2026): żaden wpis nie został pominięty, wszystkie okładki i obrazki istnieją.
 - [ ] RSS (`/index.xml`, `/blog/index.xml`) ma tylko tytuł, datę i tagi. Opis pojawi się,
       gdy wpisy dostaną pole `excerpt`.
-- [ ] Hugo miało też: stronicowanie `/blog/page/2/`, listę `/tags/`, kanały `/tags/<tag>/index.xml`.
-      Nowa strona tego nie odtwarza (wszystkie wpisy są na jednej stronie) — do decyzji, czy potrzebne.
+- Stare adresy stronicowania Hugo (`/blog/page/N/`, `/tags/page/N/`, `/tags/<tag>/page/N/`)
+  przekierowują na strony bez stronicowania. Lista tagów: `/tags/`.
+- Świadomie pominięte (decyzja 19.10.2026): kanały RSS per tag i per wpis, `/categories/`,
+  stare adresy zdjęć `/blog/<slug>/zdjecie-N.jpg` (Astro serwuje je z `/_astro/`).
+- Opis wpisu (`<meta name="description">`, podgląd linku): `excerpt`, a bez niego początek
+  pierwszego akapitu (`postDescription()` w `src/lib/posts.ts`).
 - Strona główna bierze wpisy, osiągnięcia, projekty i partnerów z kolekcji (`src/lib/`).
 - [ ] `shortTitle` i `excerpt` mają tylko 3 najnowsze wpisy (przeniesione z dawnych danych
       tymczasowych).
@@ -49,9 +59,10 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
 
 ## Ogólne
 
-- [ ] Favicon: w `public/` jest jeszcze domyślna ikona Astro. Stara strona używała `fav.png`
-      (`old-website/themes/hugo-profile/static/fav.png`), ale to inna, starsza wersja znaku
-      niż `src/assets/knml-logo.svg` — do decyzji, z czego zrobić nową ikonę.
+- Favicony i obrazek podglądu linku (`public/og-default.png`) generuje
+  `node scripts/generate-icons.mjs` z `knml-logo.svg` i `tokens.css` — uruchom po zmianie logo
+  albo kolorów. Skrypt korzysta z `sharp` i `fontkitten`, które instaluje Astro; jeśli po
+  aktualizacji Astro ich zabraknie, trzeba je dodać do devDependencies.
 - [ ] Ikony social mediów w stopce (dziś tekst). Wzorzec sugeruje Simple Icons — do decyzji,
       czy warto dodawać zależność.
 - [ ] Statystyka „7 nagród i wyróżnień” (`src/data/site.ts` → `stats`) jest wpisana ręcznie,
