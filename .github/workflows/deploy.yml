@@ -1,0 +1,47 @@
+# Publikacja nowej strony (Astro, new-website/) na GitHub Pages pod knml.edu.pl.
+# Domenę ustawia GitHub Pages (Settings → Pages), nie ten plik ani CNAME.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Ręczne uruchomienie: zakładka Actions → Deploy → Run workflow.
+  workflow_dispatch:
+  # Codziennie o 03:00 UTC: strona jest statyczna, więc partner po dacie validUntil znika
+  # dopiero przy nowym buildzie. GitHub uruchamia harmonogram tylko z gałęzi main.
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Jedna publikacja naraz; trwającej nie przerywamy, żeby nie zostawić strony w połowie.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobierz kod
+        uses: actions/checkout@v7
+      # Instaluje zależności, buduje stronę i pakuje dist/ do publikacji.
+      - name: Zbuduj stronę
+        uses: withastro/action@v6
+        with:
+          path: ./new-website
+          node-version: 22
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Opublikuj na GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

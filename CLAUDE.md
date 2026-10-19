@@ -17,7 +17,7 @@ Przepisujemy starą stronę z Hugo na **Astro**. Wzorzec wyglądu strony główn
 
 ```text
 knml.edu.pl/                 jedno repo, jeden .git (tylko tutaj)
-├── .github/workflows/hugo.yml   deploy STAREJ strony na GitHub Pages (z main)
+├── .github/workflows/          deploy.yml (publikacja Astro), ci.yml (check + build przy PR)
 ├── CNAME                        domena knml.edu.pl
 ├── CLAUDE.md                    ten plik
 ├── old-website/                 stara strona Hugo — TYLKO DO ODCZYTU
@@ -37,11 +37,12 @@ knml.edu.pl/                 jedno repo, jeden .git (tylko tutaj)
 
 ## Hosting
 
-- **Dziś:** GitHub Pages, deploy przez GitHub Actions (`hugo.yml`, buduje `old-website/`
-  i publikuje przy pushu na `main`). Gałąź `przebudowastrony` się nie publikuje.
-- **Start nowej strony:** ten sam GitHub Pages. W dniu merge'a `hugo.yml` zastępujemy
-  `deploy.yml` z `withastro/action` (`path: ./new-website`). Domena zostaje bez zmian.
-  Ten krok robi człowiek, Ty możesz go przygotować na prośbę.
+- **Teraz:** GitHub Pages, deploy przez GitHub Actions: `.github/workflows/deploy.yml`
+  (`withastro/action`, `path: ./new-website`) przy pushu na `main`, ręcznie i codziennie
+  o 03:00 UTC (żeby partnerzy po `validUntil` znikali sami). `ci.yml` uruchamia `npm ci`,
+  `check` i `build` przy każdym PR i pushu na `przebudowastrony`, bez publikacji.
+  Stary `hugo.yml` usunięty (stara strona zostaje w `old-website/` i w historii gita).
+  Gałąź `przebudowastrony` się nie publikuje. Domena bez zmian.
 - **Później:** serwer koła + backend (patrz niżej). Szczegóły serwera: **TODO, zarząd koła.**
 - W `astro.config.mjs`: `site: 'https://knml.edu.pl'`, bez `base`.
 

@@ -6,9 +6,11 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
 
 - Partner strategiczny: Miasto Rzeszów (`miasto-rzeszow.yaml`, `validUntil: 2026-11-30`).
   Hero, sekcja Partnerzy i stopka czytają z kolekcji przez `src/lib/partners.ts`.
-- [ ] Strona jest statyczna, więc po `validUntil` partner znika dopiero przy **następnym buildzie**.
-      Decyzja: przy tworzeniu nowego workflow `deploy.yml` (withastro/action) dodać
-      zaplanowany build (`on: schedule`, cron, np. codziennie), żeby partner znikał sam.
+- Strona jest statyczna, więc po `validUntil` partner znika dopiero przy **następnym buildzie**.
+  `.github/workflows/deploy.yml` buduje stronę codziennie o 03:00 UTC (cron), więc dzieje się
+  to samo — ale dopiero po merge'u `przebudowastrony` do `main`.
+- [ ] GitHub wyłącza harmonogram w publicznym repo po 60 dniach bez żadnej aktywności.
+      Sprawdzić przed 30.11.2026, czy **Actions → Deploy** jest włączony (inaczej Rzeszów zostanie).
 - [ ] Czy Miasto Rzeszów zostaje partnerem po 30.11.2026 (wtedy przedłużyć albo usunąć `validUntil`)?
 - [ ] Logo PRz (`src/assets/partners/prz-logo.png`) to PNG z dużym przezroczystym marginesem,
       dlatego `Partners.astro` i `SiteFooter.astro` mają dla niego osobny rozmiar. Logo w SVG

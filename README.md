@@ -47,13 +47,22 @@ Obie komendy muszą skończyć się bez błędów.
 
 ## Jak strona trafia do internetu
 
-Stronę publikuje **GitHub Actions** — automat na GitHubie, który po każdej zmianie na gałęzi
-`main` sam buduje stronę i wrzuca ją pod adres knml.edu.pl (hosting: GitHub Pages).
-Nikt nie wgrywa plików ręcznie.
+Stronę publikuje **GitHub Actions** — automat na GitHubie. Instrukcje dla niego to
+*workflowy*, pliki w `.github/workflows/`:
 
-- **Dziś** automat (`.github/workflows/hugo.yml`) buduje jeszcze **starą** stronę z `old-website/`.
-- **W dniu startu** nowej strony zastąpimy go nowym (`deploy.yml`), który buduje `new-website/`.
-  Domena się nie zmienia. Ten krok robi zarząd koła.
+- **`deploy.yml`** buduje stronę z `new-website/` i publikuje ją pod knml.edu.pl
+  (hosting: GitHub Pages). Uruchamia się po każdej zmianie na `main`, codziennie
+  o 03:00 UTC (dzięki temu partner po dacie `validUntil` znika sam) i ręcznie:
+  zakładka **Actions** → **Deploy** → **Run workflow**. Nikt nie wgrywa plików ręcznie.
+- **`ci.yml`** przy każdym Pull Requeście uruchamia `npm run check` i `npm run build`.
+  Czerwony krzyżyk przy PR = strona się nie buduje; kliknij **Details**, żeby zobaczyć
+  błąd. Takiego PR nie mergujemy.
+
+Codzienne uruchamianie GitHub wyłącza sam, jeśli przez 60 dni nic się w repo nie zmieni.
+Wtedy włącz je z powrotem: **Actions** → **Deploy** → **Enable workflow**.
+
+> Do merge'a gałęzi `przebudowastrony` do `main` na `main` działa jeszcze stary workflow
+> Hugo i pod knml.edu.pl jest stara strona.
 
 ## Zasada pracy: nigdy bezpośrednio na `main`
 
