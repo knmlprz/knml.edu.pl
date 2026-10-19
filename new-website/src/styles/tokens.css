@@ -1,0 +1,57 @@
+/* Jedyne miejsce na kolory, fonty, promienie i odstępy. Wartości z :root w design/index.html.
+   Zasady użycia kolorów: tabela w CLAUDE.md. */
+:root {
+  /* paleta (źródło: Damian; zabarwienie: Krystian) */
+  --ink: #14121A;               /* tekst; bazowo #111111 zabarwiony w stronę fioletu */
+  --color-brand: #242030;       /* kolor główny */
+  --color-logo: #1E1A2A;        /* logo w hero */
+  --color-accent: #CDB8F0;      /* miękki akcent */
+  --color-highlight: #BEE43A;   /* akcent wyników/rekrutacji — patrz CLAUDE.md */
+  --color-highlight-ink: #3A4410; /* tekst drugorzędny na limonce */
+  --bg: #F7F6FA;                /* tło strony (off-white z nutą fioletu) */
+  --surface: #FFFFFF;           /* karty */
+  --section: #EEEBF5;           /* tło sekcji naprzemiennych */
+  --tag-bg: #EFEAF9;            /* neutralne tagi */
+  --line: #E7E4EE;              /* obramowania */
+  --line-strong: #DCD8E6;
+  --muted: #625C70;             /* tekst drugorzędny (kontrast ok na --bg) */
+  --body: #4A4657;              /* tekst akapitów w hero */
+  --body-2: #5E596B;            /* opisy w kartach */
+
+  /* kolory wpisane we wzorcu bezpośrednio w regułach — tu dostają nazwy ról */
+  --on-brand: #FFFFFF;          /* tekst na --color-brand */
+  --ink-2: #2A2735;             /* linki w menu-pigułce, tekst karty partnera */
+  --ink-3: #3A3647;             /* linki „więcej”, neutralne tagi */
+  --nav-hover-bg: #F0EDF7;      /* tło linku menu po najechaniu */
+  --placeholder-line: #A9A4B6;  /* ramka placeholdera [TAK JAK TU] */
+  --placeholder-ink: #55505F;
+  --on-photo: #FFFFFF;          /* tekst na zdjęciu z przyciemnieniem */
+  --on-photo-muted: #E6E3EE;
+  --shade: #16131F;             /* przyciemnienie zdjęć i cienie (z przezroczystością przez color-mix) */
+
+  /* na ciemnym (stopka, pas Dołącz) */
+  --on-dark: #F2F0F7;
+  --on-dark-2: #C9C4D6;
+  --on-dark-3: #9C95AF;
+  --on-dark-soft: #D9D5E4;      /* linki social, opis na ciemnym kafelku, lead w pasie Dołącz */
+  --on-dark-caption: #B9B3C9;   /* podpis pod nazwą w stopce */
+  --dark-line: #3A3450;
+
+  /* typografia (fonty z @fontsource-variable, import w BaseLayout) */
+  --font-display: 'Unbounded Variable', system-ui, sans-serif;
+  --font-body: 'Geist Variable', 'Helvetica Neue', Arial, sans-serif;
+
+  /* layout */
+  --container: 1360px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --radius-pill: 999px;
+
+  /* skala nagłówków */
+  --h1: clamp(34px, 4.4vw, 72px);  /* Unbounded jest szeroki — większy rozmiar rozsadza „niecodziennych” */
+  --h2: clamp(30px, 3.4vw, 50px);
+  --h-join: clamp(44px, 7vw, 108px);
+}

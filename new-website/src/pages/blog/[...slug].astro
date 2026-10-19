@@ -1,0 +1,74 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MoreLink from '../../components/ui/MoreLink.astro';
+import Tag from '../../components/ui/Tag.astro';
+import { categoryLabels, formatDate, getPosts, isoDate, postDescription, tagUrl, type Post } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props as { post: Post };
+const { title, date, author, category, tags, cover, githubLink } = post.data;
+const { Content } = await render(post);
+---
+
+<BaseLayout title={`${title} — KNML`} description={postDescription(post)} image={cover} type="article">
+  <article class="container article">
+    <header class="article__head">
+      <p class="article__meta">
+        <Tag variant="accent">{categoryLabels[category]}</Tag>
+        <time datetime={isoDate(date)}>{formatDate(date)}</time>
+        <span>{author}</span>
+      </p>
+      <h1 class="article__title">{title}</h1>
+      {tags.length > 0 && (
+        <ul class="article__tags" aria-label="Tagi">
+          {tags.map((tag) => <li><a href={tagUrl(tag)}>#{tag}</a></li>)}
+        </ul>
+      )}
+    </header>
+
+    <Image class="article__cover" src={cover} alt="" widths={[640, 960, 1280]} sizes="(min-width: 960px) 900px, 100vw" loading="eager" />
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {githubLink && <p class="article__github"><a href={githubLink}>Kod na GitHubie ↗</a></p>}
+
+    <MoreLink href="/blog/">Wszystkie wpisy</MoreLink>
+  </article>
+</BaseLayout>
+
+<style>
+  .article { max-width: 900px; padding-block: 40px clamp(56px, 7vw, 96px); }
+  .article__head { display: flex; flex-direction: column; gap: 18px; margin-bottom: 28px; }
+  .article__meta { margin: 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 14px; color: var(--muted); }
+  .article__title { margin: 0; font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 44px); line-height: 1.15; font-weight: 500; letter-spacing: -0.03em; }
+  .article__tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .article__tags a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: var(--radius-pill); background: var(--tag-bg); color: var(--ink-3); font-size: 14px; text-decoration: none; }
+  .article__tags a:hover { text-decoration: underline; }
+  :global(.article__cover) { width: 100%; height: auto; border-radius: var(--radius-lg); margin-bottom: 36px; }
+  .article__github { margin: 32px 0 8px; font-weight: 600; }
+
+  /* Treść wpisu pochodzi z Markdowna, więc style muszą być :global (wewnątrz .prose). */
+  .prose { font-size: 18px; line-height: 1.7; color: var(--body); overflow-wrap: break-word; }
+  .prose :global(h2), .prose :global(h3) { margin: 1.8em 0 0.6em; font-family: var(--font-display); font-weight: 500; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink); }
+  .prose :global(h2) { font-size: 26px; }
+  .prose :global(h3) { font-size: 21px; }
+  .prose :global(a) { color: var(--ink); text-underline-offset: 3px; }
+  .prose :global(img) { height: auto; margin: 1.5em auto 0.5em; border-radius: var(--radius-md); }
+  .prose :global(figure) { margin: 1.5em 0; }
+  /* Podpisy zdjęć: <figcaption> albo osobny akapit *kursywą* pod obrazkiem (tak pisano w Hugo). */
+  .prose :global(figcaption), .prose :global(p > em:only-child) { font-size: 16px; color: var(--muted); }
+  .prose :global(pre) { overflow-x: auto; padding: 18px; border-radius: var(--radius-sm); font-size: 14px; line-height: 1.5; }
+  .prose :global(code) { font-size: 0.9em; }
+  .prose :global(:not(pre) > code) { padding: 2px 6px; border-radius: 6px; background: var(--tag-bg); }
+  .prose :global(blockquote) { margin: 1.5em 0; padding-left: 18px; border-left: 3px solid var(--color-accent); }
+  .prose :global(table) { display: block; overflow-x: auto; border-collapse: collapse; }
+  .prose :global(th), .prose :global(td) { padding: 8px 12px; border: 1px solid var(--line); }
+</style>

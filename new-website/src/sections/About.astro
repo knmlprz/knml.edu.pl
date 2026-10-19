@@ -1,0 +1,33 @@
+---
+import { stats } from '../data/site';
+---
+
+<section id="o-nas" class="container about" aria-labelledby="h-onas">
+  <div class="about__text">
+    <h2 id="h-onas" class="about__label">O nas</h2>
+    <p class="about__statement">Jesteśmy grupą studentów zafascynowanych analizą danych, uczeniem maszynowym i sieciami neuronowymi. Uczymy się w praktyce: na konkursach, hackathonach i we <span class="marker">własnych projektach</span>.</p>
+  </div>
+  <dl class="stats">
+    {stats.map((stat) => (
+      <div class:list={['stat', { 'stat--dark': stat.highlighted }]}>
+        <dt>{stat.value}</dt>
+        <dd>{stat.label}</dd>
+      </div>
+    ))}
+  </dl>
+</section>
+
+<style>
+  .about { display: flex; flex-wrap: wrap; gap: 48px clamp(40px, 6vw, 112px); align-items: flex-end; padding-block: clamp(40px, 6vw, 80px); border-top: 1px solid var(--line); }
+  .about__text { flex: 3 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+  .about__label { margin: 0; font-size: 15px; font-weight: 500; color: var(--muted); }
+  .about__statement { margin: 0; font-family: var(--font-display); font-size: clamp(26px, 2.8vw, 42px); line-height: 1.18; font-weight: 400; letter-spacing: -0.02em; text-wrap: pretty; }
+  .about__statement .marker { background: linear-gradient(180deg, transparent 58%, var(--color-accent) 58%, var(--color-accent) 94%, transparent 94%); padding: 0; margin: 0; }
+  .stats { flex: 2 1 340px; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; }
+  .stat { padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 8px; }
+  .stat dt { font-family: var(--font-display); font-size: 42px; font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
+  .stat dd { margin: 0; font-size: 15px; line-height: 1.4; color: var(--muted); }
+  .stat--dark { background: var(--color-brand); border-color: var(--color-brand); color: var(--bg); }
+  .stat--dark dt { color: var(--color-highlight); }
+  .stat--dark dd { color: var(--on-dark-soft); }
+</style>

@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KNML — Koło Naukowe Machine Learning Politechniki Rzeszowskiej</title>
+<meta name="description" content="Koło Naukowe Machine Learning Politechniki Rzeszowskiej. Analiza danych, sieci neuronowe, wykrywanie dronów i algorytmy jazdy autonomicznej.">
+
+<!--
+=====================================================================================
+  KNML — REFERENCJA DESIGNU STRONY GŁÓWNEJ (v2 „złoty środek”, zatwierdzony układ)
+  Plik dla Claude Code: wzorzec 1:1 do przepisania na Astro.
+=====================================================================================
+
+CEL
+  Statyczny HTML + CSS + kilka linijek JS. To jest ŹRÓDŁO PRAWDY dla wyglądu strony
+  głównej. Przepisz go na komponenty Astro bez zmiany wyglądu. Treści (wpisy, osiągnięcia,
+  projekty, partnerzy) są tu wpisane na sztywno — w Astro mają pochodzić z Content Collections.
+
+STACK DOCELOWY
+  - Astro (SSG, output: 'static'), TypeScript strict, hosting na serwerze koła (domena knml.edu.pl), docelowo z backendem — patrz CLAUDE.md.
+  - React TYLKO jako wyspy (client:visible / client:idle) dla rzeczy ze stanem. Na tej stronie
+    jedyny element interaktywny to menu mobilne — da się je zrobić bez Reacta (patrz SiteHeader).
+  - TinaCMS później. Schematy kolekcji już teraz projektuj tak, żeby Tina je przyjęła 1:1.
+  - Fonty: Google Fonts → docelowo self-host przez @fontsource (unbounded, geist).
+  - Obrazy: astro:assets (<Image />), źródła z repo (ścieżki niżej).
+
+MAPA KOMPONENTÓW (każda sekcja w tym pliku ma komentarz „ASTRO: …”)
+  src/layouts/BaseLayout.astro         <head>, fonty, import styles/tokens.css + global.css
+  src/components/KnmlLogo.astro        logo SVG; prop `animated?: boolean` (hero = true)
+  src/components/SiteHeader.astro      logo + menu-pigułka + przycisk „Dołącz” + menu mobilne
+  src/components/SiteFooter.astro      stopka (dane z src/data/site.ts)
+  src/components/ui/Button.astro       warianty: primary | outline | onDark | lime
+  src/components/ui/MoreLink.astro     „Wszystkie wpisy →”
+  src/components/ui/Tag.astro          warianty: lavender | neutral
+  src/sections/Hero.astro              nagłówek, badge, CTA, logo animowane, karta sponsora
+  src/sections/About.astro             zdanie „O nas” + 3 statystyki
+  src/sections/LatestPosts.astro       3 najnowsze wpisy z kolekcji blog (mozaika)
+  src/sections/Achievements.astro      kolekcja achievements, przewijanie poziome
+  src/sections/JoinCta.astro           ciemny pas „Dołącz do KNML”
+  src/sections/Projects.astro          kolekcja projects (4 wyróżnione)
+  src/sections/Partners.astro          kolekcja partners (sponsor + pozostali)
+  src/pages/index.astro                składa sekcje w kolejności jak w tym pliku
+
+PROPONOWANE SCHEMATY TREŚCI (src/content.config.ts, Zod) — ZATWIERDZIĆ Z ZESPOŁEM
+  blog:          title, shortTitle?, date, author, category: 'aktualnosci' | 'projekty',
+                 tags[], cover: image(), excerpt?, githubLink?, draft
+  achievements:  year, place ('I miejsce' | 'II miejsce' | 'Nagroda' | 'Wyróżnienie'),
+                 mark (np. '1.', 'PCI', 'W'), title, description, url, date
+                 → place === 'I miejsce' renderuje wariant „gold” (tło limonkowe)
+  projects:      title, category, description, tags[], meta (np. '2026 · I miejsce EDTH'),
+                 cover: image(), featured: boolean, order
+  partners:      name, logo: image(), url, tier: 'strategic' | 'partner' | 'university',
+                 description?, validUntil? (sponsor znika po dacie — umowa do 30.11.2026)
+  src/data/site.ts: email, linki social, discord, wiki, linktree, statystyki „O nas”
+
+ŹRÓDŁA OBRAZÓW W REPO (knmlprz/knml.edu.pl, gałąź main)
+  assets/img/post-tuluza.jpg      ← content/blog/studenci-kola-naukowego-machine-learning-z-wizyta-w-tuluzie/zdjecie-1.jpg
+  assets/img/post-spaceshield.jpg ← content/blog/zwyciestwo-studentow-kola-naukowego-machine-learning-w-hackathonie-spaceshield-hack/zdjecie-1.jpeg
+  assets/img/post-pci.jpg         ← content/blog/innowacyjny-projekt-kola-naukowego-machine-learning-nagrodzony-przez-pci/zdjecie-1.jpg
+  assets/img/proj-drony.jpg       ← content/blog/studenci-z-kola-naukowego-machine-learning-zwyciezcami-hackathonu-detect-defend/zdjecie-1.jpg
+  assets/img/proj-larkfid.jpg     ← content/blog/larkfid-twoja-baza-wiedzy/opensearch-example-query-1.png
+  assets/img/proj-mnist.jpg       ← content/blog/mnist-demo-jak-komputer-widzi-tekst/mnist_demo_interface_showcase.png
+  assets/img/partner-rzeszow.jpg  ← static/images/logo_rz_pl.jpg
+  assets/knml-logo.svg            ← themes/hugo-profile/static/logo_minified.svg (przenieść do src/assets/)
+
+DO UZUPEŁNIENIA (placeholdery w nawiasach kwadratowych — NIE wymyślać treści)
+  - [LOGO SPONSORA], [Nazwa sponsora], opis sponsora, link → od zarządu koła
+  - [LOGO POLITECHNIKI RZESZOWSKIEJ] / [LOGO PRz] → SVG od uczelni
+  - Linki „Statut i regulaminy”, „Polityka prywatności”, „Poznaj koło”, podstrony projektów
+  - Kroki w „Dołącz do KNML” → do potwierdzenia przez zarząd
+  - Ikony social mediów: obecnie tekst; w Astro użyć Simple Icons (np. astro-icon + simple-icons)
+
+ZASADY KOLORÓW (NIE ŁAMAĆ — były długo ustalane z zespołem)
+  - Ciemny fiolet (--color-brand) = kolor główny: przyciski, pas „Dołącz”, stopka, kafelek „2×”.
+  - Lawenda (--color-accent) = miękki akcent: podkreślenia markerem, etykiety, linki na ciemnym.
+  - Limonka (--color-highlight) = TYLKO: „2×” na fioletowym kafelku, karty I miejsc, przycisk i numerki
+    w pasie „Dołącz”. NIGDY w nawigacji ani w hero. NIGDY jako tło przycisku na jasnym tle.
+    NIGDY jako kolor tekstu na jasnym tle.
+  - Lawenda nigdy jako tło przycisku.
+  - Na limonce i lawendzie tekst zawsze w --ink.
+  - Logo: oryginalny kształt bez zmian (łuki okręgu kończą się na węzłach), kolor --color-logo,
+    BEZ obracania. Animacja: elementy pojawiają się kolejno, potem kółka węzłów pulsują
+    przyciemnieniem. Szanuj prefers-reduced-motion.
+
+DOSTĘPNOŚĆ
+  Prawdziwe <a>/<button>, aria-label przy przyciskach z ikoną, kontrast tekstu ≥ 4.5:1,
+  focus-visible widoczny, cele dotyku ≥ 44px, alt przy zdjęciach treściowych.
+=====================================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ===================================================================
+   ASTRO: src/styles/tokens.css
+   =================================================================== */
+:root {
+  /* paleta (źródło: Damian; zabarwienie: Krystian) */
+  --ink: #14121A;            /* tekst; bazowo #111111 zabarwiony w stronę fioletu */
+  --color-brand: #242030;         /* kolor główny */
+  --color-logo: #1E1A2A;           /* logo w hero */
+  --color-accent: #CDB8F0;       /* miękki akcent */
+  --color-highlight: #BEE43A;           /* akcent wyników/rekrutacji — patrz zasady */
+  --color-highlight-ink: #3A4410;       /* tekst drugorzędny na limonce */
+  --bg: #F7F6FA;             /* tło strony (off-white z nutą fioletu) */
+  --surface: #FFFFFF;        /* karty */
+  --section: #EEEBF5;        /* tło sekcji naprzemiennych */
+  --tag-bg: #EFEAF9;         /* neutralne tagi */
+  --line: #E7E4EE;           /* obramowania */
+  --line-strong: #DCD8E6;
+  --muted: #625C70;          /* tekst drugorzędny (kontrast ok na --bg) */
+  --body: #4A4657;           /* tekst akapitów w hero */
+  --body-2: #5E596B;         /* opisy w kartach */
+
+  /* na ciemnym (stopka, pas Dołącz) */
+  --on-dark: #F2F0F7;
+  --on-dark-2: #C9C4D6;
+  --on-dark-3: #9C95AF;
+  --dark-line: #3A3450;
+
+  /* typografia */
+  --font-display: 'Unbounded', system-ui, sans-serif;
+  --font-body: 'Geist', 'Helvetica Neue', Arial, sans-serif;
+
+  /* layout */
+  --container: 1360px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --radius-pill: 999px;
+
+  /* skala nagłówków */
+  --h1: clamp(34px, 4.4vw, 72px);  /* Unbounded jest szeroki — większy rozmiar rozsadza „niecodziennych” */
+  --h2: clamp(30px, 3.4vw, 50px);
+  --h-join: clamp(44px, 7vw, 108px);
+}
+
+/* ===================================================================
+   ASTRO: src/styles/global.css
+   =================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 3px; }
+.on-dark a:focus-visible, .on-dark button:focus-visible { outline-color: var(--color-accent); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link { position: absolute; left: 16px; top: -60px; z-index: 100; padding: 12px 16px; background: var(--color-brand); color: #fff; border-radius: var(--radius-sm); }
+.skip-link:focus { top: 16px; }
+
+.container { max-width: var(--container); margin: 0 auto; padding-inline: var(--gutter); }
+.display { font-family: var(--font-display); letter-spacing: -0.03em; }
+.section-title { margin: 0; font-family: var(--font-display); font-size: var(--h2); font-weight: 500; letter-spacing: -0.03em; }
+.section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 28px; }
+.marker { padding: 0 0.06em; margin: 0 -0.06em; background: linear-gradient(180deg, transparent 56%, var(--color-accent) 56%, var(--color-accent) 92%, transparent 92%); }
+
+/* ===================================================================
+   ASTRO: src/components/ui/Button.astro  (+ MoreLink, Tag)
+   =================================================================== */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  height: 56px; padding: 0 26px;
+  border-radius: var(--radius-pill);
+  font-weight: 600; font-size: 17px; text-decoration: none;
+  transition: filter .15s, background .15s, color .15s;
+}
+.btn--primary { background: var(--color-brand); color: #fff; }
+.btn--primary:hover { filter: brightness(1.15); }
+.btn--outline { border: 1.5px solid var(--ink); color: var(--ink); font-weight: 500; }
+.btn--outline:hover { background: var(--ink); color: #fff; }
+.btn--color-highlight { background: var(--color-highlight); color: var(--ink); }          /* tylko na ciemnym tle */
+.btn--color-highlight:hover { filter: brightness(0.95); }
+.btn--ghost-dark { border: 1.5px solid rgba(247,246,250,.6); color: var(--bg); }
+.btn--ghost-dark:hover { background: rgba(255,255,255,.1); }
+.btn--sm { height: 46px; padding: 0 22px; font-size: 15px; }
+.btn--with-icon { padding: 0 8px 0 26px; gap: 14px; }
+.btn__icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.14); display: inline-flex; align-items: center; justify-content: center; }
+.btn svg, .more-link svg { width: 16px; height: 16px; }
+
+.more-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; font-weight: 500; color: #3A3647; text-decoration: none; }
+.more-link:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+
+.tag { display: inline-flex; font-size: 13px; padding: 5px 12px; border-radius: var(--radius-pill); }
+.tag--color-accent { background: var(--color-accent); color: var(--ink); font-weight: 600; }
+.tag--neutral { background: var(--tag-bg); color: #3A3647; }
+
+/* ===================================================================
+   ASTRO: src/components/SiteHeader.astro
+   =================================================================== */
+.site-header { position: sticky; top: 0; z-index: 30; background: rgba(247,246,250,.88); backdrop-filter: blur(14px); }
+.site-header__in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; flex: 1 1 0; }
+.brand svg { width: 36px; height: 36px; }
+.brand__name { font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: .02em; }
+.pill-nav { display: flex; align-items: center; gap: 2px; padding: 5px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-pill); }
+.pill-nav a { text-decoration: none; font-size: 15px; font-weight: 500; padding: 10px 14px; border-radius: var(--radius-pill); color: #2A2735; transition: background .15s; }
+.pill-nav a:hover { background: #F0EDF7; }
+.site-header__actions { flex: 1 1 0; display: flex; justify-content: flex-end; gap: 10px; }
+.menu-btn { display: none; align-items: center; gap: 10px; height: 46px; padding: 0 18px; background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font: 500 15px var(--font-body); cursor: pointer; }
+.menu-btn svg { width: 18px; height: 18px; }
+.mobile-menu { margin: 0 16px 12px; padding: 8px 20px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; display: flex; flex-direction: column; }
+.mobile-menu[hidden] { display: none; }
+.mobile-menu a { padding: 16px 0; border-bottom: 1px solid var(--line); text-decoration: none; font-family: var(--font-display); font-size: 22px; }
+.mobile-menu a:last-of-type { border-bottom: 0; }
+.mobile-menu .btn { margin-top: 12px; justify-content: center; font-family: var(--font-body); font-size: 17px; border: 0; padding: 0; height: 54px; }
+@media (max-width: 1000px) {
+  .pill-nav, .site-header .header-cta { display: none; }
+  .menu-btn { display: inline-flex; }
+}
+
+/* ===================================================================
+   ASTRO: src/sections/Hero.astro
+   =================================================================== */
+.hero { display: flex; flex-wrap: wrap; gap: 40px clamp(32px, 5vw, 80px); align-items: stretch; padding-block: clamp(32px, 5vw, 72px) clamp(56px, 7vw, 96px); }
+.hero__text { flex: 1.2 1 520px; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+.badge { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; padding: 7px 14px 7px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-pill); }
+.badge__num { width: 22px; height: 22px; border-radius: 50%; background: var(--color-brand); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.hero h1 { margin: 0; font-family: var(--font-display); font-size: var(--h1); line-height: 1; font-weight: 600; letter-spacing: -0.045em; text-wrap: balance; overflow-wrap: break-word; hyphens: auto; }
+.hero__lead { margin: 0; max-width: 46ch; font-size: clamp(18px, 1.5vw, 20px); line-height: 1.55; color: var(--body); }
+.hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-top: 4px; }
+.hero__visual { flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.hero__logo { flex: 1 1 auto; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 16px 24px; }
+.hero__logo svg { width: min(460px, 100%); height: auto; color: var(--color-logo); overflow: visible; }
+.sponsor-card { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 18px; padding: 12px 12px 12px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); }
+.sponsor-card__label { display: flex; flex-direction: column; gap: 2px; }
+.sponsor-card__label small { font-size: 13px; color: var(--muted); }
+.sponsor-card__label strong { font-size: 15px; font-weight: 600; }
+.placeholder { display: inline-flex; align-items: center; justify-content: center; border: 2px dashed #A9A4B6; border-radius: var(--radius-sm); color: #55505F; font-size: 13px; font-weight: 600; text-align: center; padding: 12px 16px; }
+.sponsor-card .placeholder { height: 52px; min-width: 180px; }
+
+/* animacja logo (KnmlLogo animated) */
+.logo-anim .arcs { opacity: 0; animation: lgFade .9s ease forwards; }
+.logo-anim .ed { opacity: 0; transform-box: fill-box; transform-origin: center; animation: lgIn .9s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: calc(.35s + var(--d)); }
+.logo-anim .ring { opacity: 0; transform-box: fill-box; transform-origin: center; animation: lgIn .9s cubic-bezier(.2,.7,.2,1) forwards, lgPulse 2.8s ease-in-out infinite; }
+.logo-anim .ring:nth-child(10) { animation-delay: .8s, 1.8s; }
+.logo-anim .ring:nth-child(11) { animation-delay: .9s, 2.05s; }
+.logo-anim .ring:nth-child(12) { animation-delay: 1s, 2.3s; }
+.logo-anim .ring:nth-child(13) { animation-delay: 1.1s, 2.55s; }
+.logo-anim .ring:nth-child(14) { animation-delay: 1.2s, 2.8s; }
+@keyframes lgFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lgIn { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes lgPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* ===================================================================
+   ASTRO: src/sections/About.astro
+   =================================================================== */
+.about { display: flex; flex-wrap: wrap; gap: 48px clamp(40px, 6vw, 112px); align-items: flex-end; padding-block: clamp(40px, 6vw, 80px); border-top: 1px solid var(--line); }
+.about__text { flex: 3 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.about__label { margin: 0; font-size: 15px; font-weight: 500; color: var(--muted); }
+.about__statement { margin: 0; font-family: var(--font-display); font-size: clamp(26px, 2.8vw, 42px); line-height: 1.18; font-weight: 400; letter-spacing: -0.02em; text-wrap: pretty; }
+.about__statement .marker { background: linear-gradient(180deg, transparent 58%, var(--color-accent) 58%, var(--color-accent) 94%, transparent 94%); padding: 0; margin: 0; }
+.stats { flex: 2 1 340px; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; }
+.stat { padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 8px; }
+.stat dt { font-family: var(--font-display); font-size: 42px; font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
+.stat dd { margin: 0; font-size: 15px; line-height: 1.4; color: var(--muted); }
+.stat--dark { background: var(--color-brand); border-color: var(--color-brand); color: var(--bg); }
+.stat--dark dt { color: var(--color-highlight); }
+.stat--dark dd { color: #D9D5E4; }
+
+/* ===================================================================
+   ASTRO: src/sections/LatestPosts.astro
+   =================================================================== */
+.posts { padding-block: 40px clamp(56px, 7vw, 96px); }
+.mosaic { display: flex; flex-wrap: wrap; gap: 16px; }
+.mosaic__side { flex: 1 1 340px; display: flex; flex-direction: column; gap: 16px; }
+.tile { position: relative; overflow: hidden; display: block; border-radius: var(--radius-lg); color: #fff; text-decoration: none; }
+.tile--lead { flex: 2 1 560px; min-height: 540px; }
+.tile--small { flex: 1 1 262px; min-height: 262px; }
+.tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.2,.7,.2,1); }
+.tile:hover img { transform: scale(1.04); }
+.tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(22,19,31,0) 35%, rgba(22,19,31,.88) 100%); }
+.tile__body { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+.tile--lead .tile__body { padding: clamp(20px, 2.4vw, 32px); gap: 12px; }
+.tile__meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: #E6E3EE; }
+.tile__title { font-size: 21px; line-height: 1.2; font-weight: 600; }
+.tile--lead .tile__title { font-family: var(--font-display); font-size: clamp(24px, 2.4vw, 36px); line-height: 1.12; font-weight: 500; letter-spacing: -0.02em; max-width: 20ch; }
+.tile__excerpt { font-size: 16px; line-height: 1.5; color: #E6E3EE; max-width: 56ch; }
+
+/* ===================================================================
+   ASTRO: src/sections/Achievements.astro
+   =================================================================== */
+.achievements { background: var(--section); padding-block: clamp(56px, 7vw, 96px); }
+.achievements__hint { font-size: 15px; color: var(--muted); }
+.rail { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 0 18px; margin: 0; list-style: none; }
+.rail > li { flex: 0 0 300px; display: flex; scroll-snap-align: start; }
+.ach { flex: 1 1 auto; min-height: 340px; padding: 28px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); color: var(--ink); text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; transition: transform .25s; }
+.ach:hover { transform: translateY(-4px); }
+.ach__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.ach__mark { font-family: var(--font-display); font-size: 60px; line-height: .9; font-weight: 500; letter-spacing: -0.05em; }
+.ach__year, .ach__desc { color: var(--muted); }
+.ach__year { font-size: 14px; font-weight: 500; }
+.ach__body { display: flex; flex-direction: column; gap: 10px; }
+.ach__place { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.ach__title { font-size: 21px; font-weight: 600; line-height: 1.2; }
+.ach__desc { font-size: 14px; line-height: 1.5; }
+.ach--gold { background: var(--color-highlight); border-color: var(--color-highlight); }      /* place === 'I miejsce' */
+.ach--gold .ach__year, .ach--gold .ach__desc { color: var(--color-highlight-ink); }
+
+/* ===================================================================
+   ASTRO: src/sections/JoinCta.astro
+   =================================================================== */
+.join-wrap { padding: clamp(32px, 4vw, 56px) var(--gutter) 0; }
+.join { position: relative; overflow: hidden; max-width: var(--container); margin: 0 auto; background: var(--color-brand); color: var(--bg); border-radius: var(--radius-xl); }
+.join__bg-logo { position: absolute; right: -4%; top: 50%; transform: translateY(-50%); width: min(560px, 60vw); height: auto; color: rgba(205,184,240,.14); }
+.join__in { position: relative; padding: clamp(48px, 7vw, 96px) clamp(24px, 5vw, 72px); display: flex; flex-wrap: wrap; gap: 40px clamp(40px, 6vw, 96px); align-items: flex-end; }
+.join__text { flex: 3 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.join__eyebrow { font-size: 15px; font-weight: 600; color: var(--color-accent); }
+.join h2 { margin: 0; font-family: var(--font-display); font-size: var(--h-join); line-height: .92; font-weight: 600; letter-spacing: -0.045em; }
+.join__lead { margin: 0; max-width: 48ch; font-size: 19px; line-height: 1.5; color: #D9D3E6; }
+.join__cta { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 4px; }
+.join__cta .btn { height: 58px; padding-inline: 30px; }
+.steps { flex: 2 1 320px; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: step; }
+.steps li { display: flex; gap: 16px; align-items: center; padding: 16px 18px; background: rgba(255,255,255,.07); border-radius: 18px; font-size: 18px; font-weight: 600; line-height: 1.3; counter-increment: step; }
+.steps li::before { content: counter(step); flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; background: var(--color-highlight); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 13px; font-weight: 600; }
+
+/* ===================================================================
+   ASTRO: src/sections/Projects.astro
+   =================================================================== */
+.projects { padding-block: clamp(56px, 7vw, 96px); }
+.proj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(520px, 100%), 1fr)); gap: 20px; }
+.proj { display: flex; flex-direction: column; gap: 18px; padding: 12px 12px 24px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); text-decoration: none; color: var(--ink); transition: box-shadow .25s, transform .25s; }
+.proj:hover { box-shadow: 0 18px 40px -24px rgba(22,19,31,.35); transform: translateY(-3px); }
+.proj__img { aspect-ratio: 16 / 9; border-radius: var(--radius-md); overflow: hidden; background: var(--section); }
+.proj__img img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.2,.7,.2,1); }
+.proj:hover .proj__img img { transform: scale(1.04); }
+.proj__body { padding: 0 12px; display: flex; flex-direction: column; gap: 14px; }
+.proj__tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.proj__title { font-family: var(--font-display); font-size: clamp(22px, 2vw, 28px); line-height: 1.15; font-weight: 500; letter-spacing: -0.02em; }
+.proj__desc { font-size: 16px; line-height: 1.55; color: var(--body-2); max-width: 60ch; }
+.proj__meta { font-size: 14px; font-weight: 600; }
+
+/* ===================================================================
+   ASTRO: src/sections/Partners.astro
+   =================================================================== */
+.partners { background: var(--section); padding-block: clamp(56px, 7vw, 96px); }
+.partners__in { display: flex; flex-direction: column; gap: 32px; }
+.partners__grid { display: flex; flex-wrap: wrap; gap: 16px; }
+.partner-strategic { flex: 2 1 520px; min-height: 280px; background: var(--surface); border-radius: var(--radius-lg); padding: clamp(24px, 3vw, 40px); display: flex; flex-wrap: wrap; align-items: center; gap: 32px; }
+.partner-strategic .placeholder { flex: 1 1 240px; height: 160px; font-size: 15px; border-radius: 16px; }
+.partner-strategic__text { flex: 1 1 240px; display: flex; flex-direction: column; gap: 12px; }
+.partner-strategic__badge { align-self: flex-start; font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: var(--radius-pill); background: var(--color-brand); color: var(--on-dark); }
+.partner-strategic__text p { margin: 0; font-size: 18px; line-height: 1.45; color: #2A2735; }
+.partner-strategic__text a { font-size: 15px; font-weight: 600; }
+.partners__side { flex: 1 1 300px; display: flex; flex-direction: column; gap: 16px; }
+.partner-logo { flex: 1 1 132px; min-height: 132px; background: var(--surface); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; padding: 24px 32px; }
+.partner-logo img { max-height: 64px; }
+
+/* ===================================================================
+   ASTRO: src/components/SiteFooter.astro
+   =================================================================== */
+.site-footer { background: var(--color-brand); color: var(--on-dark); margin-top: 0; }
+.site-footer__in { padding-block: 72px 32px; display: flex; flex-direction: column; gap: 56px; }
+.site-footer__top { display: flex; flex-wrap: wrap; gap: 48px clamp(32px, 5vw, 80px); justify-content: space-between; }
+.footer-brand { flex: 2 1 340px; max-width: 440px; display: flex; flex-direction: column; gap: 20px; }
+.footer-brand__logo { display: flex; align-items: center; gap: 14px; }
+.footer-brand__logo svg { width: 48px; height: 48px; }
+.footer-brand__name { display: flex; flex-direction: column; gap: 2px; }
+.footer-brand__name strong { font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+.footer-brand__name small { font-size: 13px; color: #B9B3C9; }
+.footer-brand p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--on-dark-2); }
+.socials { display: flex; flex-wrap: wrap; gap: 8px; }
+.socials a { display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border: 1px solid var(--dark-line); border-radius: var(--radius-pill); font-size: 14px; color: #D9D5E4; text-decoration: none; transition: border-color .15s, color .15s; }
+.socials a:hover { border-color: var(--color-accent); color: #fff; }
+.footer-mail { font-size: 16px; font-weight: 500; text-underline-offset: 4px; }
+.footer-cols { flex: 1 1 340px; display: flex; flex-wrap: wrap; gap: 32px 56px; }
+.footer-col { display: flex; flex-direction: column; gap: 12px; }
+.footer-col__title { font-size: 13px; color: var(--on-dark-3); margin-bottom: 4px; }
+.footer-col a { color: var(--color-accent); font-size: 15px; text-decoration: none; }
+.footer-col a:hover { color: #fff; }
+.footer-orgs { flex: 1 1 300px; max-width: 360px; display: flex; flex-direction: column; gap: 16px; }
+.footer-orgs__label { font-size: 13px; color: var(--on-dark-3); }
+.footer-orgs__label + .footer-orgs__label { margin-top: 8px; }
+.org-tile { height: 84px; background: var(--bg); border-radius: 16px; display: flex; align-items: center; justify-content: center; padding: 12px; }
+.org-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.org-grid .org-tile { height: 72px; border-radius: 14px; }
+.org-tile img { max-height: 40px; mix-blend-mode: multiply; }
+.org-tile .placeholder { padding: 8px 10px; font-size: 12px; }
+.site-footer__bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 24px; border-top: 1px solid var(--dark-line); font-size: 13px; color: var(--on-dark-3); }
+.site-footer__bottom a { color: var(--on-dark-3); text-decoration: none; }
+.site-footer__bottom a:hover { color: #fff; }
+
+/* ===================================================================
+   ruch: szanuj ustawienia systemowe
+   =================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .tile img, .proj img, .proj, .ach { transition: none; }
+  .logo-anim .arcs, .logo-anim .ed, .logo-anim .ring { animation: none; opacity: 1; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Przejdź do treści</a>
+
+<!-- ASTRO: KnmlLogo.astro — definicja znaku (jedno źródło ścieżek). Docelowo src/assets/knml-logo.svg -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <g id="knml-logo">
+      <g transform="translate(-773.3 -248.8)">
+        <!-- łuki okręgu -->
+        <path d="M773.4 424.5c.1-1.9.3-3.8.4-5.7 1.5-23.5 7.4-45.8 17.6-67 4.8-9.9 10.4-19.3 16.9-28.2.2-.3.5-.6.7-.9 2.2 1.7 4.3 3.3 6.5 5-20.2 30.8-30.4 64.8-30.6 101.8-.2 36.9 9.8 71.1 29.8 102.2-1.3.9-2.5 1.7-3.7 2.6-1.1.9-2.2 1.9-3.4 2.9-.2-.3-.5-.6-.7-1-14.6-20.5-24.5-43.1-29.7-67.8-2.1-10-3.4-20.2-3.7-30.4 0-.3-.1-.6-.2-.9.1-4.3.1-8.4.1-12.6z"/>
+        <path d="M951 612.7c-.8-.1-1.6-.2-2.3-.2-20.4-.7-40.2-4.8-59.2-12.2-14-5.4-27.2-12.5-39.5-21.3-.3-.2-.6-.4-.9-.7 1.4-1.6 2.7-3.1 4-4.7 1.1.9 2.3 1.8 3.5 2.6 19.9 14.8 41.9 24.9 66.2 29.8 15.8 3.2 31.7 4 47.7 2.5 20.5-1.9 39.9-7.5 58.2-16.8 26.4-13.4 47.8-32.5 64.6-56.8 2.5-3.6 4.8-7.4 7.2-11 2.7 1.3 5.5 2.7 8.4 4.2-2.2 3.1-4.3 6.4-6.7 9.6-17.8 24.2-40.1 43-67 56.3-15.8 7.8-32.4 13.1-49.8 16-8.3 1.4-16.6 2.2-25 2.4-.3 0-.5.1-.8.2-2.8.1-5.7.1-8.6.1z"/>
+        <path d="M959.6 248.8c.7.1 1.5.2 2.2.2 22.8.8 44.6 5.7 65.5 14.7 19.9 8.6 37.6 20.4 53.3 35.3 9.7 9.2 18.2 19.4 25.7 30.5.2.4.5.7.7 1-2.5 1.4-5 2.8-7.6 4.3-.1-.2-.4-.6-.6-.9-16.4-26.8-38.2-48.1-65.9-63.1-16.9-9.2-34.9-15.2-53.9-18-8-1.2-16-1.8-24.1-1.7-32.4.2-62.2 9.2-89.4 26.9-3.8 2.5-7.4 5.1-11.2 7.8-1-1.3-2.1-2.6-3.3-4.1 1.9-1.3 3.9-2.6 5.8-3.9 21-13.5 43.8-22.3 68.4-26.4 8.2-1.4 16.5-2.2 24.9-2.4.3 0 .6-.1.9-.2h8.6z"/>
+        <path d="M1120.6 387.3c3.5-1 6.9-2.1 10.4-3.1 3.8 14.5 5.8 29.6 6 44.9.1 15.3-1.6 30.4-5.2 45.2-3.6-1.2-7-2.3-10.7-3.5 6.1-27.7 5.9-55.7-.5-83.5z"/>
+        <!-- krawędzie -->
+        <path d="M853.8 319c.4-.6.7-1 1.1-1.6 80.7 53.8 160.1 109.2 238.4 166.4-.3.6-.6 1-1 1.6-80.7-53.7-160.1-109.2-238.5-166.4Z"/>
+        <path d="M1089.3 492.7c-.2.8-.3 1.3-.5 2.1-77.3-18.1-154-38.1-230.3-60 .2-.8.4-1.4.5-2.1 77.4 18.1 154 38.1 230.3 60z"/>
+        <path d="M857.7 552.4c-.2-.8-.3-1.3-.4-2.1 76.8-17 153.9-32.2 231.5-45.4.2.7.3 1.3.5 2.1-76.9 17.1-154 32.2-231.6 45.4z"/>
+        <path d="M858.2 309.6c.2-.8.3-1.3.5-2.1 77.1 13.1 153.8 28 230.2 44.9-.1.8-.2 1.4-.3 2.2-77.2-13.1-153.9-28.1-230.4-45z"/>
+        <path d="M1088.8 363.2c.2.7.3 1.3.5 2-2.3.6-4.5 1.3-6.7 1.8-24.6 6.4-49.2 12.8-73.9 19.1-10.8 2.8-21.6 5.4-32.4 8-.7.2-1.3.1-2-.3-1.4-1.1-2.9-2.1-4.7-3.3 39.8-9.5 79.4-18.8 119.2-27.3z"/>
+        <path d="M959.1 398.5c-33.3 7.6-66.5 15.2-99.9 22.8-.2-.9-.4-1.6-.5-2.3 3-.8 5.9-1.6 8.8-2.4 28.4-7.3 56.8-14.6 85.3-21.9.9-.2 1.5-.1 2.2.4l4.2 3c-.1.2-.1.3-.1.4z"/>
+        <path d="M853.3 541.3c-.4-.5-.7-.9-1-1.5.4-.3.8-.6 1.1-.9 34.6-25.1 69.7-49.8 104.9-74.1.4-.3 1.2-.4 1.7-.3 1.7.4 3.4.9 5.3 1.5-37.1 25.6-74.3 50.7-112 75.3z"/>
+        <path d="M1093 373.8c.5.7.8 1.1 1.1 1.6-2.4 1.7-4.7 3.4-7 5.1-21.4 15.2-42.8 30.4-64.2 45.7-1.1.8-1.8.8-2.8 0-.7-.7-1.6-1.2-2.7-2 25.3-16.8 50.4-33.6 75.6-50.4z"/>
+        <path d="M968.1 458.1c3.5-2.4 6.6-4.6 9.8-6.7 9.4-6.4 18.8-12.8 28.2-19.3.7-.5 1.2-.6 1.9 0 1 .8 2.1 1.5 3.2 2.3-.3.2-.5.5-.7.6-11.6 8.1-23.2 16.1-34.8 24.2-.7.5-1.2.5-2 .3-1.8-.6-3.6-.9-5.6-1.4z"/>
+        <!-- węzły (pierścienie) -->
+        <path d="M801.6 301.6c0-15.2 12.2-27.1 27.7-27.1 14.6 0 26.7 12.4 26.7 27.3-.1 15.5-12.9 27.4-27.9 27.1-14.5-.3-26.5-12.5-26.5-27.3zm29.3-19.3c-11.6 0-21 9.3-21 20.9 0 11.7 9.2 21.1 20.9 21.2 11.5.1 21.1-9.4 21.1-21 0-11.7-9.4-21.1-21-21.1z"/>
+        <path d="M829.4 400.2c15 0 27.1 12.1 27.2 27.1.1 15-12.2 27.2-27.3 27.2-15.1 0-27.1-12.2-27.1-27.4.1-14.8 12.3-26.9 27.2-26.9zM811 426.6c-.3 10.9 9 20.8 19.8 21.2 12.2.5 21.8-8.7 22.2-20 .5-12.1-8.6-21.6-20.6-22-11.6-.4-21.1 8.9-21.4 20.8z"/>
+        <path d="M828.1 585.4c-15 0-27.2-12.1-27.2-27.1 0-15 12.2-27.2 27.2-27.2s27.1 12.2 27.1 27.2-12.1 27.1-27.1 27.1zm-18.8-28.5c0 11.8 9.4 21 21.3 21 11.5 0 20.8-9.5 20.7-21.2 0-11.4-9.5-20.8-21-20.8-11.6-.1-21 9.4-21 21z"/>
+        <path d="M1120.2 330.5c15.9.6 27.3 13.9 26.4 28.9-.9 14.9-13.4 26-28 25.5-15.8-.6-26.8-13.7-26.2-28.2.4-14.9 12.7-26.5 27.8-26.2zm18.3 29c0-11.5-9.3-21-20.7-21-11.9 0-21.4 9.2-21.4 20.8 0 11.7 9.2 21.2 20.7 21.2 12 0 21.4-9.2 21.4-21z"/>
+        <path d="M1119.1 474.1c15.1 0 27.2 12.2 27.2 27.2s-12.2 27.2-27.2 27.1c-15 0-27.2-12.2-27.2-27.2s12.1-27.1 27.2-27.1zm-23.7 26.9c0 11.6 9.3 21 20.7 21 11.9 0 21.3-9.3 21.3-21 0-11.6-9.6-21.2-21.1-21-11.6.1-20.9 9.4-20.9 21z"/>
+      </g>
+    </g>
+  </defs>
+</svg>
+
+<!-- ================================================================
+     ASTRO: SiteHeader.astro
+     Menu mobilne: wystarczy ten mały skrypt (inline <script> w Astro) — React niepotrzebny.
+     ================================================================ -->
+<header class="site-header">
+  <div class="container site-header__in">
+    <a class="brand" href="/" aria-label="KNML — strona główna">
+      <svg viewBox="0 0 373.35 363.9" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><use href="#knml-logo"/></svg>
+      <span class="brand__name">KNML</span>
+    </a>
+    <nav class="pill-nav" aria-label="Główna nawigacja">
+      <a href="#blog">Blog</a>
+      <a href="#projekty">Projekty</a>
+      <a href="#osiagniecia">Osiągnięcia</a>
+      <a href="#o-nas">O nas</a>
+      <a href="#kontakt">Kontakt</a>
+      <a href="https://wiki.knml.edu.pl">Wiki ↗</a>
+    </nav>
+    <div class="site-header__actions">
+      <a class="btn btn--primary btn--sm header-cta" href="https://discord.gg/ZYJdXXgE6H">Dołącz</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Otwórz menu">
+        Menu
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16M4 15h16"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobilne" hidden>
+    <a href="#blog">Blog</a>
+    <a href="#projekty">Projekty</a>
+    <a href="#osiagniecia">Osiągnięcia</a>
+    <a href="#o-nas">O nas</a>
+    <a href="#kontakt">Kontakt</a>
+    <a class="btn btn--primary" href="https://discord.gg/ZYJdXXgE6H">Dołącz na Discordzie</a>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ================================================================
+       ASTRO: Hero.astro
+       Dane: sponsor z kolekcji partners (tier: 'strategic', validUntil >= dziś).
+       ================================================================ -->
+  <section class="container hero">
+    <div class="hero__text">
+      <span class="badge"><span class="badge__num">1.</span>2× I miejsce na hackathonach w 2026</span>
+      <h1>Uczenie maszynowe do <span class="marker">niecodziennych</span> problemów.</h1>
+      <p class="hero__lead">Koło Naukowe Machine Learning Politechniki Rzeszowskiej. Analiza danych, sieci neuronowe, wykrywanie dronów i algorytmy jazdy autonomicznej.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary btn--with-icon" href="https://discord.gg/ZYJdXXgE6H">
+          Dołącz do nas
+          <span class="btn__icon"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>
+        </a>
+        <a class="btn btn--outline" href="#projekty">Zobacz projekty</a>
+      </div>
+    </div>
+
+    <div class="hero__visual">
+      <div class="hero__logo">
+        <!-- ASTRO: <KnmlLogo animated /> — ta sama geometria co #knml-logo, rozbita na grupy do animacji -->
+        <svg class="logo-anim" viewBox="0 0 373.35 363.9" fill="currentColor" fill-rule="evenodd" role="img" aria-label="Logo KNML: sieć neuronowa wpisana w okrąg">
+          <g class="arcs"><g transform="translate(-773.3 -248.8)">
+            <path d="M773.4 424.5c.1-1.9.3-3.8.4-5.7 1.5-23.5 7.4-45.8 17.6-67 4.8-9.9 10.4-19.3 16.9-28.2.2-.3.5-.6.7-.9 2.2 1.7 4.3 3.3 6.5 5-20.2 30.8-30.4 64.8-30.6 101.8-.2 36.9 9.8 71.1 29.8 102.2-1.3.9-2.5 1.7-3.7 2.6-1.1.9-2.2 1.9-3.4 2.9-.2-.3-.5-.6-.7-1-14.6-20.5-24.5-43.1-29.7-67.8-2.1-10-3.4-20.2-3.7-30.4 0-.3-.1-.6-.2-.9.1-4.3.1-8.4.1-12.6z"/>
+            <path d="M951 612.7c-.8-.1-1.6-.2-2.3-.2-20.4-.7-40.2-4.8-59.2-12.2-14-5.4-27.2-12.5-39.5-21.3-.3-.2-.6-.4-.9-.7 1.4-1.6 2.7-3.1 4-4.7 1.1.9 2.3 1.8 3.5 2.6 19.9 14.8 41.9 24.9 66.2 29.8 15.8 3.2 31.7 4 47.7 2.5 20.5-1.9 39.9-7.5 58.2-16.8 26.4-13.4 47.8-32.5 64.6-56.8 2.5-3.6 4.8-7.4 7.2-11 2.7 1.3 5.5 2.7 8.4 4.2-2.2 3.1-4.3 6.4-6.7 9.6-17.8 24.2-40.1 43-67 56.3-15.8 7.8-32.4 13.1-49.8 16-8.3 1.4-16.6 2.2-25 2.4-.3 0-.5.1-.8.2-2.8.1-5.7.1-8.6.1z"/>
+            <path d="M959.6 248.8c.7.1 1.5.2 2.2.2 22.8.8 44.6 5.7 65.5 14.7 19.9 8.6 37.6 20.4 53.3 35.3 9.7 9.2 18.2 19.4 25.7 30.5.2.4.5.7.7 1-2.5 1.4-5 2.8-7.6 4.3-.1-.2-.4-.6-.6-.9-16.4-26.8-38.2-48.1-65.9-63.1-16.9-9.2-34.9-15.2-53.9-18-8-1.2-16-1.8-24.1-1.7-32.4.2-62.2 9.2-89.4 26.9-3.8 2.5-7.4 5.1-11.2 7.8-1-1.3-2.1-2.6-3.3-4.1 1.9-1.3 3.9-2.6 5.8-3.9 21-13.5 43.8-22.3 68.4-26.4 8.2-1.4 16.5-2.2 24.9-2.4.3 0 .6-.1.9-.2h8.6z"/>
+            <path d="M1120.6 387.3c3.5-1 6.9-2.1 10.4-3.1 3.8 14.5 5.8 29.6 6 44.9.1 15.3-1.6 30.4-5.2 45.2-3.6-1.2-7-2.3-10.7-3.5 6.1-27.7 5.9-55.7-.5-83.5z"/>
+          </g></g>
+          <g transform="translate(-773.3 -248.8)"><path class="ed" style="--d:0s" d="M853.8 319c.4-.6.7-1 1.1-1.6 80.7 53.8 160.1 109.2 238.4 166.4-.3.6-.6 1-1 1.6-80.7-53.7-160.1-109.2-238.5-166.4Z"/><path class="ed" style="--d:.12s" d="M1089.3 492.7c-.2.8-.3 1.3-.5 2.1-77.3-18.1-154-38.1-230.3-60 .2-.8.4-1.4.5-2.1 77.4 18.1 154 38.1 230.3 60z"/><path class="ed" style="--d:.2s" d="M857.7 552.4c-.2-.8-.3-1.3-.4-2.1 76.8-17 153.9-32.2 231.5-45.4.2.7.3 1.3.5 2.1-76.9 17.1-154 32.2-231.6 45.4z"/><path class="ed" style="--d:.04s" d="M858.2 309.6c.2-.8.3-1.3.5-2.1 77.1 13.1 153.8 28 230.2 44.9-.1.8-.2 1.4-.3 2.2-77.2-13.1-153.9-28.1-230.4-45z"/><path class="ed" style="--d:.1s" d="M1088.8 363.2c.2.7.3 1.3.5 2-2.3.6-4.5 1.3-6.7 1.8-24.6 6.4-49.2 12.8-73.9 19.1-10.8 2.8-21.6 5.4-32.4 8-.7.2-1.3.1-2-.3-1.4-1.1-2.9-2.1-4.7-3.3 39.8-9.5 79.4-18.8 119.2-27.3z"/><path class="ed" style="--d:.1s" d="M959.1 398.5c-33.3 7.6-66.5 15.2-99.9 22.8-.2-.9-.4-1.6-.5-2.3 3-.8 5.9-1.6 8.8-2.4 28.4-7.3 56.8-14.6 85.3-21.9.9-.2 1.5-.1 2.2.4l4.2 3c-.1.2-.1.3-.1.4z"/><path class="ed" style="--d:.18s" d="M853.3 541.3c-.4-.5-.7-.9-1-1.5.4-.3.8-.6 1.1-.9 34.6-25.1 69.7-49.8 104.9-74.1.4-.3 1.2-.4 1.7-.3 1.7.4 3.4.9 5.3 1.5-37.1 25.6-74.3 50.7-112 75.3z"/><path class="ed" style="--d:.18s" d="M1093 373.8c.5.7.8 1.1 1.1 1.6-2.4 1.7-4.7 3.4-7 5.1-21.4 15.2-42.8 30.4-64.2 45.7-1.1.8-1.8.8-2.8 0-.7-.7-1.6-1.2-2.7-2 25.3-16.8 50.4-33.6 75.6-50.4z"/><path class="ed" style="--d:.18s" d="M968.1 458.1c3.5-2.4 6.6-4.6 9.8-6.7 9.4-6.4 18.8-12.8 28.2-19.3.7-.5 1.2-.6 1.9 0 1 .8 2.1 1.5 3.2 2.3-.3.2-.5.5-.7.6-11.6 8.1-23.2 16.1-34.8 24.2-.7.5-1.2.5-2 .3-1.8-.6-3.6-.9-5.6-1.4z"/><path class="ring" d="M801.6 301.6c0-15.2 12.2-27.1 27.7-27.1 14.6 0 26.7 12.4 26.7 27.3-.1 15.5-12.9 27.4-27.9 27.1-14.5-.3-26.5-12.5-26.5-27.3zm29.3-19.3c-11.6 0-21 9.3-21 20.9 0 11.7 9.2 21.1 20.9 21.2 11.5.1 21.1-9.4 21.1-21 0-11.7-9.4-21.1-21-21.1z"/><path class="ring" d="M829.4 400.2c15 0 27.1 12.1 27.2 27.1.1 15-12.2 27.2-27.3 27.2-15.1 0-27.1-12.2-27.1-27.4.1-14.8 12.3-26.9 27.2-26.9zM811 426.6c-.3 10.9 9 20.8 19.8 21.2 12.2.5 21.8-8.7 22.2-20 .5-12.1-8.6-21.6-20.6-22-11.6-.4-21.1 8.9-21.4 20.8z"/><path class="ring" d="M828.1 585.4c-15 0-27.2-12.1-27.2-27.1 0-15 12.2-27.2 27.2-27.2s27.1 12.2 27.1 27.2-12.1 27.1-27.1 27.1zm-18.8-28.5c0 11.8 9.4 21 21.3 21 11.5 0 20.8-9.5 20.7-21.2 0-11.4-9.5-20.8-21-20.8-11.6-.1-21 9.4-21 21z"/><path class="ring" d="M1120.2 330.5c15.9.6 27.3 13.9 26.4 28.9-.9 14.9-13.4 26-28 25.5-15.8-.6-26.8-13.7-26.2-28.2.4-14.9 12.7-26.5 27.8-26.2zm18.3 29c0-11.5-9.3-21-20.7-21-11.9 0-21.4 9.2-21.4 20.8 0 11.7 9.2 21.2 20.7 21.2 12 0 21.4-9.2 21.4-21z"/><path class="ring" d="M1119.1 474.1c15.1 0 27.2 12.2 27.2 27.2s-12.2 27.2-27.2 27.1c-15 0-27.2-12.2-27.2-27.2s12.1-27.1 27.2-27.1zm-23.7 26.9c0 11.6 9.3 21 20.7 21 11.9 0 21.3-9.3 21.3-21 0-11.6-9.6-21.2-21.1-21-11.6.1-20.9 9.4-20.9 21z"/></g>
+        </svg>
+      </div>
+      <div class="sponsor-card">
+        <span class="sponsor-card__label"><small>Partner strategiczny</small><strong>[Nazwa sponsora]</strong></span>
+        <span class="placeholder">[LOGO SPONSORA]</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       ASTRO: About.astro   Dane: src/data/site.ts → stats[]
+       Statystyki są prawdziwe (z repo): założenie 2020, 7 osiągnięć w config.toml,
+       I miejsca: SpaceShield Hack 2026 + EDTH Detect & Defend 2026.
+       ================================================================ -->
+  <section id="o-nas" class="container about" aria-labelledby="h-onas">
+    <div class="about__text">
+      <h2 id="h-onas" class="about__label">O nas</h2>
+      <p class="about__statement">Jesteśmy grupą studentów zafascynowanych analizą danych, uczeniem maszynowym i sieciami neuronowymi. Uczymy się w praktyce: na konkursach, hackathonach i we <span class="marker">własnych projektach</span>.</p>
+      <a class="more-link" href="/o-nas">Poznaj koło <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+    </div>
+    <dl class="stats">
+      <div class="stat"><dt>2020</dt><dd>rok założenia przy WMiFS</dd></div>
+      <div class="stat"><dt>7</dt><dd>nagród i wyróżnień w konkursach</dd></div>
+      <div class="stat stat--dark"><dt>2×</dt><dd>I miejsce na międzynarodowych hackathonach w 2026</dd></div>
+    </dl>
+  </section>
+
+  <!-- ================================================================
+       ASTRO: LatestPosts.astro
+       Dane: (await getCollection('blog', p => !p.data.draft)).sort(by date desc).slice(0,3)
+       [0] → tile--lead (z excerpt), [1..2] → tile--small. Tytuły: shortTitle ?? title.
+       ================================================================ -->
+  <section id="blog" class="container posts" aria-labelledby="h-blog">
+    <div class="section-head">
+      <h2 id="h-blog" class="section-title">Z życia koła</h2>
+      <a class="more-link" href="/blog">Wszystkie wpisy (20) <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+    </div>
+    <div class="mosaic">
+      <a class="tile tile--lead" href="/blog/studenci-kola-naukowego-machine-learning-z-wizyta-w-tuluzie/">
+        <img src="assets/img/post-tuluza.jpg" alt="">
+        <span class="tile__body">
+          <span class="tile__meta"><span class="tag tag--color-accent">Aktualności</span><time datetime="2026-09-16">16.09.2026</time></span>
+          <span class="tile__title">Studenci KNML z wizytą w Tuluzie</span>
+          <span class="tile__excerpt">Trzy dni wśród przemysłu lotniczego i kosmicznego: Cité de l’Espace i Musée Aeroscopia.</span>
+        </span>
+      </a>
+      <div class="mosaic__side">
+        <a class="tile tile--small" href="/blog/zwyciestwo-studentow-kola-naukowego-machine-learning-w-hackathonie-spaceshield-hack/">
+          <img src="assets/img/post-spaceshield.jpg" alt="">
+          <span class="tile__body"><span class="tile__meta"><time datetime="2026-05-26">26.05.2026</time> · Aktualności</span><span class="tile__title">Zwycięstwo w hackathonie Spaceshield Hack</span></span>
+        </a>
+        <a class="tile tile--small" href="/blog/innowacyjny-projekt-kola-naukowego-machine-learning-nagrodzony-przez-pci/">
+          <img src="assets/img/post-pci.jpg" alt="">
+          <span class="tile__body"><span class="tile__meta"><time datetime="2026-04-10">10.04.2026</time> · Aktualności</span><span class="tile__title">Nasz projekt nagrodzony przez PCI</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       ASTRO: Achievements.astro
+       Dane: getCollection('achievements') sort by date desc. Źródło: config.toml [params.achievements]
+       Wariant: place === 'I miejsce' → class="ach ach--gold"
+       ================================================================ -->
+  <section id="osiagniecia" class="achievements" aria-labelledby="h-osiag">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="h-osiag" class="section-title">Osiągnięcia</h2>
+        <span class="achievements__hint">Przewiń w bok →</span>
+      </div>
+      <ol class="rail" tabindex="0" aria-label="Osiągnięcia koła, lista przewijana w poziomie">
+        <li><a class="ach ach--gold" href="https://w.prz.edu.pl/uczelnia/aktualnosci/kolejny-sukces-kola-naukowego-machine-learning-3023.html"><span class="ach__top"><span class="ach__mark">1.</span><span class="ach__year">2026</span></span><span class="ach__body"><span class="ach__place">I miejsce</span><span class="ach__title">SpaceShield Hack</span><span class="ach__desc">Dostępność transportu publicznego w Stalowej Woli z danych satelitarnych</span></span></a></li>
+        <li><a class="ach ach--gold" href="https://prz.edu.pl/uczelnia/aktualnosci/sukces-studentow-kola-naukowego-machine-learninga-2978.html"><span class="ach__top"><span class="ach__mark">1.</span><span class="ach__year">2026</span></span><span class="ach__body"><span class="ach__place">I miejsce</span><span class="ach__title">EDTH Detect &amp; Defend</span><span class="ach__desc">Sieć czujników mesh do wykrywania dronów</span></span></a></li>
+        <li><a class="ach" href="https://prz.edu.pl/uczelnia/aktualnosci/pci-nagrodzilo-innowacyjne-projekty-kol-naukowych-2997.html"><span class="ach__top"><span class="ach__mark">PCI</span><span class="ach__year">2026</span></span><span class="ach__body"><span class="ach__place">Nagroda</span><span class="ach__title">Podkarpackie Centrum Innowacji</span><span class="ach__desc">Rozproszona sieć czujników wykrywających drony</span></span></a></li>
+        <li><a class="ach" href="https://wmifs.prz.edu.pl/aktualnosci/wyroznienie-dla-kola-naukowego-machine-learning-381.html"><span class="ach__top"><span class="ach__mark">W</span><span class="ach__year">2023</span></span><span class="ach__body"><span class="ach__place">Wyróżnienie</span><span class="ach__title">BITEHack | AI</span><span class="ach__desc">Analiza zużycia energii w budynkach</span></span></a></li>
+        <li><a class="ach" href="https://w.prz.edu.pl/uczelnia/aktualnosci/sukces-studentow-kola-naukowego-machine-learning-2131.html"><span class="ach__top"><span class="ach__mark">2.</span><span class="ach__year">2022</span></span><span class="ach__body"><span class="ach__place">II miejsce</span><span class="ach__title">BITEHack | AI</span><span class="ach__desc">Wykrywanie negatywnych emocji w sieci</span></span></a></li>
+        <li><a class="ach" href="https://wmifs.prz.edu.pl/aktualnosci/pierwsza-nagroda-dla-kola-naukowego-machine-learning-363.html"><span class="ach__top"><span class="ach__mark">KoKoN</span><span class="ach__year">2022</span></span><span class="ach__body"><span class="ach__place">Nagroda</span><span class="ach__title">Cyfryzacja</span><span class="ach__desc">LARKFiD — Open Gov Data i aplikacje na GPU</span></span></a></li>
+        <li><a class="ach" href="https://wmifs.prz.edu.pl/aktualnosci/kolo-naukowe-machine-learning-wyroznione-w-kategorii-debiut-roku-2021-298.html"><span class="ach__top"><span class="ach__mark">W</span><span class="ach__year">2021</span></span><span class="ach__body"><span class="ach__place">Wyróżnienie</span><span class="ach__title">StRuNa — Debiut Roku</span><span class="ach__desc">Wyróżnienie dla nowego koła naukowego</span></span></a></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       ASTRO: JoinCta.astro   (kroki do potwierdzenia przez zarząd)
+       ================================================================ -->
+  <section id="dolacz" class="join-wrap on-dark" aria-labelledby="h-join">
+    <div class="join">
+      <svg class="join__bg-logo" viewBox="0 0 373.35 363.9" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><use href="#knml-logo"/></svg>
+      <div class="join__in">
+        <div class="join__text">
+          <span class="join__eyebrow">Każdy jest mile widziany</span>
+          <h2 id="h-join">Dołącz do KNML</h2>
+          <p class="join__lead">W zespole są głównie studenci Inżynierii i analizy danych, ale nie musisz studiować na WMiFS, żeby z nami działać.</p>
+          <div class="join__cta">
+            <a class="btn btn--color-highlight" href="https://discord.gg/ZYJdXXgE6H">Wejdź na Discorda <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+            <a class="btn btn--ghost-dark" href="#kontakt">Napisz do nas</a>
+          </div>
+        </div>
+        <ol class="steps">
+          <li>Wejdź na nasz serwer Discord</li>
+          <li>Przyjdź na spotkanie koła</li>
+          <li>Dołącz do projektu albo drużyny na hackathon</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       ASTRO: Projects.astro
+       Dane: getCollection('projects', p => p.data.featured).sort(by order)
+       Kolekcji projects NIE MA w repo Hugo — treść poniżej złożona z wpisów i osiągnięć.
+       Do uzupełnienia przez zespół: pełne opisy, technologie, zespoły, linki (GitHub/demo).
+       ================================================================ -->
+  <section id="projekty" class="container projects" aria-labelledby="h-proj">
+    <div class="section-head">
+      <h2 id="h-proj" class="section-title">Projekty</h2>
+      <a class="more-link" href="/projekty">Wszystkie projekty <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+    </div>
+    <div class="proj-grid">
+      <a class="proj" href="/projekty/wykrywanie-dronow">
+        <div class="proj__img"><img src="assets/img/proj-drony.jpg" alt=""></div>
+        <div class="proj__body">
+          <div class="proj__tags"><span class="tag tag--color-accent">Drony</span><span class="tag tag--neutral">czujniki akustyczne</span><span class="tag tag--neutral">mesh</span></div>
+          <span class="proj__title">Sieć czujników do wykrywania dronów</span>
+          <span class="proj__desc">Rozproszona sieć czujników, m.in. akustycznych, w architekturze mesh, wykrywająca drony.</span>
+          <span class="proj__meta">2026 · I miejsce EDTH Detect &amp; Defend · Nagroda PCI</span>
+        </div>
+      </a>
+      <a class="proj" href="/projekty/transport-stalowa-wola">
+        <div class="proj__img"><img src="assets/img/post-spaceshield.jpg" alt=""></div>
+        <div class="proj__body">
+          <div class="proj__tags"><span class="tag tag--color-accent">Dane satelitarne</span><span class="tag tag--neutral">GIS</span><span class="tag tag--neutral">analiza danych</span></div>
+          <span class="proj__title">Transport publiczny z kosmosu</span>
+          <span class="proj__desc">Analiza dostępności transportu publicznego w Stalowej Woli na danych satelitarnych i geoprzestrzennych.</span>
+          <span class="proj__meta">2026 · I miejsce SpaceShield Hack</span>
+        </div>
+      </a>
+      <a class="proj" href="/blog/larkfid-twoja-baza-wiedzy/">
+        <div class="proj__img"><img src="assets/img/proj-larkfid.jpg" alt=""></div>
+        <div class="proj__body">
+          <div class="proj__tags"><span class="tag tag--color-accent">NLP</span><span class="tag tag--neutral">Python</span><span class="tag tag--neutral">OpenSearch</span></div>
+          <span class="proj__title">LARKFiD</span>
+          <span class="proj__desc">Baza wiedzy o regionie: zbieranie danych z sieci, przetwarzanie języka i wyszukiwarka OpenSearch.</span>
+          <span class="proj__meta">2022–2023 · Nagroda KoKoN</span>
+        </div>
+      </a>
+      <a class="proj" href="/blog/mnist-demo-jak-komputer-widzi-tekst/">
+        <div class="proj__img"><img src="assets/img/proj-mnist.jpg" alt=""></div>
+        <div class="proj__body">
+          <div class="proj__tags"><span class="tag tag--color-accent">Computer vision</span><span class="tag tag--neutral">PyTorch</span><span class="tag tag--neutral">Streamlit</span></div>
+          <span class="proj__title">MNIST Demo</span>
+          <span class="proj__desc">Interaktywne demo pokazujące, jak sieć neuronowa rozpoznaje odręcznie pisane cyfry.</span>
+          <span class="proj__meta">2023 · demo na wydarzenia PRz</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       ASTRO: Partners.astro
+       Dane: getCollection('partners'); sponsor = tier 'strategic' i validUntil >= dziś
+       ================================================================ -->
+  <section class="partners" aria-labelledby="h-partn">
+    <div class="container partners__in">
+      <h2 id="h-partn" class="section-title">Partnerzy</h2>
+      <div class="partners__grid">
+        <div class="partner-strategic">
+          <span class="placeholder">[LOGO SPONSORA]</span>
+          <div class="partner-strategic__text">
+            <span class="partner-strategic__badge">Partner strategiczny</span>
+            <p>[Nazwa sponsora] — [1–2 zdania o tym, jak wspiera koło]</p>
+            <a href="#">Strona partnera ↗</a>
+          </div>
+        </div>
+        <div class="partners__side">
+          <a class="partner-logo" href="https://www.erzeszow.pl" aria-label="Miasto Rzeszów"><img src="assets/img/partner-rzeszow.jpg" alt="Rzeszów — stolica innowacji"></a>
+          <div class="partner-logo"><span class="placeholder">[LOGO POLITECHNIKI RZESZOWSKIEJ]</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================================================================
+     ASTRO: SiteFooter.astro   Dane: src/data/site.ts
+     ================================================================ -->
+<footer id="kontakt" class="site-footer on-dark">
+  <div class="container site-footer__in">
+    <div class="site-footer__top">
+      <div class="footer-brand">
+        <div class="footer-brand__logo">
+          <svg viewBox="0 0 373.35 363.9" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><use href="#knml-logo"/></svg>
+          <span class="footer-brand__name"><strong>KNML</strong><small>Politechnika Rzeszowska</small></span>
+        </div>
+        <p>Koło Naukowe Machine Learning działa przy Wydziale Matematyki i Fizyki Stosowanej PRz. Wykorzystujemy uczenie maszynowe do rozwiązywania niecodziennych problemów.</p>
+        <div class="socials">
+          <a href="https://discord.gg/ZYJdXXgE6H">Discord</a>
+          <a href="https://github.com/knmlprz">GitHub</a>
+          <a href="https://www.facebook.com/knmlprz">Facebook</a>
+          <a href="https://www.instagram.com/knml.prz/">Instagram</a>
+          <a href="https://www.linkedin.com/company/knmlprz/">LinkedIn</a>
+        </div>
+        <a class="footer-mail" href="mailto:contact.knml.prz@gmail.com">contact.knml.prz@gmail.com</a>
+      </div>
+
+      <div class="footer-cols">
+        <nav class="footer-col" aria-label="Stopka">
+          <span class="footer-col__title">Strona</span>
+          <a href="#blog">Blog</a><a href="#projekty">Projekty</a><a href="#osiagniecia">Osiągnięcia</a><a href="#o-nas">O nas</a><a href="#dolacz">Dołącz</a>
+        </nav>
+        <div class="footer-col">
+          <span class="footer-col__title">Zasoby</span>
+          <a href="https://wiki.knml.edu.pl">Wiki ↗</a><a href="https://linktr.ee/knml.prz">Linktree ↗</a><a href="#">Statut i regulaminy</a><a href="#">Polityka prywatności</a>
+        </div>
+      </div>
+
+      <div class="footer-orgs">
+        <span class="footer-orgs__label">Działamy przy</span>
+        <div class="org-tile"><span class="placeholder">[LOGO PRz]</span></div>
+        <span class="footer-orgs__label">Wspierają nas</span>
+        <div class="org-grid">
+          <div class="org-tile"><span class="placeholder">[SPONSOR]</span></div>
+          <a class="org-tile" href="https://www.erzeszow.pl" aria-label="Miasto Rzeszów"><img src="assets/img/partner-rzeszow.jpg" alt="Rzeszów — stolica innowacji"></a>
+        </div>
+      </div>
+    </div>
+    <div class="site-footer__bottom">
+      <span>© 2026 Koło Naukowe Machine Learning Politechniki Rzeszowskiej</span>
+      <a href="#main">Do góry ↑</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ASTRO: <script> w SiteHeader.astro (Astro bundluje go automatycznie) -->
+<script>
+  const btn = document.querySelector('.menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  btn.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    btn.setAttribute('aria-label', open ? 'Otwórz menu' : 'Zamknij menu');
+    menu.hidden = open;
+  });
+  menu.addEventListener('click', (e) => {
+    if (e.target.closest('a')) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Otwórz menu'); }
+  });
+</script>
+</body>
+</html>

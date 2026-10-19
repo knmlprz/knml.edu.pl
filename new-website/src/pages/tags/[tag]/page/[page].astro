@@ -1,0 +1,29 @@
+---
+// Przekierowanie starych adresów stronicowania tagów z Hugo: /tags/<tag>/page/1/ i /page/2/
+// → /tags/<tag>/. Hugo miał najwyżej 2 strony na tag, więc nowych starych adresów nie przybędzie.
+// Tak samo wyglądają przekierowania z `redirects` w astro.config.mjs (strona statyczna = meta refresh).
+import { getTags, tagUrl } from '../../../../lib/posts';
+
+export async function getStaticPaths() {
+  const tags = await getTags();
+  return tags.flatMap((tag) =>
+    ['1', '2'].map((page) => ({ params: { tag: tag.slug, page }, props: { target: tagUrl(tag.name) } })),
+  );
+}
+
+const { target } = Astro.props as { target: string };
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <title>Przekierowanie</title>
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={new URL(target, Astro.site)} />
+  </head>
+  <body>
+    <a href={target}>Przejdź do {target}</a>
+  </body>
+</html>

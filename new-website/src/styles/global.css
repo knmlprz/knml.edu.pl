@@ -1,0 +1,30 @@
+/* Style wspólne dla całej strony. Style pojedynczego komponentu trzymamy w jego pliku .astro. */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 3px; }
+.on-dark a:focus-visible, .on-dark button:focus-visible { outline-color: var(--color-accent); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link { position: absolute; left: 16px; top: -60px; z-index: 100; padding: 12px 16px; background: var(--color-brand); color: var(--on-brand); border-radius: var(--radius-sm); }
+.skip-link:focus { top: 16px; }
+
+.container { max-width: var(--container); margin: 0 auto; padding-inline: var(--gutter); }
+.display { font-family: var(--font-display); letter-spacing: -0.03em; }
+.section-title { margin: 0; font-family: var(--font-display); font-size: var(--h2); font-weight: 500; letter-spacing: -0.03em; }
+.section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 28px; }
+.marker { padding: 0 0.06em; margin: 0 -0.06em; background: linear-gradient(180deg, transparent 56%, var(--color-accent) 56%, var(--color-accent) 92%, transparent 92%); }
+
+/* Widoczne miejsce na brakujące dane [TAK JAK TU] — używane w wielu sekcjach i w stopce. */
+.placeholder { display: inline-flex; align-items: center; justify-content: center; border: 2px dashed var(--placeholder-line); border-radius: var(--radius-sm); color: var(--placeholder-ink); font-size: 13px; font-weight: 600; text-align: center; padding: 12px 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

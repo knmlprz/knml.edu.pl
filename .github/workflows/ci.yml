@@ -1,0 +1,33 @@
+# Sprawdzenie nowej strony przy każdym Pull Requeście i pushu na przebudowastrony.
+# Niczego nie publikuje: zielony lub czerwony znaczek przy PR mówi, czy strona się buduje.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [przebudowastrony]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: new-website
+    steps:
+      - name: Pobierz kod
+        uses: actions/checkout@v7
+      - name: Zainstaluj Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: new-website/package-lock.json
+      - name: Zainstaluj zależności
+        run: npm ci
+      - name: Sprawdź typy i treść
+        run: npm run check
+      - name: Zbuduj stronę
+        run: npm run build

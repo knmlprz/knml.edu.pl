@@ -1,0 +1,51 @@
+---
+import { Image } from 'astro:assets';
+import KnmlLogo from '../components/KnmlLogo.astro';
+import Button from '../components/ui/Button.astro';
+import { discordUrl } from '../data/site';
+import { getPartners, isStrategic } from '../lib/partners';
+
+const strategicPartner = (await getPartners()).find(isStrategic);
+---
+
+<section class="container hero">
+  <div class="hero__text">
+    <span class="badge"><span class="badge__num">1.</span>2× I miejsce na hackathonach w 2026</span>
+    <h1>Uczenie maszynowe do <span class="marker">niecodziennych</span> problemów.</h1>
+    <p class="hero__lead">Koło Naukowe Machine Learning Politechniki Rzeszowskiej. Analiza danych, sieci neuronowe, wykrywanie dronów i algorytmy jazdy autonomicznej.</p>
+    <div class="hero__cta">
+      <Button href={discordUrl} withIcon>Dołącz do nas</Button>
+      <Button href="#projekty" variant="outline">Zobacz projekty</Button>
+    </div>
+  </div>
+
+  <div class="hero__visual">
+    <div class="hero__logo">
+      <KnmlLogo animated label="Logo KNML: sieć neuronowa wpisana w okrąg" />
+    </div>
+    {strategicPartner && (
+      <a class="sponsor-card" href={strategicPartner.data.url}>
+        <span class="sponsor-card__label"><small>Partner strategiczny</small><strong>{strategicPartner.data.name}</strong></span>
+        <Image src={strategicPartner.data.logo} alt="" height={104} />
+      </a>
+    )}
+  </div>
+</section>
+
+<style>
+  .hero { display: flex; flex-wrap: wrap; gap: 40px clamp(32px, 5vw, 80px); align-items: stretch; padding-block: clamp(32px, 5vw, 72px) clamp(56px, 7vw, 96px); }
+  .hero__text { flex: 1.2 1 520px; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+  .badge { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; padding: 7px 14px 7px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-pill); }
+  .badge__num { width: 22px; height: 22px; border-radius: 50%; background: var(--color-brand); color: var(--on-brand); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  h1 { margin: 0; font-family: var(--font-display); font-size: var(--h1); line-height: 1; font-weight: 600; letter-spacing: -0.045em; text-wrap: balance; overflow-wrap: break-word; }
+  .hero__lead { margin: 0; max-width: 46ch; font-size: clamp(18px, 1.5vw, 20px); line-height: 1.55; color: var(--body); }
+  .hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-top: 4px; }
+  .hero__visual { flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .hero__logo { flex: 1 1 auto; min-height: 420px; display: flex; align-items: center; justify-content: center; padding: 16px 24px; }
+  .hero__logo :global(svg) { width: min(460px, 100%); height: auto; color: var(--color-logo); overflow: visible; }
+  .sponsor-card { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 18px; padding: 12px 12px 12px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink); text-decoration: none; }
+  .sponsor-card__label { display: flex; flex-direction: column; gap: 2px; }
+  .sponsor-card__label small { font-size: 13px; color: var(--muted); }
+  .sponsor-card__label strong { font-size: 15px; font-weight: 600; }
+  .sponsor-card img { height: 52px; width: auto; }
+</style>

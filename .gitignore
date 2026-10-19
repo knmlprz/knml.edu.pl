@@ -1,15 +1,22 @@
-Generated files by hugo
-/public/
-/resources/_gen/
-/assets/jsconfig.json
-hugo_stats.json
+# --- Hugo (stara strona, old-website/) ---
+old-website/public/
+old-website/resources/_gen/
+old-website/assets/jsconfig.json
+old-website/hugo_stats.json
+old-website/.hugo_build.lock
 
-# Executable may be added to repository
+# pliki wykonywalne Hugo, gdyby ktoś je wrzucił
 hugo.exe
 hugo.darwin
 hugo.linux
 
-# Temporary lock file while building
-/.hugo_build.lock
+# --- Astro (nowa strona, new-website/) ---
+new-website/node_modules/
+new-website/dist/
+new-website/.astro/
+new-website/.env
 
+# --- edytory i system ---
 .idea/
+.vscode/
+.DS_Store

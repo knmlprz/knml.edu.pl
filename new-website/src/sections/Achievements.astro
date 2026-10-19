@@ -1,0 +1,54 @@
+---
+import { getAchievements } from '../lib/achievements';
+
+const achievements = await getAchievements();
+---
+
+<section id="osiagniecia" class="achievements" aria-labelledby="h-osiag">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="h-osiag" class="section-title">Osiągnięcia</h2>
+      <span class="achievements__hint">Przewiń w bok →</span>
+    </div>
+    <!-- tabindex: przewijaną listę da się przesuwać strzałkami z klawiatury -->
+    <ol class="rail" tabindex="0" aria-label="Osiągnięcia koła, lista przewijana w poziomie">
+      {achievements.map(({ data: achievement }) => (
+        <li>
+          <a class:list={['ach', { 'ach--gold': achievement.place === 'I miejsce' }]} href={achievement.url}>
+            <span class="ach__top"><span class="ach__mark">{achievement.mark}</span><span class="ach__year">{achievement.year}</span></span>
+            <span class="ach__body">
+              <span class="ach__place">{achievement.place}</span>
+              <span class="ach__title">{achievement.title}</span>
+              <span class="ach__desc">{achievement.description}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .achievements { background: var(--section); padding-block: clamp(56px, 7vw, 96px); }
+  .achievements__hint { font-size: 15px; color: var(--muted); }
+  /* Boczny padding robi miejsce na obrys focusu (overflow ucina wszystko poza listą),
+     ujemny margines oddaje to miejsce, żeby karty zostały w linii z nagłówkiem. */
+  .rail { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 6px; padding: 6px 6px 18px; margin: 0 -6px; list-style: none; }
+  .rail > li { flex: 0 0 300px; display: flex; scroll-snap-align: start; }
+  .ach { flex: 1 1 auto; min-height: 340px; padding: 28px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); color: var(--ink); text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; transition: transform .25s; }
+  .ach:hover { transform: translateY(-4px); }
+  .ach__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .ach__mark { font-family: var(--font-display); font-size: 60px; line-height: .9; font-weight: 500; letter-spacing: -0.05em; }
+  .ach__year, .ach__desc { color: var(--muted); }
+  .ach__year { font-size: 14px; font-weight: 500; }
+  .ach__body { display: flex; flex-direction: column; gap: 10px; }
+  .ach__place { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  .ach__title { font-size: 21px; font-weight: 600; line-height: 1.2; }
+  .ach__desc { font-size: 14px; line-height: 1.5; }
+  .ach--gold { background: var(--color-highlight); border-color: var(--color-highlight); }
+  .ach--gold .ach__year, .ach--gold .ach__desc { color: var(--color-highlight-ink); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ach { transition: none; }
+  }
+</style>
