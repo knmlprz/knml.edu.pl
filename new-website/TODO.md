@@ -21,10 +21,24 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
 
 ## Strony, do których już linkujemy, a których jeszcze nie ma (404)
 
-- [ ] `/blog` i wpisy `/blog/<slug>/` — etap 3.
 - [ ] `/projekty`, `/projekty/wykrywanie-dronow`, `/projekty/transport-stalowa-wola`.
 - [ ] `/o-nas` (link „Poznaj koło”).
 - [ ] `[Statut i regulaminy]`, `[Polityka prywatności]` (stopka) — dziś `#`.
+
+## Blog i migracja z Hugo
+
+- [ ] Kategoria wpisu (`category`) wyliczona przez `scripts/migrate-hugo.mjs`: tag „aktualności”
+      → `aktualnosci`, reszta → `projekty` (LARKFiD, MNIST Demo, HackYeah Quantum Art).
+      Do potwierdzenia przez zarząd.
+- Migracja (19.10.2026): żaden wpis nie został pominięty, wszystkie okładki i obrazki istnieją.
+- [ ] RSS (`/index.xml`, `/blog/index.xml`) ma tylko tytuł, datę i tagi. Opis pojawi się,
+      gdy wpisy dostaną pole `excerpt`.
+- [ ] Hugo miało też: stronicowanie `/blog/page/2/`, listę `/tags/`, kanały `/tags/<tag>/index.xml`.
+      Nowa strona tego nie odtwarza (wszystkie wpisy są na jednej stronie) — do decyzji, czy potrzebne.
+- [ ] Strona główna nadal bierze wpisy, osiągnięcia i partnerów z `src/data/site.ts`.
+      Następny krok: przełączyć sekcje na kolekcje (`src/lib/`) i usunąć dane tymczasowe.
+- [ ] Kolekcja `projects` jest pusta (Hugo nie miało projektów) — Astro wypisuje ostrzeżenie
+      przy buildzie, dopóki nie dodamy pierwszego projektu.
 
 ## Ogólne
 

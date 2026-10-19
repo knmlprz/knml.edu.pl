@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostGrid from '../../components/PostGrid.astro';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+---
+
+<BaseLayout title="Blog — KNML" description="Wpisy i aktualności Koła Naukowego Machine Learning Politechniki Rzeszowskiej.">
+  <section class="container page" aria-labelledby="h-blog">
+    <h1 id="h-blog" class="section-title">Z życia koła</h1>
+    <PostGrid posts={posts} />
+  </section>
+</BaseLayout>
+
+<style>
+  .page { padding-block: 40px clamp(56px, 7vw, 96px); }
+  h1 { margin-bottom: 28px; }
+</style>
