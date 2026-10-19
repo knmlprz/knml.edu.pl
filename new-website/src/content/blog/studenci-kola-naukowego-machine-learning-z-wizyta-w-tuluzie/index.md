@@ -1,5 +1,7 @@
 ---
 title: Studenci Koła Naukowego Machine Learning z wizytą w Tuluzie
+shortTitle: Studenci KNML z wizytą w Tuluzie
+excerpt: "Trzy dni wśród przemysłu lotniczego i kosmicznego: Cité de l’Espace i Musée Aeroscopia."
 date: 2026-09-16T12:00:00+02:00
 author: Mikołaj Data
 category: aktualnosci

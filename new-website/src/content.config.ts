@@ -1,4 +1,4 @@
-import { defineCollection } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
@@ -22,12 +22,15 @@ const blog = defineCollection({
     }),
 });
 
+// Od najwyższego miejsca. Ta kolejność ustala też kolejność kart w obrębie jednego roku.
+export const achievementPlaces = ['I miejsce', 'II miejsce', 'Nagroda', 'Wyróżnienie'] as const;
+
 const achievements = defineCollection({
   loader: glob({ pattern: '*.yaml', base: './src/content/achievements' }),
   schema: z.object({
     year: z.number().int(),
     // 'I miejsce' daje limonkową kartę („gold”).
-    place: z.enum(['I miejsce', 'II miejsce', 'Nagroda', 'Wyróżnienie']),
+    place: z.enum(achievementPlaces),
     // Duży znak na karcie, np. '1.', 'PCI', 'W'.
     mark: z.string(),
     title: z.string(),
@@ -47,7 +50,9 @@ const projects = defineCollection({
       // Linijka pod opisem, np. '2026 · I miejsce EDTH'.
       meta: z.string(),
       cover: image(),
-      // Strona główna pokazuje pierwsze 3 projekty wg order (rosnąco).
+      // Wpis na blogu o projekcie. Gdy jest, karta prowadzi do wpisu zamiast do /projekty/<id>/.
+      post: reference('blog').optional(),
+      // Strona główna pokazuje pierwsze 4 projekty wg order (rosnąco), jak we wzorcu.
       order: z.number().int(),
     }),
 });

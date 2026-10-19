@@ -1,0 +1,24 @@
+---
+// GitHub Pages pokazuje dist/404.html dla każdego adresu, którego nie ma.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<BaseLayout title="Nie znaleziono strony — KNML" description="Strona, której szukasz, nie istnieje albo została przeniesiona.">
+  <section class="container not-found" aria-labelledby="h-404">
+    <span class="not-found__code" aria-hidden="true">404</span>
+    <h1 id="h-404" class="section-title">Nie ma takiej strony</h1>
+    <p>Adres mógł się zmienić albo strona została usunięta. Zajrzyj na stronę główną albo do wpisów na blogu.</p>
+    <div class="not-found__cta">
+      <Button href="/">Strona główna</Button>
+      <Button href="/blog/" variant="outline">Blog</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found { padding-block: clamp(56px, 10vw, 140px); display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+  .not-found__code { font-family: var(--font-display); font-size: clamp(88px, 16vw, 200px); font-weight: 600; line-height: .9; letter-spacing: -0.05em; color: var(--color-brand); }
+  p { margin: 0; max-width: 52ch; font-size: 18px; line-height: 1.55; color: var(--body); }
+  .not-found__cta { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px; }
+</style>

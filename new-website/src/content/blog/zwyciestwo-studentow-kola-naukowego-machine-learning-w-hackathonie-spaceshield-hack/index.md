@@ -1,5 +1,6 @@
 ---
 title: Zwycięstwo studentów Koła Naukowego Machine Learning w hackathonie
+shortTitle: Zwycięstwo w hackathonie Spaceshield Hack
   Spaceshield Hack
 date: 2026-05-26T12:00:00+02:00
 author: Mikołaj Data

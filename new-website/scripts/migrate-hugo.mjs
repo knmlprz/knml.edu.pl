@@ -1,7 +1,12 @@
-// Jednorazowa migracja treści ze starej strony Hugo (old-website/) do src/content/.
-// Uruchom z katalogu new-website/:  node scripts/migrate-hugo.mjs
-// Skrypt tylko czyta old-website/ i nic tam nie zmienia. Można go puścić ponownie —
-// nadpisze wygenerowane pliki w src/content/ i public/blog/.
+// JEDNORAZOWY SKRYPT — do usunięcia po starcie nowej strony (razem z old-website/).
+//
+// Migracja treści ze starej strony Hugo (old-website/) do src/content/. Migracja już
+// została zrobiona, a treść w src/content/ jest od tego czasu edytowana ręcznie
+// (np. partner strategiczny, shortTitle/excerpt we wpisach, projekty).
+// Ponowne uruchomienie NADPISZE te zmiany, dlatego skrypt odmawia działania,
+// jeśli src/content/blog/ już istnieje. Wymusić można flagą --force:
+//   node scripts/migrate-hugo.mjs --force     (z katalogu new-website/)
+// Skrypt tylko czyta old-website/ i nic tam nie zmienia.
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { extname, join } from 'node:path';
@@ -11,6 +16,14 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 const OLD = '../old-website';
 const CONTENT = 'src/content';
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'];
+
+if (existsSync(join(CONTENT, 'blog')) && !process.argv.includes('--force')) {
+  console.error(
+    'Treść jest już zmigrowana (istnieje src/content/blog/). Ponowne uruchomienie nadpisze\n' +
+      'ręczne zmiany w src/content/. Jeśli na pewno tego chcesz: node scripts/migrate-hugo.mjs --force',
+  );
+  process.exit(1);
+}
 
 const config = parseToml(readFileSync(join(OLD, 'config.toml'), 'utf8'));
 

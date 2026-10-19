@@ -2,7 +2,9 @@
 import { Image } from 'astro:assets';
 import MoreLink from '../components/ui/MoreLink.astro';
 import Tag from '../components/ui/Tag.astro';
-import { featuredProjects } from '../data/site';
+import { getProjects, projectUrl } from '../lib/projects';
+
+const featuredProjects = (await getProjects()).slice(0, 4);
 ---
 
 <section id="projekty" class="container projects" aria-labelledby="h-proj">
@@ -11,25 +13,22 @@ import { featuredProjects } from '../data/site';
     <MoreLink href="/projekty">Wszystkie projekty</MoreLink>
   </div>
   <div class="proj-grid">
-    {featuredProjects.map((project) => {
-      const [category, ...tags] = project.tags;
-      return (
-        <a class="proj" href={project.href}>
-          <div class="proj__img">
-            <Image src={project.cover} alt="" widths={[640, 960, 1200]} sizes="(min-width: 1100px) 50vw, 100vw" />
+    {featuredProjects.map((project) => (
+      <a class="proj" href={projectUrl(project)}>
+        <div class="proj__img">
+          <Image src={project.data.cover} alt="" widths={[640, 960, 1200]} sizes="(min-width: 1100px) 50vw, 100vw" />
+        </div>
+        <div class="proj__body">
+          <div class="proj__tags">
+            <Tag variant="accent">{project.data.category}</Tag>
+            {project.data.tags.map((tag) => <Tag>{tag}</Tag>)}
           </div>
-          <div class="proj__body">
-            <div class="proj__tags">
-              <Tag variant="accent">{category}</Tag>
-              {tags.map((tag) => <Tag>{tag}</Tag>)}
-            </div>
-            <span class="proj__title">{project.title}</span>
-            <span class="proj__desc">{project.description}</span>
-            <span class="proj__meta">{project.meta}</span>
-          </div>
-        </a>
-      );
-    })}
+          <span class="proj__title">{project.data.title}</span>
+          <span class="proj__desc">{project.data.description}</span>
+          <span class="proj__meta">{project.data.meta}</span>
+        </div>
+      </a>
+    ))}
   </div>
 </section>
 

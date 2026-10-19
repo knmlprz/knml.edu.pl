@@ -1,5 +1,7 @@
 ---
-import { achievements } from '../data/site';
+import { getAchievements } from '../lib/achievements';
+
+const achievements = await getAchievements();
 ---
 
 <section id="osiagniecia" class="achievements" aria-labelledby="h-osiag">
@@ -10,9 +12,9 @@ import { achievements } from '../data/site';
     </div>
     <!-- tabindex: przewijaną listę da się przesuwać strzałkami z klawiatury -->
     <ol class="rail" tabindex="0" aria-label="Osiągnięcia koła, lista przewijana w poziomie">
-      {achievements.map((achievement) => (
+      {achievements.map(({ data: achievement }) => (
         <li>
-          <a class:list={['ach', { 'ach--gold': achievement.place === 'I miejsce' }]} href={achievement.href}>
+          <a class:list={['ach', { 'ach--gold': achievement.place === 'I miejsce' }]} href={achievement.url}>
             <span class="ach__top"><span class="ach__mark">{achievement.mark}</span><span class="ach__year">{achievement.year}</span></span>
             <span class="ach__body">
               <span class="ach__place">{achievement.place}</span>

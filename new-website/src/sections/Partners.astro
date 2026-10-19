@@ -1,36 +1,51 @@
 ---
 import { Image } from 'astro:assets';
-import { cityPartner, sponsor } from '../data/site';
+import { getPartners, isStrategic } from '../lib/partners';
+
+const partners = await getPartners();
+const strategicPartner = partners.find(isStrategic);
+// Partner strategiczny ma dużą kartę, więc nie powtarzamy go w małych kafelkach.
+const otherPartners = partners.filter((partner) => !isStrategic(partner));
 ---
 
-<section class="partners" aria-labelledby="h-partn">
-  <div class="container partners__in">
-    <h2 id="h-partn" class="section-title">Partnerzy</h2>
-    <div class="partners__grid">
-      <div class="partner-strategic">
-        <span class="placeholder">[LOGO SPONSORA]</span>
-        <div class="partner-strategic__text">
-          <span class="partner-strategic__badge">Partner strategiczny</span>
-          <p>{sponsor.name} — {sponsor.description}</p>
-          <a href={sponsor.href}>Strona partnera ↗</a>
-        </div>
-      </div>
-      <div class="partners__side">
-        <a class="partner-logo" href={cityPartner.href} aria-label={cityPartner.name}>
-          <Image src={cityPartner.logo} alt={cityPartner.logoAlt} height={128} />
-        </a>
-        <div class="partner-logo"><span class="placeholder">[LOGO POLITECHNIKI RZESZOWSKIEJ]</span></div>
+{partners.length > 0 && (
+  <section class="partners" aria-labelledby="h-partn">
+    <div class="container partners__in">
+      <h2 id="h-partn" class="section-title">Partnerzy</h2>
+      <div class="partners__grid">
+        {strategicPartner && (
+          <div class="partner-strategic">
+            <div class="partner-strategic__logo">
+              <Image src={strategicPartner.data.logo} alt={strategicPartner.data.name} width={600} />
+            </div>
+            <div class="partner-strategic__text">
+              <span class="partner-strategic__badge">Partner strategiczny</span>
+              <p>{strategicPartner.data.description ?? strategicPartner.data.name}</p>
+              <a href={strategicPartner.data.url}>Strona partnera ↗</a>
+            </div>
+          </div>
+        )}
+        {otherPartners.length > 0 && (
+          <div class="partners__side">
+            {otherPartners.map((partner) => (
+              <a class="partner-logo" href={partner.data.url} data-partner={partner.id}>
+                <Image src={partner.data.logo} alt={partner.data.name} width={600} />
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
-  </div>
-</section>
+  </section>
+)}
 
 <style>
   .partners { background: var(--section); padding-block: clamp(56px, 7vw, 96px); }
   .partners__in { display: flex; flex-direction: column; gap: 32px; }
   .partners__grid { display: flex; flex-wrap: wrap; gap: 16px; }
   .partner-strategic { flex: 2 1 520px; min-height: 280px; background: var(--surface); border-radius: var(--radius-lg); padding: clamp(24px, 3vw, 40px); display: flex; flex-wrap: wrap; align-items: center; gap: 32px; }
-  .partner-strategic .placeholder { flex: 1 1 240px; height: 160px; font-size: 15px; border-radius: 16px; }
+  .partner-strategic__logo { flex: 1 1 240px; display: flex; justify-content: center; }
+  .partner-strategic__logo img { width: min(100%, 300px); height: auto; }
   .partner-strategic__text { flex: 1 1 240px; display: flex; flex-direction: column; gap: 12px; }
   .partner-strategic__badge { align-self: flex-start; font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: var(--radius-pill); background: var(--color-brand); color: var(--on-dark); }
   .partner-strategic__text p { margin: 0; font-size: 18px; line-height: 1.45; color: var(--ink-2); }
@@ -38,4 +53,7 @@ import { cityPartner, sponsor } from '../data/site';
   .partners__side { flex: 1 1 300px; display: flex; flex-direction: column; gap: 16px; }
   .partner-logo { flex: 1 1 132px; min-height: 132px; background: var(--surface); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; padding: 24px 32px; }
   .partner-logo img { max-height: 64px; width: auto; }
+  /* Plik logo PRz ma szeroki przezroczysty margines (ok. 1/5 z każdej strony). Bez powiększenia
+     znak wyglądałby na dużo mniejszy niż logo Rzeszowa w karcie obok (300 px szerokości). */
+  .partner-logo[data-partner='prz'] img { max-height: none; width: min(100%, 360px); height: auto; }
 </style>

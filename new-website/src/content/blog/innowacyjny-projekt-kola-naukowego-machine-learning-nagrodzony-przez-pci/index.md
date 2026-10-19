@@ -1,5 +1,6 @@
 ---
 title: Innowacyjny projekt Koła Naukowego Machine Learning nagrodzony przez PCI
+shortTitle: Nasz projekt nagrodzony przez PCI
 date: 2026-04-10T12:00:00+02:00
 author: M.Data, U.Bednarz
 category: aktualnosci

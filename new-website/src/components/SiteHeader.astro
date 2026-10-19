@@ -1,7 +1,7 @@
 ---
 import KnmlLogo from './KnmlLogo.astro';
 import Button from './ui/Button.astro';
-import { discordUrl, mainNav, wikiUrl } from '../data/site';
+import { discordUrl, mainNav } from '../data/site';
 ---
 
 <header class="site-header">
@@ -12,7 +12,6 @@ import { discordUrl, mainNav, wikiUrl } from '../data/site';
     </a>
     <nav class="pill-nav" aria-label="Główna nawigacja">
       {mainNav.map((link) => <a href={link.href}>{link.label}</a>)}
-      <a href={wikiUrl}>Wiki ↗</a>
     </nav>
     <div class="site-header__actions">
       <Button class="header-cta" href={discordUrl} size="sm">Dołącz</Button>

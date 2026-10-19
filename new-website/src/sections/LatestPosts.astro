@@ -2,39 +2,37 @@
 import { Image } from 'astro:assets';
 import MoreLink from '../components/ui/MoreLink.astro';
 import Tag from '../components/ui/Tag.astro';
-import { latestPosts, postCount } from '../data/site';
+import { categoryLabels, formatDate, getPosts, isoDate, postUrl } from '../lib/posts';
 
-const [leadPost, ...sidePosts] = latestPosts;
-
-const formatDate = (date: Date) =>
-  date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-const isoDate = (date: Date) => date.toISOString().slice(0, 10);
+const posts = await getPosts();
+// Najnowszy wpis jest duży i pokazuje excerpt, dwa kolejne są małe.
+const [leadPost, ...sidePosts] = posts.slice(0, 3);
 ---
 
 <section id="blog" class="container posts" aria-labelledby="h-blog">
   <div class="section-head">
     <h2 id="h-blog" class="section-title">Z życia koła</h2>
-    <MoreLink href="/blog">Wszystkie wpisy ({postCount})</MoreLink>
+    <MoreLink href="/blog/">Wszystkie wpisy ({posts.length})</MoreLink>
   </div>
   <div class="mosaic">
-    <a class="tile tile--lead" href={leadPost.href}>
-      <Image src={leadPost.cover} alt="" widths={[640, 960, 1200]} sizes="(min-width: 1000px) 60vw, 100vw" />
+    <a class="tile tile--lead" href={postUrl(leadPost)}>
+      <Image src={leadPost.data.cover} alt="" widths={[640, 960, 1200]} sizes="(min-width: 1000px) 60vw, 100vw" />
       <span class="tile__body">
         <span class="tile__meta">
-          <Tag variant="accent">{leadPost.category}</Tag>
-          <time datetime={isoDate(leadPost.date)}>{formatDate(leadPost.date)}</time>
+          <Tag variant="accent">{categoryLabels[leadPost.data.category]}</Tag>
+          <time datetime={isoDate(leadPost.data.date)}>{formatDate(leadPost.data.date)}</time>
         </span>
-        <span class="tile__title">{leadPost.title}</span>
-        <span class="tile__excerpt">{leadPost.excerpt}</span>
+        <span class="tile__title">{leadPost.data.shortTitle ?? leadPost.data.title}</span>
+        {leadPost.data.excerpt && <span class="tile__excerpt">{leadPost.data.excerpt}</span>}
       </span>
     </a>
     <div class="mosaic__side">
       {sidePosts.map((post) => (
-        <a class="tile tile--small" href={post.href}>
-          <Image src={post.cover} alt="" widths={[480, 800]} sizes="(min-width: 1000px) 35vw, 100vw" />
+        <a class="tile tile--small" href={postUrl(post)}>
+          <Image src={post.data.cover} alt="" widths={[480, 800]} sizes="(min-width: 1000px) 35vw, 100vw" />
           <span class="tile__body">
-            <span class="tile__meta"><time datetime={isoDate(post.date)}>{formatDate(post.date)}</time> · {post.category}</span>
-            <span class="tile__title">{post.title}</span>
+            <span class="tile__meta"><time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time> · {categoryLabels[post.data.category]}</span>
+            <span class="tile__title">{post.data.shortTitle ?? post.data.title}</span>
           </span>
         </a>
       ))}
