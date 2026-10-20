@@ -168,4 +168,5 @@ Stara strona (z katalogu głównego): `hugo server --source old-website`.
 - Nie zmieniać kształtu logo ani nie obracać go.
 - Nie osadzać feedów z Facebooka, Instagrama ani LinkedIna.
 - Nie dodawać przełącznika języka, dopóki nie istnieje wersja EN.
+- Nie używać długich myślników (— i –) w tekstach interfejsu i tytułach; zwykły -.
 - Nie przepisywać działającego kodu „przy okazji”. Zmiany tylko w zakresie zadania.

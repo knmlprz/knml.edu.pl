@@ -30,4 +30,12 @@ import { stats } from '../data/site';
   .stat--dark { background: var(--color-brand); border-color: var(--color-brand); color: var(--bg); }
   .stat--dark dt { color: var(--color-highlight); }
   .stat--dark dd { color: var(--on-dark-soft); }
+
+  /* Telefon: statystyki jedna pod drugą, liczba obok opisu, żeby nie zajmowały pół ekranu. */
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: 1fr; }
+    .stat { flex-direction: row; align-items: center; gap: 18px; padding: 18px 20px; }
+    .stat dt { flex: 0 0 auto; min-width: 2.6em; font-size: 38px; }
+    .stat dd { font-size: 16px; }
+  }
 </style>

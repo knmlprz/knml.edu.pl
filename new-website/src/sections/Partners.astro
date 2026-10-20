@@ -50,6 +50,9 @@ const otherPartners = partners.filter((partner) => !isStrategic(partner));
   .partner-strategic__badge { align-self: flex-start; font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: var(--radius-pill); background: var(--color-brand); color: var(--on-dark); }
   .partner-strategic__text p { margin: 0; font-size: 18px; line-height: 1.45; color: var(--ink-2); }
   .partner-strategic__text a { font-size: 15px; font-weight: 600; }
+  @media (pointer: coarse) {
+    .partner-strategic__text a { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; }
+  }
   .partners__side { flex: 1 1 300px; display: flex; flex-direction: column; gap: 16px; }
   .partner-logo { flex: 1 1 132px; min-height: 132px; background: var(--surface); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; padding: 24px 32px; }
   .partner-logo img { max-height: 64px; width: auto; }

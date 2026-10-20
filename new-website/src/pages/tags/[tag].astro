@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 const { name, posts } = Astro.props as { name: string; posts: Post[] };
 ---
 
-<BaseLayout title={`#${name} — Blog KNML`} description={`Wpisy z tagiem „${name}” na blogu Koła Naukowego Machine Learning.`}>
+<BaseLayout title={`#${name} - Blog KNML`} description={`Wpisy z tagiem „${name}” na blogu Koła Naukowego Machine Learning.`}>
   <section class="container page" aria-labelledby="h-tag">
     <div class="section-head">
       <h1 id="h-tag" class="section-title">#{name}</h1>

@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import KnmlLogo from '../components/KnmlLogo.astro';
 import Button from '../components/ui/Button.astro';
-import { discordUrl } from '../data/site';
+import { joinUrl } from '../data/site';
 import { getPartners, isStrategic } from '../lib/partners';
 
 const strategicPartner = (await getPartners()).find(isStrategic);
@@ -14,7 +14,7 @@ const strategicPartner = (await getPartners()).find(isStrategic);
     <h1>Uczenie maszynowe do <span class="marker">niecodziennych</span> problemów.</h1>
     <p class="hero__lead">Koło Naukowe Machine Learning Politechniki Rzeszowskiej. Analiza danych, sieci neuronowe, wykrywanie dronów i algorytmy jazdy autonomicznej.</p>
     <div class="hero__cta">
-      <Button href={discordUrl} withIcon>Dołącz do nas</Button>
+      <Button href={joinUrl} withIcon>Dołącz do nas</Button>
       <Button href="#projekty" variant="outline">Zobacz projekty</Button>
     </div>
   </div>

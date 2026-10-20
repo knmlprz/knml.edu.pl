@@ -100,4 +100,16 @@ const year = new Date().getFullYear();
   .site-footer__bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 24px; border-top: 1px solid var(--dark-line); font-size: 13px; color: var(--on-dark-3); }
   .site-footer__bottom a { color: var(--on-dark-3); text-decoration: none; }
   .site-footer__bottom a:hover { color: var(--on-brand); }
+
+  /* Ekrany dotykowe: każdy link ma min. 44 px wysokości, żeby łatwo trafić palcem.
+     Odstęp robi teraz sama wysokość linku, więc gap w kolumnach znika. */
+  @media (pointer: coarse) {
+    .socials a { height: 44px; }
+    .footer-mail, .footer-col a, .site-footer__bottom a { display: inline-flex; align-items: center; min-height: 44px; }
+    .footer-mail { align-self: flex-start; }
+    .footer-col { gap: 0; }
+  }
+  @media (max-width: 640px) {
+    .footer-col a { font-size: 16px; }
+  }
 </style>
