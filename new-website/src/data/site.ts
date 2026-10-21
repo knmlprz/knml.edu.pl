@@ -2,6 +2,8 @@ export const email = 'contact.knml.prz@gmail.com';
 export const discordUrl = 'https://discord.gg/ZYJdXXgE6H';
 export const wikiUrl = 'https://wiki.knml.edu.pl';
 export const linktreeUrl = 'https://linktr.ee/knml.prz';
+// Dokąd prowadzą wszystkie przyciski „Dołącz”. Zmiana tutaj zmienia je wszystkie.
+export const joinUrl = linktreeUrl;
 
 export const socials = [
   { label: 'Discord', href: discordUrl },

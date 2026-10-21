@@ -48,6 +48,10 @@ const achievements = await getAchievements();
   .ach--gold { background: var(--color-highlight); border-color: var(--color-highlight); }
   .ach--gold .ach__year, .ach--gold .ach__desc { color: var(--color-highlight-ink); }
 
+  @media (max-width: 640px) {
+    .ach__desc { font-size: 16px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .ach { transition: none; }
   }

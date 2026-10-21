@@ -5,7 +5,7 @@ description: "Baza wiedzy o regionie: zbieranie danych z sieci, przetwarzanie j�
 tags:
   - Python
   - OpenSearch
-meta: 2022–2023 · Nagroda KoKoN
+meta: 2022-2023 · Nagroda KoKoN
 cover: ./cover.jpg
 post: larkfid-twoja-baza-wiedzy
 order: 3

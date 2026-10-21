@@ -2,7 +2,7 @@
 import KnmlLogo from '../components/KnmlLogo.astro';
 import ArrowIcon from '../components/ui/ArrowIcon.astro';
 import Button from '../components/ui/Button.astro';
-import { discordUrl } from '../data/site';
+import { joinUrl } from '../data/site';
 
 // Kroki do potwierdzenia przez zarząd (TODO.md).
 const steps = [
@@ -21,7 +21,7 @@ const steps = [
         <h2 id="h-join">Dołącz do KNML</h2>
         <p class="join__lead">W zespole są głównie studenci Inżynierii i analizy danych, ale nie musisz studiować na WMiFS, żeby z nami działać.</p>
         <div class="join__cta">
-          <Button href={discordUrl} variant="highlight">Wejdź na Discorda <ArrowIcon /></Button>
+          <Button href={joinUrl} variant="highlight">Dołącz do nas <ArrowIcon /></Button>
           <Button href="#kontakt" variant="ghostDark">Napisz do nas</Button>
         </div>
       </div>
