@@ -2,13 +2,15 @@
 // Siatka kart wpisów: lista /blog/ i strony tagów /tags/<tag>/.
 import { Image } from 'astro:assets';
 import Tag from './ui/Tag.astro';
-import { categoryLabels, formatDate, isoDate, postUrl, type Post } from '../lib/posts';
+import { t, type Locale } from '../i18n';
+import { formatDate, isoDate, postUrl, type Post } from '../lib/posts';
 
 interface Props {
   posts: Post[];
+  locale: Locale;
 }
 
-const { posts } = Astro.props;
+const { posts, locale } = Astro.props;
 ---
 
 <ul class="post-grid">
@@ -20,8 +22,8 @@ const { posts } = Astro.props;
         </div>
         <div class="post__body">
           <span class="post__meta">
-            <Tag variant="accent">{categoryLabels[post.data.category]}</Tag>
-            <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+            <Tag variant="accent">{t(locale, `category.${post.data.category}`)}</Tag>
+            <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date, locale)}</time>
           </span>
           <span class="post__title">{post.data.title}</span>
         </div>

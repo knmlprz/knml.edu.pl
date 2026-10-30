@@ -1,8 +1,14 @@
 ---
 import { Image } from 'astro:assets';
+import { t, type Locale } from '../i18n';
 import { getPartners, isStrategic } from '../lib/partners';
 
-const partners = await getPartners();
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const partners = await getPartners(locale);
 const strategicPartner = partners.find(isStrategic);
 // Partner strategiczny ma dużą kartę, więc nie powtarzamy go w małych kafelkach.
 const otherPartners = partners.filter((partner) => !isStrategic(partner));
@@ -11,7 +17,7 @@ const otherPartners = partners.filter((partner) => !isStrategic(partner));
 {partners.length > 0 && (
   <section class="partners" aria-labelledby="h-partn">
     <div class="container partners__in">
-      <h2 id="h-partn" class="section-title">Partnerzy</h2>
+      <h2 id="h-partn" class="section-title">{t(locale, 'partners.title')}</h2>
       <div class="partners__grid">
         {strategicPartner && (
           <div class="partner-strategic">
@@ -19,9 +25,9 @@ const otherPartners = partners.filter((partner) => !isStrategic(partner));
               <Image src={strategicPartner.data.logo} alt={strategicPartner.data.name} width={600} />
             </div>
             <div class="partner-strategic__text">
-              <span class="partner-strategic__badge">Partner strategiczny</span>
+              <span class="partner-strategic__badge">{t(locale, 'strategicPartner')}</span>
               <p>{strategicPartner.data.description ?? strategicPartner.data.name}</p>
-              <a href={strategicPartner.data.url}>Strona partnera ↗</a>
+              <a href={strategicPartner.data.url}>{t(locale, 'partners.website')}</a>
             </div>
           </div>
         )}

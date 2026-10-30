@@ -59,6 +59,13 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
       w 2026 kolejność SpaceShield, EDTH, PCI — teraz jest EDTH, SpaceShield, PCI. Jeśli kolejność
       ma być ręczna, trzeba dodać pole (np. `order`) do schematu `achievements`.
 
+## Wersja angielska (`/en/`)
+
+- [ ] Angielska strona 404: GitHub Pages pokazuje dla każdego nieistniejącego adresu tylko
+      `/404.html`, więc `/en/404` nigdy by się nie wyświetliła. Wrócić do tego po przejściu na
+      serwer koła. Dziś polska 404 ma przełącznik do `/en/`.
+- Daty w EN: `Intl` (en-GB) pisze wrzesień jako „Sept” („16 Sept 2026”) - zaakceptowane.
+
 ## Ogólne
 
 - Favicony i obrazek podglądu linku (`public/og-default.png`) generuje

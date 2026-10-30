@@ -7,14 +7,18 @@ import Achievements from '../sections/Achievements.astro';
 import JoinCta from '../sections/JoinCta.astro';
 import Projects from '../sections/Projects.astro';
 import Partners from '../sections/Partners.astro';
+import { getLocale } from '../i18n';
+
+// Ten plik buduje też /en/ (src/pages/en/index.astro), język bierze z adresu.
+const locale = getLocale(Astro);
 ---
 
 <BaseLayout>
-  <Hero />
-  <About />
-  <LatestPosts />
-  <Achievements />
-  <JoinCta />
-  <Projects />
-  <Partners />
+  <Hero locale={locale} />
+  <About locale={locale} />
+  <LatestPosts locale={locale} />
+  <Achievements locale={locale} />
+  <JoinCta locale={locale} />
+  <Projects locale={locale} />
+  <Partners locale={locale} />
 </BaseLayout>

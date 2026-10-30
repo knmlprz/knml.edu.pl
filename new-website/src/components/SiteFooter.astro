@@ -2,13 +2,15 @@
 import { Image } from 'astro:assets';
 import KnmlLogo from './KnmlLogo.astro';
 import { email, footerNav, linktreeUrl, socials, wikiUrl } from '../data/site';
+import { localizeHref, t, type Locale } from '../i18n';
 import type { Partner } from '../lib/partners';
 
 interface Props {
   partners: Partner[];
+  locale: Locale;
 }
 
-const { partners } = Astro.props;
+const { partners, locale } = Astro.props;
 const universities = partners.filter((partner) => partner.data.tier === 'university');
 const supporters = partners.filter((partner) => partner.data.tier !== 'university');
 const year = new Date().getFullYear();
@@ -20,9 +22,9 @@ const year = new Date().getFullYear();
       <div class="footer-brand">
         <div class="footer-brand__logo">
           <KnmlLogo />
-          <span class="footer-brand__name"><strong>KNML</strong><small>Politechnika Rzeszowska</small></span>
+          <span class="footer-brand__name"><strong>KNML</strong><small>{t(locale, 'footer.university')}</small></span>
         </div>
-        <p>Koło Naukowe Machine Learning działa przy Wydziale Matematyki i Fizyki Stosowanej PRz. Wykorzystujemy uczenie maszynowe do rozwiązywania niecodziennych problemów.</p>
+        <p>{t(locale, 'footer.about')}</p>
         <div class="socials">
           {socials.map((social) => <a href={social.href}>{social.label}</a>)}
         </div>
@@ -30,25 +32,25 @@ const year = new Date().getFullYear();
       </div>
 
       <div class="footer-cols">
-        <nav class="footer-col" aria-label="Stopka">
-          <span class="footer-col__title">Strona</span>
-          {footerNav.map((link) => <a href={link.href}>{link.label}</a>)}
+        <nav class="footer-col" aria-label={t(locale, 'footer.navLabel')}>
+          <span class="footer-col__title">{t(locale, 'footer.site')}</span>
+          {footerNav.map((link) => <a href={localizeHref(locale, link.href)}>{t(locale, link.labelKey)}</a>)}
         </nav>
         <div class="footer-col">
-          <span class="footer-col__title">Zasoby</span>
-          <a href={wikiUrl}>Wiki ↗</a>
+          <span class="footer-col__title">{t(locale, 'footer.resources')}</span>
+          <a href={wikiUrl}>{t(locale, 'nav.wiki')}</a>
           <a href={linktreeUrl}>Linktree ↗</a>
         </div>
       </div>
 
       <div class="footer-orgs">
-        {universities.length > 0 && <span class="footer-orgs__label">Działamy przy</span>}
+        {universities.length > 0 && <span class="footer-orgs__label">{t(locale, 'footer.hostedBy')}</span>}
         {universities.map((partner) => (
           <a class="org-tile" href={partner.data.url} data-partner={partner.id}>
             <Image src={partner.data.logo} alt={partner.data.name} width={400} />
           </a>
         ))}
-        {supporters.length > 0 && <span class="footer-orgs__label">Wspierają nas</span>}
+        {supporters.length > 0 && <span class="footer-orgs__label">{t(locale, 'footer.supportedBy')}</span>}
         {supporters.length > 0 && (
           <div class="org-grid">
             {supporters.map((partner) => (
@@ -61,8 +63,8 @@ const year = new Date().getFullYear();
       </div>
     </div>
     <div class="site-footer__bottom">
-      <span>© {year} Koło Naukowe Machine Learning Politechniki Rzeszowskiej</span>
-      <a href="#main">Do góry ↑</a>
+      <span>© {year} {t(locale, 'siteName')}</span>
+      <a href="#main">{t(locale, 'footer.backToTop')}</a>
     </div>
   </div>
 </footer>

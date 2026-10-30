@@ -1,29 +1,49 @@
 ---
 import KnmlLogo from './KnmlLogo.astro';
+import LanguageSwitch from './LanguageSwitch.astro';
 import Button from './ui/Button.astro';
 import { joinUrl, mainNav } from '../data/site';
+import { homeUrl, localizeHref, t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+// Przycisk menu ma w data-label-open/close teksty aria-label dla skryptu poniżej
+// (skrypt działa w przeglądarce i nie ma dostępu do słowników).
 ---
 
 <header class="site-header">
   <div class="container site-header__in">
-    <a class="brand" href="/" aria-label="KNML - strona główna">
+    <a class="brand" href={homeUrl(locale)} aria-label={t(locale, 'header.homeLabel')}>
       <KnmlLogo />
       <span class="brand__name">KNML</span>
     </a>
-    <nav class="pill-nav" aria-label="Główna nawigacja">
-      {mainNav.map((link) => <a href={link.href}>{link.label}</a>)}
+    <nav class="pill-nav" aria-label={t(locale, 'header.mainNav')}>
+      {mainNav.map((link) => <a href={localizeHref(locale, link.href)}>{t(locale, link.labelKey)}</a>)}
     </nav>
     <div class="site-header__actions">
-      <Button class="header-cta" href={joinUrl} size="sm">Dołącz</Button>
-      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Otwórz menu">
-        Menu
+      <LanguageSwitch class="header-lang" locale={locale} />
+      <Button class="header-cta" href={joinUrl} size="sm">{t(locale, 'nav.join')}</Button>
+      <button
+        class="menu-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        aria-label={t(locale, 'header.menuOpen')}
+        data-label-open={t(locale, 'header.menuOpen')}
+        data-label-close={t(locale, 'header.menuClose')}
+      >
+        {t(locale, 'header.menu')}
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16M4 15h16" /></svg>
       </button>
     </div>
   </div>
-  <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobilne" hidden>
-    {mainNav.map((link) => <a href={link.href}>{link.label}</a>)}
-    <Button href={joinUrl}>Dołącz do nas</Button>
+  <nav class="mobile-menu" id="mobile-menu" aria-label={t(locale, 'header.mobileNav')} hidden>
+    {mainNav.map((link) => <a href={localizeHref(locale, link.href)}>{t(locale, link.labelKey)}</a>)}
+    <LanguageSwitch class="mobile-menu__lang" locale={locale} />
+    <Button href={joinUrl}>{t(locale, 'joinUs')}</Button>
   </nav>
 </header>
 
@@ -34,7 +54,7 @@ import { joinUrl, mainNav } from '../data/site';
   function setMenuOpen(open: boolean) {
     if (!menuButton || !mobileMenu) return;
     menuButton.setAttribute('aria-expanded', String(open));
-    menuButton.setAttribute('aria-label', open ? 'Zamknij menu' : 'Otwórz menu');
+    menuButton.setAttribute('aria-label', (open ? menuButton.dataset.labelClose : menuButton.dataset.labelOpen) ?? '');
     mobileMenu.hidden = !open;
   }
 
@@ -54,19 +74,20 @@ import { joinUrl, mainNav } from '../data/site';
   .pill-nav { display: flex; align-items: center; gap: 2px; padding: 5px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-pill); }
   .pill-nav a { text-decoration: none; font-size: 15px; font-weight: 500; padding: 10px 14px; border-radius: var(--radius-pill); color: var(--ink-2); transition: background .15s; }
   .pill-nav a:hover { background: var(--nav-hover-bg); }
-  .site-header__actions { flex: 1 1 0; display: flex; justify-content: flex-end; gap: 10px; }
+  .site-header__actions { flex: 1 1 0; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
   .menu-btn { display: none; align-items: center; gap: 10px; height: 46px; padding: 0 18px; background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font: 500 15px var(--font-body); cursor: pointer; }
   .menu-btn svg { width: 18px; height: 18px; }
   .mobile-menu { margin: 0 16px 12px; padding: 8px 20px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; display: flex; flex-direction: column; }
   .mobile-menu[hidden] { display: none; }
   .mobile-menu a { padding: 16px 0; border-bottom: 1px solid var(--line); text-decoration: none; font-family: var(--font-display); font-size: 22px; }
+  .mobile-menu :global(.mobile-menu__lang) { justify-content: flex-start; padding: 16px 0; border-bottom: 1px solid var(--line); border-radius: 0; font-family: var(--font-display); font-size: 22px; }
   .mobile-menu :global(.btn) { margin-top: 12px; justify-content: center; height: 54px; }
 
   @media (pointer: coarse) {
     .brand { min-height: 44px; }
   }
   @media (max-width: 1000px) {
-    .pill-nav, .site-header :global(.header-cta) { display: none; }
+    .pill-nav, .site-header :global(.header-cta), .site-header :global(.header-lang) { display: none; }
     .menu-btn { display: inline-flex; }
   }
   /* Menu otwarte na wąskim ekranie nie zostaje po poszerzeniu okna. */

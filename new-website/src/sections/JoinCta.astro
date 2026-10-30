@@ -3,13 +3,15 @@ import KnmlLogo from '../components/KnmlLogo.astro';
 import ArrowIcon from '../components/ui/ArrowIcon.astro';
 import Button from '../components/ui/Button.astro';
 import { joinUrl } from '../data/site';
+import { t, type Locale } from '../i18n';
 
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
 // Kroki do potwierdzenia przez zarząd (TODO.md).
-const steps = [
-  'Wejdź na nasz serwer Discord',
-  'Przyjdź na spotkanie koła',
-  'Dołącz do projektu albo drużyny na hackathon',
-];
+const steps = [t(locale, 'join.step1'), t(locale, 'join.step2'), t(locale, 'join.step3')];
 ---
 
 <section id="dolacz" class="join-wrap on-dark" aria-labelledby="h-join">
@@ -17,12 +19,12 @@ const steps = [
     <KnmlLogo class="join__bg-logo" />
     <div class="join__in">
       <div class="join__text">
-        <span class="join__eyebrow">Każdy jest mile widziany</span>
-        <h2 id="h-join">Dołącz do KNML</h2>
-        <p class="join__lead">W zespole są głównie studenci Inżynierii i analizy danych, ale nie musisz studiować na WMiFS, żeby z nami działać.</p>
+        <span class="join__eyebrow">{t(locale, 'join.eyebrow')}</span>
+        <h2 id="h-join">{t(locale, 'join.title')}</h2>
+        <p class="join__lead">{t(locale, 'join.lead')}</p>
         <div class="join__cta">
-          <Button href={joinUrl} variant="highlight">Dołącz do nas <ArrowIcon /></Button>
-          <Button href="#kontakt" variant="ghostDark">Napisz do nas</Button>
+          <Button href={joinUrl} variant="highlight">{t(locale, 'joinUs')} <ArrowIcon /></Button>
+          <Button href="#kontakt" variant="ghostDark">{t(locale, 'join.writeToUs')}</Button>
         </div>
       </div>
       <ol class="steps">

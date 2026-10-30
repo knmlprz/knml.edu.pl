@@ -4,7 +4,7 @@ import { getPosts, getTags, isoDate, postUrl, tagUrl } from '../lib/posts';
 // Mapa strony pod tym samym adresem co w Hugo (/sitemap.xml). Własny endpoint zamiast
 // @astrojs/sitemap, bo ta paczka tworzy /sitemap-index.xml i byłaby nową zależnością.
 // Nową podstronę (np. /projekty/) dopisz do staticPages.
-const staticPages = ['/', '/blog/', '/tags/'];
+const staticPages = ['/', '/en/', '/blog/', '/tags/'];
 
 export async function GET(context: APIContext) {
   const posts = await getPosts();

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostGrid from '../../components/PostGrid.astro';
+import { getLocale } from '../../i18n';
 import MoreLink from '../../components/ui/MoreLink.astro';
 import { getTags, type Post } from '../../lib/posts';
 
@@ -19,7 +20,7 @@ const { name, posts } = Astro.props as { name: string; posts: Post[] };
       <h1 id="h-tag" class="section-title">#{name}</h1>
       <MoreLink href="/tags/">Wszystkie tagi</MoreLink>
     </div>
-    <PostGrid posts={posts} />
+    <PostGrid posts={posts} locale={getLocale(Astro)} />
   </section>
 </BaseLayout>
 

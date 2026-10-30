@@ -3,29 +3,35 @@ import { Image } from 'astro:assets';
 import KnmlLogo from '../components/KnmlLogo.astro';
 import Button from '../components/ui/Button.astro';
 import { joinUrl } from '../data/site';
+import { t, type Locale } from '../i18n';
 import { getPartners, isStrategic } from '../lib/partners';
 
-const strategicPartner = (await getPartners()).find(isStrategic);
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const strategicPartner = (await getPartners(locale)).find(isStrategic);
 ---
 
 <section class="container hero">
   <div class="hero__text">
-    <span class="badge"><span class="badge__num">1.</span>2× I miejsce na hackathonach w 2026</span>
-    <h1>Uczenie maszynowe do <span class="marker">niecodziennych</span> problemów.</h1>
-    <p class="hero__lead">Koło Naukowe Machine Learning Politechniki Rzeszowskiej. Analiza danych, sieci neuronowe, wykrywanie dronów i algorytmy jazdy autonomicznej.</p>
+    <span class="badge"><span class="badge__num">1.</span>{t(locale, 'hero.badge')}</span>
+    <h1>{t(locale, 'hero.titleBefore')}<span class="marker">{t(locale, 'hero.titleMarked')}</span>{t(locale, 'hero.titleAfter')}</h1>
+    <p class="hero__lead">{t(locale, 'hero.lead')}</p>
     <div class="hero__cta">
-      <Button href={joinUrl} withIcon>Dołącz do nas</Button>
-      <Button href="#projekty" variant="outline">Zobacz projekty</Button>
+      <Button href={joinUrl} withIcon>{t(locale, 'joinUs')}</Button>
+      <Button href="#projekty" variant="outline">{t(locale, 'hero.seeProjects')}</Button>
     </div>
   </div>
 
   <div class="hero__visual">
     <div class="hero__logo">
-      <KnmlLogo animated label="Logo KNML: sieć neuronowa wpisana w okrąg" />
+      <KnmlLogo animated label={t(locale, 'hero.logoLabel')} />
     </div>
     {strategicPartner && (
       <a class="sponsor-card" href={strategicPartner.data.url}>
-        <span class="sponsor-card__label"><small>Partner strategiczny</small><strong>{strategicPartner.data.name}</strong></span>
+        <span class="sponsor-card__label"><small>{t(locale, 'strategicPartner')}</small><strong>{strategicPartner.data.name}</strong></span>
         <Image src={strategicPartner.data.logo} alt="" height={104} />
       </a>
     )}

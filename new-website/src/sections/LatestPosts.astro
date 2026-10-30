@@ -2,28 +2,39 @@
 import { Image } from 'astro:assets';
 import MoreLink from '../components/ui/MoreLink.astro';
 import Tag from '../components/ui/Tag.astro';
-import { categoryLabels, formatDate, getPosts, isoDate, postUrl } from '../lib/posts';
+import { t, type Locale } from '../i18n';
+import { formatDate, getPosts, isoDate, postUrl } from '../lib/posts';
 
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
 const posts = await getPosts();
+// Wpisy są tylko po polsku: w wersji EN karty mają etykietę „In Polish”, a tytuły lang="pl"
+// (czytnik ekranu przeczyta je po polsku). Linki prowadzą do polskich wpisów /blog/<slug>/.
+const inPolish = locale === 'en' ? t(locale, 'posts.inPolish') : undefined;
+const postLang = locale === 'en' ? 'pl' : undefined;
 // Najnowszy wpis jest duży i pokazuje excerpt, dwa kolejne są małe.
 const [leadPost, ...sidePosts] = posts.slice(0, 3);
 ---
 
 <section id="blog" class="container posts" aria-labelledby="h-blog">
   <div class="section-head">
-    <h2 id="h-blog" class="section-title">Z życia koła</h2>
-    <MoreLink href="/blog/">Wszystkie wpisy ({posts.length})</MoreLink>
+    <h2 id="h-blog" class="section-title">{t(locale, 'posts.title')}</h2>
+    <MoreLink href="/blog/">{t(locale, 'posts.all')} ({posts.length})</MoreLink>
   </div>
   <div class="mosaic">
     <a class="tile tile--lead" href={postUrl(leadPost)}>
       <Image src={leadPost.data.cover} alt="" widths={[640, 960, 1200]} sizes="(min-width: 1000px) 60vw, 100vw" />
       <span class="tile__body">
         <span class="tile__meta">
-          <Tag variant="accent">{categoryLabels[leadPost.data.category]}</Tag>
-          <time datetime={isoDate(leadPost.data.date)}>{formatDate(leadPost.data.date)}</time>
+          <Tag variant="accent">{t(locale, `category.${leadPost.data.category}`)}</Tag>
+          <time datetime={isoDate(leadPost.data.date)}>{formatDate(leadPost.data.date, locale)}</time>
+          {inPolish && <span>· {inPolish}</span>}
         </span>
-        <span class="tile__title">{leadPost.data.shortTitle ?? leadPost.data.title}</span>
-        {leadPost.data.excerpt && <span class="tile__excerpt">{leadPost.data.excerpt}</span>}
+        <span class="tile__title" lang={postLang}>{leadPost.data.shortTitle ?? leadPost.data.title}</span>
+        {leadPost.data.excerpt && <span class="tile__excerpt" lang={postLang}>{leadPost.data.excerpt}</span>}
       </span>
     </a>
     <div class="mosaic__side">
@@ -31,8 +42,8 @@ const [leadPost, ...sidePosts] = posts.slice(0, 3);
         <a class="tile tile--small" href={postUrl(post)}>
           <Image src={post.data.cover} alt="" widths={[480, 800]} sizes="(min-width: 1000px) 35vw, 100vw" />
           <span class="tile__body">
-            <span class="tile__meta"><time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time> · {categoryLabels[post.data.category]}</span>
-            <span class="tile__title">{post.data.shortTitle ?? post.data.title}</span>
+            <span class="tile__meta"><time datetime={isoDate(post.data.date)}>{formatDate(post.data.date, locale)}</time> · {t(locale, `category.${post.data.category}`)}{inPolish && ` · ${inPolish}`}</span>
+            <span class="tile__title" lang={postLang}>{post.data.shortTitle ?? post.data.title}</span>
           </span>
         </a>
       ))}
