@@ -61,6 +61,8 @@ knml.edu.pl/                 jedno repo, jeden .git (tylko tutaj)
    definiujemy raz (token CSS albo `src/data/site.ts`) i tylko się do niego odwołujemy.
 6. **Nie wymyślaj treści.** Brakujące dane zostawiaj jako widoczny placeholder `[TAK JAK TU]`
    i dopisz je do `TODO.md` w `new-website/`.
+7. **Każdy nowy tekst interfejsu dodajesz do `src/i18n/pl.ts` i `src/i18n/en.ts`** (ten sam klucz),
+   w komponencie tylko `t(locale, 'klucz')`. Brak klucza w `en.ts` zatrzymuje `npm run check`.
 
 ## Kolory i style: tylko tokeny
 
@@ -93,9 +95,10 @@ src/
 ├── content/           treść w plikach: blog/, achievements/, projects/, partners/
 ├── content.config.ts  schematy treści (Zod) — walidacja przy buildzie
 ├── data/site.ts       stałe: e-mail, linki social, statystyki „O nas”
+├── i18n/              teksty interfejsu: pl.ts, en.ts, index.ts (t(), getLocale())
 ├── lib/               jedyne miejsce, gdzie pobieramy dane (patrz „Backend”)
 ├── layouts/           BaseLayout.astro
-├── pages/             routing: index, blog/, blog/[...slug], projekty/, o-nas, 404
+├── pages/             routing: index, en/ (wersja angielska), blog/, blog/[...slug], projekty/, o-nas, 404
 └── styles/            tokens.css, global.css
 ```
 
@@ -103,6 +106,15 @@ src/
 - **Komponent dostaje dane przez propsy**, sam niczego nie pobiera (wyjątek: sekcje
   wołają funkcje z `src/lib/`).
 - Typy treści wynikają ze schematów w `content.config.ts`, nie duplikujemy ich ręcznie.
+
+## Wersja angielska
+
+- Polski bez prefiksu (`/`, `/blog/`), angielski pod `/en/` (i18n w `astro.config.mjs`).
+  Po angielsku jest tylko strona główna; blog zostaje po polsku i nie ma wersji `/en/`.
+- Sekcje i komponenty dostają `locale` przez props. Strona ustala go przez `getLocale(Astro)`.
+- Kolekcje `achievements`, `projects`, `partners` mają opcjonalny obiekt `en` z tymi samymi
+  polami tekstowymi. Brakujące pole strona EN pokazuje po polsku (`localizeEntry()` z `src/i18n/`, wołane w `src/lib/`).
+- Nazwa „Koło Naukowe Machine Learning” i skrót KNML się nie tłumaczą. Angielski: en-GB.
 
 ## Backend (przyszłość)
 
@@ -167,6 +179,5 @@ Stara strona (z katalogu głównego): `hugo server --source old-website`.
 - Nie dodawać kolorów spoza tokenów ani limonki poza wskazanymi miejscami.
 - Nie zmieniać kształtu logo ani nie obracać go.
 - Nie osadzać feedów z Facebooka, Instagrama ani LinkedIna.
-- Nie dodawać przełącznika języka, dopóki nie istnieje wersja EN.
 - Nie używać długich myślników (— i –) w tekstach interfejsu i tytułach; zwykły -.
 - Nie przepisywać działającego kodu „przy okazji”. Zmiany tylko w zakresie zadania.

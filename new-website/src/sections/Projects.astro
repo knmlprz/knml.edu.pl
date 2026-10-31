@@ -1,14 +1,20 @@
 ---
 import { Image } from 'astro:assets';
 import Tag from '../components/ui/Tag.astro';
+import { t, type Locale } from '../i18n';
 import { getProjects, projectUrl } from '../lib/projects';
 
-const featuredProjects = (await getProjects()).slice(0, 4);
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const featuredProjects = (await getProjects(locale)).slice(0, 4);
 ---
 
 <section id="projekty" class="container projects" aria-labelledby="h-proj">
   <div class="section-head">
-    <h2 id="h-proj" class="section-title">Projekty</h2>
+    <h2 id="h-proj" class="section-title">{t(locale, 'projects.title')}</h2>
   </div>
   <div class="proj-grid">
     {featuredProjects.map((project) => (

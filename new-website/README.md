@@ -20,6 +20,7 @@ src/
 ├── components/        małe, powtarzalne elementy: nagłówek, stopka, logo, ui/ (przyciski, tagi)
 ├── layouts/           BaseLayout.astro — szkielet każdej strony (<head>, menu, stopka)
 ├── data/site.ts       stałe: e-mail, linki social, Discord, Wiki, menu, statystyki „O nas”
+├── i18n/              teksty interfejsu po polsku (pl.ts) i angielsku (en.ts), funkcja t()
 ├── styles/            tokens.css (kolory, fonty, odstępy) i global.css (style wspólne)
 └── assets/            logo i obrazki używane w kodzie (logo PRz w assets/partners/)
 ```
@@ -47,13 +48,31 @@ Sekcje i strony nigdy nie czytają `src/content/` bezpośrednio, tylko wołają 
 | Plik | Najważniejsze funkcje |
 |---|---|
 | `posts.ts` | `getPosts()` (bez szkiców, od najnowszego), `getTags()`, `postUrl()`, `postDescription()` |
-| `achievements.ts` | `getAchievements()` (od najnowszego roku, w roku od najwyższego miejsca) |
-| `projects.ts` | `getProjects()` (wg `order`), `projectUrl()` |
-| `partners.ts` | `getPartners()` (tylko aktualni — pomija tych po `validUntil`), `isStrategic()` |
+| `achievements.ts` | `getAchievements(locale)` (od najnowszego roku, w roku od najwyższego miejsca) |
+| `projects.ts` | `getProjects(locale)` (wg `order`), `projectUrl()` |
+| `partners.ts` | `getPartners(locale)` (tylko aktualni — pomija tych po `validUntil`), `isStrategic()` |
 | `feed.ts` | kanał RSS (`/index.xml`, `/blog/index.xml`) |
+
+Funkcje z `locale` zwracają dla `'en'` pola z obiektu `en` (patrz niżej).
 
 Dlaczego tak: dziś dane są w plikach, a w przyszłości mogą przyjść z panelu do dodawania
 wpisów albo z bazy danych. Wtedy zmienimy tylko `lib/`, a sekcje i strony zostaną bez zmian.
+
+## Wersja angielska (`src/i18n/`)
+
+Polski jest pod zwykłymi adresami, angielski pod `/en/` (`i18n` w `astro.config.mjs`).
+Dziś po angielsku jest tylko strona główna: `pages/en/index.astro` renderuje tę samą
+`pages/index.astro`, a ta ustala język z adresu przez `getLocale(Astro)` i przekazuje go
+sekcjom (`<Hero locale={locale} />`). Decyzja: [docs/adr/0002-wersja-en.md](../docs/adr/0002-wersja-en.md).
+
+- `t(locale, 'klucz')` — tekst interfejsu z `pl.ts` albo `en.ts`. Typ `Dictionary` pilnuje,
+  żeby `en.ts` miał wszystkie klucze z `pl.ts`.
+- `localizeEntry()` — wpis z kolekcji z polami z `en` zamiast polskich (wołają ją funkcje z `lib/`).
+- `homeUrl()`, `localizeHref()` — linki do strony głównej i jej sekcji (`/#projekty` → `/en/#projekty`).
+- Przełącznik „PL / EN”: `components/LanguageSwitch.astro`. Z każdej polskiej strony prowadzi
+  do `/en/`, z angielskiej do `/`. Gdy powstaną kolejne strony EN, trzeba tu dodać ich odpowiedniki
+  (i linki `hreflang` w `BaseLayout.astro`, które dziś ma tylko strona główna).
+- Wpisy na blogu są tylko po polsku. Na `/en/` karty wpisów mają etykietę „In Polish”.
 
 ## Adresy specjalne
 

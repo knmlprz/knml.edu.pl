@@ -66,6 +66,10 @@ const blog = defineCollection({
     }),
 });
 
+// Tłumaczenie na wersję /en/: obiekt `en` z tymi samymi polami tekstowymi co po polsku.
+// Każde pole jest opcjonalne; czego nie ma w `en`, strona EN pokazuje po polsku (src/i18n/index.ts).
+const translation = <Shape extends z.ZodRawShape>(shape: Shape) => z.object(shape).partial().optional();
+
 // Od najwyższego miejsca. Ta kolejność ustala też kolejność kart w obrębie jednego roku.
 export const achievementPlaces = ['I miejsce', 'II miejsce', 'Nagroda', 'Wyróżnienie'] as const;
 
@@ -75,11 +79,12 @@ const achievements = defineCollection({
     year: z.number().int(),
     // 'I miejsce' daje limonkową kartę („gold”).
     place: z.enum(achievementPlaces),
-    // Duży znak na karcie, np. '1.', 'PCI', 'W'.
+    // Duży znak na karcie, np. '1.', 'PCI', '★' (wyróżnienie).
     mark: z.string(),
     title: z.string(),
     description: z.string(),
     url: z.url(),
+    en: translation({ title: z.string(), description: z.string() }),
   }),
 });
 
@@ -98,6 +103,13 @@ const projects = defineCollection({
       post: reference('blog').optional(),
       // Strona główna pokazuje pierwsze 4 projekty wg order (rosnąco), jak we wzorcu.
       order: z.number().int(),
+      en: translation({
+        title: z.string(),
+        category: z.string(),
+        description: z.string(),
+        tags: z.array(z.string()),
+        meta: z.string(),
+      }),
     }),
 });
 
@@ -116,6 +128,7 @@ const partners = defineCollection({
       description: z.string().optional(),
       // Po tej dacie partner sam znika ze strony (np. koniec umowy sponsorskiej).
       validUntil: dateField().optional(),
+      en: translation({ name: z.string(), description: z.string() }),
     }),
 });
 

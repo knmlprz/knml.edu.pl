@@ -1,3 +1,5 @@
+import type { TranslationKey } from '../i18n';
+
 export const email = 'contact.knml.prz@gmail.com';
 export const discordUrl = 'https://discord.gg/ZYJdXXgE6H';
 export const wikiUrl = 'https://wiki.knml.edu.pl';
@@ -14,26 +16,27 @@ export const socials = [
 ];
 
 // "/#..." zamiast "#...", żeby linki działały też z podstron (np. /blog/).
-export const mainNav = [
-  { label: 'Blog', href: '/blog/' },
-  { label: 'Projekty', href: '/#projekty' },
-  { label: 'Osiągnięcia', href: '/#osiagniecia' },
-  { label: 'O nas', href: '/#o-nas' },
-  { label: 'Kontakt', href: '/#kontakt' },
-  { label: 'Wiki ↗', href: wikiUrl },
+// labelKey: klucz tekstu w src/i18n/pl.ts i en.ts.
+export const mainNav: { labelKey: TranslationKey; href: string }[] = [
+  { labelKey: 'nav.blog', href: '/blog/' },
+  { labelKey: 'nav.projects', href: '/#projekty' },
+  { labelKey: 'nav.achievements', href: '/#osiagniecia' },
+  { labelKey: 'nav.about', href: '/#o-nas' },
+  { labelKey: 'nav.contact', href: '/#kontakt' },
+  { labelKey: 'nav.wiki', href: wikiUrl },
 ];
 
 // Kontakt to sama stopka, więc w stopce zamiast niego jest „Dołącz”.
 // Wiki jest w stopce w kolumnie „Zasoby”.
-export const footerNav = [
+export const footerNav: typeof mainNav = [
   ...mainNav.filter((link) => link.href !== '/#kontakt' && link.href !== wikiUrl),
-  { label: 'Dołącz', href: '/#dolacz' },
+  { labelKey: 'nav.join', href: '/#dolacz' },
 ];
 
 // Statystyki prawdziwe (z repo): założenie 2020, 7 osiągnięć w config.toml,
 // I miejsca: SpaceShield Hack 2026 + EDTH Detect & Defend 2026.
-export const stats = [
-  { value: '2020', label: 'rok założenia przy WMiFS' },
-  { value: '7', label: 'nagród i wyróżnień w konkursach' },
-  { value: '2×', label: 'I miejsce na międzynarodowych hackathonach w 2026', highlighted: true },
+export const stats: { value: string; labelKey: TranslationKey; highlighted?: boolean }[] = [
+  { value: '2020', labelKey: 'about.statFounded' },
+  { value: '7', labelKey: 'about.statAwards' },
+  { value: '2×', labelKey: 'about.statFirstPlaces', highlighted: true },
 ];

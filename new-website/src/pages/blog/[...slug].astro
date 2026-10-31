@@ -4,7 +4,8 @@ import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MoreLink from '../../components/ui/MoreLink.astro';
 import Tag from '../../components/ui/Tag.astro';
-import { categoryLabels, formatDate, getPosts, isoDate, postDescription, tagUrl, type Post } from '../../lib/posts';
+import { getLocale, t } from '../../i18n';
+import { formatDate, getPosts, isoDate, postDescription, tagUrl, type Post } from '../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -14,14 +15,15 @@ export async function getStaticPaths() {
 const { post } = Astro.props as { post: Post };
 const { title, date, author, category, tags, cover, githubLink } = post.data;
 const { Content } = await render(post);
+const locale = getLocale(Astro);
 ---
 
 <BaseLayout title={`${title} - KNML`} description={postDescription(post)} image={cover} type="article">
   <article class="container article">
     <header class="article__head">
       <p class="article__meta">
-        <Tag variant="accent">{categoryLabels[category]}</Tag>
-        <time datetime={isoDate(date)}>{formatDate(date)}</time>
+        <Tag variant="accent">{t(locale, `category.${category}`)}</Tag>
+        <time datetime={isoDate(date)}>{formatDate(date, locale)}</time>
         <span>{author}</span>
       </p>
       <h1 class="article__title">{title}</h1>

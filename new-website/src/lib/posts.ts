@@ -1,11 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import type { Locale } from '../i18n';
 
 export type Post = CollectionEntry<'blog'>;
-
-export const categoryLabels: Record<Post['data']['category'], string> = {
-  aktualnosci: 'Aktualności',
-  projekty: 'Projekty',
-};
 
 // Wszystkie opublikowane wpisy, od najnowszego.
 export async function getPosts(): Promise<Post[]> {
@@ -61,6 +57,9 @@ export function postDescription(post: Post, maxLength = 155): string {
 export const postUrl = (post: Post) => `/blog/${post.id}/`;
 export const tagUrl = (tag: string) => `/tags/${tagSlug(tag)}/`;
 
-export const formatDate = (date: Date) =>
-  date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+// pl: 16.09.2026, en: 16 Sept 2026.
+export const formatDate = (date: Date, locale: Locale) =>
+  locale === 'en'
+    ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
 export const isoDate = (date: Date) => date.toISOString().slice(0, 10);

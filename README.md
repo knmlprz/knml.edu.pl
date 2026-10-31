@@ -228,7 +228,7 @@ validUntil: 2026-11-30             # opcjonalne: ostatni dzień współpracy
 ```yaml
 year: 2026
 place: I miejsce            # I miejsce | II miejsce | Nagroda | Wyróżnienie
-mark: "1."                  # duży znak na karcie, np. "1.", PCI, W
+mark: "1."                  # duży znak na karcie, np. "1.", PCI, "★" (wyróżnienie)
 title: SpaceShield Hack
 description: Dostępność transportu publicznego w Stalowej Woli z danych satelitarnych
 url: https://adres-artykulu-o-sukcesie
@@ -258,3 +258,35 @@ Pełny opis projektu (dziś jeszcze niewyświetlany — patrz TODO.md).
 - `order` — kolejność; strona główna pokazuje 4 projekty z najmniejszym `order`.
 - `post` (opcjonalne) — nazwa folderu wpisu na blogu; karta projektu prowadzi wtedy do tego wpisu.
   Literówka albo wpis-szkic zatrzyma `npm run build` (patrz „Najczęstsze błędy”).
+
+## Jak dodać lub zmienić tłumaczenie (wersja angielska)
+
+Po angielsku jest tylko strona główna: [knml.edu.pl/en/](https://knml.edu.pl/en/). Wpisy na blogu
+zostają po polsku. Tłumaczymy na brytyjski angielski (*honour*, *centre*); nazwy
+„Koło Naukowe Machine Learning” i KNML się nie tłumaczą.
+
+**Teksty strony** (menu, nagłówki, przyciski, stopka) są w dwóch plikach:
+`new-website/src/i18n/pl.ts` i `new-website/src/i18n/en.ts`. Każdy tekst ma klucz, np.:
+
+```ts
+// pl.ts                                // en.ts
+'join.title': 'Dołącz do KNML',         'join.title': 'Join KNML',
+```
+
+- **Zmiana tłumaczenia** = zmiana tekstu po prawej stronie klucza w `en.ts`.
+- **Nowy tekst** = nowy klucz w **obu** plikach, a w komponencie `{t(locale, 'nowy.klucz')}`.
+  Jeśli zapomnisz o `en.ts`, `npm run check` pokaże błąd `Property '"nowy.klucz"' is missing`.
+
+**Partnerzy, osiągnięcia, projekty**: w pliku z `src/content/` dopisz obiekt `en:` z angielską
+wersją pól tekstowych. Pola, którego nie ma w `en:`, strona EN pokazuje po polsku.
+
+```yaml
+title: StRuNa - Debiut Roku
+description: Wyróżnienie dla nowego koła naukowego
+en:
+  title: StRuNa - Debut of the Year
+  description: Distinction for a new student club
+```
+
+Pola, które można tłumaczyć: osiągnięcie `title`, `description`; projekt `title`, `category`,
+`description`, `tags`, `meta`; partner `name`, `description`.

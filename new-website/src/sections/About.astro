@@ -1,17 +1,24 @@
 ---
 import { stats } from '../data/site';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
 ---
 
 <section id="o-nas" class="container about" aria-labelledby="h-onas">
   <div class="about__text">
-    <h2 id="h-onas" class="about__label">O nas</h2>
-    <p class="about__statement">Jesteśmy grupą studentów zafascynowanych analizą danych, uczeniem maszynowym i sieciami neuronowymi. Uczymy się w praktyce: na konkursach, hackathonach i we <span class="marker">własnych projektach</span>.</p>
+    <h2 id="h-onas" class="about__label">{t(locale, 'about.title')}</h2>
+    <p class="about__statement">{t(locale, 'about.statementBefore')}<span class="marker">{t(locale, 'about.statementMarked')}</span>{t(locale, 'about.statementAfter')}</p>
   </div>
   <dl class="stats">
     {stats.map((stat) => (
       <div class:list={['stat', { 'stat--dark': stat.highlighted }]}>
         <dt>{stat.value}</dt>
-        <dd>{stat.label}</dd>
+        <dd>{t(locale, stat.labelKey)}</dd>
       </div>
     ))}
   </dl>

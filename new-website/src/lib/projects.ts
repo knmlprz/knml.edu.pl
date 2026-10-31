@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { localizeEntry, type Locale } from '../i18n';
 import { getPosts } from './posts';
 
 export type Project = CollectionEntry<'projects'>;
@@ -6,7 +7,7 @@ export type Project = CollectionEntry<'projects'>;
 // Wszystkie projekty wg pola order (rosnąco).
 // Zatrzymuje build, gdy pole post wskazuje wpis, którego nie ma albo który jest szkicem
 // (Astro tego nie sprawdza — karta prowadziłaby do strony 404).
-export async function getProjects(): Promise<Project[]> {
+export async function getProjects(locale: Locale): Promise<Project[]> {
   const projects = await getCollection('projects');
   const publishedPostIds = new Set((await getPosts()).map((post) => post.id));
   for (const project of projects) {
@@ -18,7 +19,9 @@ export async function getProjects(): Promise<Project[]> {
       );
     }
   }
-  return projects.sort((a, b) => a.data.order - b.data.order);
+  return projects
+    .map((project) => localizeEntry(project, locale))
+    .sort((a, b) => a.data.order - b.data.order);
 }
 
 export const projectUrl = (project: Project) =>

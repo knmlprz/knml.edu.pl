@@ -5,6 +5,12 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'https://knml.edu.pl',
   output: 'static',
+  // Polski bez prefiksu (/, /blog/), angielski pod /en/. Teksty: src/i18n/.
+  i18n: {
+    locales: ['pl', 'en'],
+    defaultLocale: 'pl',
+    routing: { prefixDefaultLocale: false },
+  },
   // Stare adresy stronicowania z Hugo (miał najwyżej 2 strony). Nowa strona pokazuje wszystko
   // na jednej stronie, więc przekierowujemy. Tagi: src/pages/tags/[tag]/page/[page].astro.
   redirects: {

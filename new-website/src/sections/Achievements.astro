@@ -1,23 +1,33 @@
 ---
-import { getAchievements } from '../lib/achievements';
+import { t, type Locale } from '../i18n';
+import { getAchievements, type Achievement } from '../lib/achievements';
 
-const achievements = await getAchievements();
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const achievements = await getAchievements(locale);
+// Znak bez liter i cyfr (np. „★” przy wyróżnieniu) czytnik ekranu przeczytałby jako „gwiazdka”,
+// więc dostaje nazwę miejsca, np. „Wyróżnienie” / „Honourable mention”.
+const markLabel = (achievement: Achievement['data']) =>
+  /[\p{L}\p{N}]/u.test(achievement.mark) ? undefined : t(locale, `place.${achievement.place}`);
 ---
 
 <section id="osiagniecia" class="achievements" aria-labelledby="h-osiag">
   <div class="container">
     <div class="section-head">
-      <h2 id="h-osiag" class="section-title">Osiągnięcia</h2>
-      <span class="achievements__hint">Przewiń w bok →</span>
+      <h2 id="h-osiag" class="section-title">{t(locale, 'achievements.title')}</h2>
+      <span class="achievements__hint">{t(locale, 'achievements.hint')}</span>
     </div>
     <!-- tabindex: przewijaną listę da się przesuwać strzałkami z klawiatury -->
-    <ol class="rail" tabindex="0" aria-label="Osiągnięcia koła, lista przewijana w poziomie">
+    <ol class="rail" tabindex="0" aria-label={t(locale, 'achievements.listLabel')}>
       {achievements.map(({ data: achievement }) => (
         <li>
           <a class:list={['ach', { 'ach--gold': achievement.place === 'I miejsce' }]} href={achievement.url}>
-            <span class="ach__top"><span class="ach__mark">{achievement.mark}</span><span class="ach__year">{achievement.year}</span></span>
+            <span class="ach__top"><span class="ach__mark" role={markLabel(achievement) ? 'img' : undefined} aria-label={markLabel(achievement)}>{achievement.mark}</span><span class="ach__year">{achievement.year}</span></span>
             <span class="ach__body">
-              <span class="ach__place">{achievement.place}</span>
+              <span class="ach__place">{t(locale, `place.${achievement.place}`)}</span>
               <span class="ach__title">{achievement.title}</span>
               <span class="ach__desc">{achievement.description}</span>
             </span>
