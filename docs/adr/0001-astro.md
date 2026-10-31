@@ -4,7 +4,7 @@
 - **Data:** 2026-10-19
 
 *ADR (Architecture Decision Record) to krótka notatka: jaka decyzja, dlaczego i co z niej wynika.
-Kolejne decyzje dopisujemy jako `0002-…md`, `0003-…md`. Starych nie zmieniamy — jeśli decyzja
+Kolejne decyzje dopisujemy jako `0002-…md`, `0003-…md`. Starych nie zmieniamy. Jeśli decyzja
 się zmieni, nowy ADR ją zastępuje.*
 
 ## Kontekst
@@ -37,9 +37,9 @@ się zmieni, nowy ADR ją zastępuje.*
 
 - **Plusy:** prostszy kod, kontrola nad wyglądem, walidacja treści przy buildzie, szybka strona,
   hosting jak dotąd (GitHub Pages, ta sama domena).
-- **Minusy:** strona statyczna zmienia się tylko po nowym buildzie — np. partner z minioną
+- **Minusy:** strona statyczna zmienia się tylko po nowym buildzie, np. partner z minioną
   datą `validUntil` znika dopiero przy następnej publikacji. Rozwiązanie: zaplanowany build
   (cron) w nowym workflow publikacji. Wpis dodaje się dziś przez gita i Pull Request,
-  co dla osób nietechnicznych jest progiem — do czasu wdrożenia TinaCMS.
+  co dla osób nietechnicznych jest progiem (do czasu wdrożenia TinaCMS).
 - **Do zrobienia przy starcie:** zastąpić `.github/workflows/hugo.yml` workflow z
   `withastro/action` (`path: ./new-website`), potem usunąć `old-website/` i `scripts/migrate-hugo.mjs`.

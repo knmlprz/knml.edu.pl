@@ -37,7 +37,7 @@ Kroki (po każdym check + build):
 8. Zaktualizuj CLAUDE.md: usuń zakaz przełącznika języka, dopisz zasadę „każdy nowy tekst
    interfejsu dodajesz do pl.ts i en.ts”. W README dopisz krótko, jak dodać/zmienić tłumaczenie.
 9. Na koniec: zrzuty / i /en/ na desktopie i w emulacji telefonu (Pixel 7) oraz lista zmian.
-Zasady z CLAUDE.md obowiązują: tokeny kolorów, najmniej kodu, zwykły myślnik „-” zamiast „—” i „–”.
+Zasady z CLAUDE.md obowiązują: tokeny kolorów, najmniej kodu, zwykły myślnik „-” zamiast długich.
 ```
 
 ## 2. Słowniczek (stałe tłumaczenia)

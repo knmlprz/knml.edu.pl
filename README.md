@@ -1,4 +1,4 @@
-# knml.edu.pl — strona Koła Naukowego Machine Learning PRz
+# knml.edu.pl: strona Koła Naukowego Machine Learning PRz
 
 To repozytorium (w skrócie „repo”, czyli folder z kodem i całą historią zmian) zawiera stronę
 [knml.edu.pl](https://knml.edu.pl). Ten plik jest dla osoby, która przejmuje stronę i nie zna
@@ -8,17 +8,17 @@ jeszcze Astro ani gita. Przeczytaj go raz od początku do końca.
 
 ```text
 knml.edu.pl/
-├── new-website/     nowa strona (Astro) — tu pracujesz
-├── old-website/     stara strona (Hugo) — tylko do odczytu, nic tu nie zmieniaj
+├── new-website/     nowa strona (Astro), tu pracujesz
+├── old-website/     stara strona (Hugo), tylko do odczytu, nic tu nie zmieniaj
 ├── docs/adr/        krótkie notatki „dlaczego tak zdecydowaliśmy”
 ├── .github/         automatyczna publikacja strony (nie ruszaj bez zgody zarządu)
 ├── CNAME            domena knml.edu.pl (nie ruszaj)
-└── CLAUDE.md        zasady pisania kodu i wyglądu strony — obowiązują też ludzi
+└── CLAUDE.md        zasady pisania kodu i wyglądu strony (obowiązują też ludzi)
 ```
 
-- **[new-website/README.md](new-website/README.md)** — jak zbudowany jest kod strony.
-- **[new-website/TODO.md](new-website/TODO.md)** — czego jeszcze brakuje (dane od zarządu, decyzje).
-- **[CLAUDE.md](CLAUDE.md)** — kolory, zasady kodu, czego nie robić.
+- [new-website/README.md](new-website/README.md): jak zbudowany jest kod strony.
+- [new-website/TODO.md](new-website/TODO.md): czego jeszcze brakuje (dane od zarządu, decyzje).
+- [CLAUDE.md](CLAUDE.md): kolory, zasady kodu, czego nie robić.
 
 ## Uruchomienie strony na swoim komputerze
 
@@ -40,14 +40,14 @@ Przed każdym wysłaniem zmian uruchom też:
 
 ```bash
 npm run check    # sprawdza, czy wpisy i kod są poprawne
-npm run build    # buduje gotową stronę do folderu dist/ — tak samo jak serwer
+npm run build    # buduje gotową stronę do folderu dist/, tak samo jak serwer
 ```
 
 Obie komendy muszą skończyć się bez błędów.
 
 ## Jak strona trafia do internetu
 
-Stronę publikuje **GitHub Actions** — automat na GitHubie. Instrukcje dla niego to
+Stronę publikuje **GitHub Actions**, czyli automat na GitHubie. Instrukcje dla niego to
 *workflowy*, pliki w `.github/workflows/`:
 
 - **`deploy.yml`** buduje stronę z `new-website/` i publikuje ją pod knml.edu.pl
@@ -72,7 +72,7 @@ Wtedy włącz je z powrotem: **Actions** → **Deploy** → **Enable workflow**.
 1. **Nowa gałąź** od aktualnej wersji.
 2. **Zmiany** w plikach, sprawdzone `npm run check` i `npm run build`.
 3. **Commit** (zapisanie paczki zmian z opisem) i **push** (wysłanie jej na GitHuba).
-4. **Pull Request** (w skrócie PR) — prośba na GitHubie: „przejrzyjcie i dołączcie moje zmiany”.
+4. **Pull Request** (w skrócie PR), czyli prośba na GitHubie: „przejrzyjcie i dołączcie moje zmiany”.
 5. Ktoś z zespołu sprawdza i robi **merge** (dołączenie zmian). Dopiero wtedy strona się aktualizuje.
 
 > **Do startu nowej strony** gałęzią bazową jest `przebudowastrony` (nie `main`): od niej
@@ -98,7 +98,7 @@ Zasady nazwy:
 
 - małe litery, **bez polskich znaków**, zamiast spacji myślniki,
 - krótko i opisowo, np. `zwyciestwo-na-hackyeah-2026` → adres `knml.edu.pl/blog/zwyciestwo-na-hackyeah-2026/`,
-- **nie zmieniaj nazwy po publikacji** — linkują do nas uczelnia i media, stary adres przestałby działać.
+- **nie zmieniaj nazwy po publikacji**: linkują do nas uczelnia i media, stary adres przestałby działać.
 
 ```text
 new-website/src/content/blog/zwyciestwo-na-hackyeah-2026/
@@ -132,7 +132,7 @@ githubLink: https://github.com/knmlprz/nazwa-repo
 draft: false
 ---
 
-Pierwszy akapit — krótko: co, kiedy, kto. Jeśli nie ma `excerpt`, to ten akapit
+W pierwszym akapicie krótko: co, kiedy, kto. Jeśli nie ma `excerpt`, to ten akapit
 pokaże Google i podgląd linku na Facebooku czy Discordzie.
 
 ![Zespół KNML z czekiem za I miejsce na scenie HackYeah](./zdjecie-2.jpg)
@@ -151,14 +151,14 @@ Dalsza treść…
 | `category` | Dokładnie jedno z dwóch: `aktualnosci` (wydarzenia, sukcesy) albo `projekty` (opis projektu). Bez polskich znaków. |
 | `cover` | Okładka: `./` + nazwa pliku z tego samego folderu. Pokazuje się na liście wpisów i w podglądzie linku. |
 | `shortTitle` | Krótszy tytuł na kafelek na stronie głównej, gdy `title` jest długi. |
-| `excerpt` | 1–2 zdania zajawki (do ok. 155 znaków). Trafia do Google, podglądu linku i na duży kafelek najnowszego wpisu. |
+| `excerpt` | 1-2 zdania zajawki (do ok. 155 znaków). Trafia do Google, podglądu linku i na duży kafelek najnowszego wpisu. |
 | `tags` | Słowa kluczowe. Używaj istniejących (lista: `knml.edu.pl/tags/`), żeby wpisy się grupowały. |
-| `githubLink` | Link do kodu — pod wpisem pojawi się „Kod na GitHubie ↗”. |
+| `githubLink` | Link do kodu. Pod wpisem pojawi się „Kod na GitHubie ↗”. |
 | `draft` | `true` = szkic: wpis **w ogóle się nie pojawi** (ani na stronie, ani w podglądzie). `false` albo brak linijki = opublikowany. |
 
 ### 4. Zdjęcia
 
-- Wrzuć pliki `.jpg`/`.png` do folderu wpisu. Nie musisz ich zmniejszać — strona sama robi lżejsze wersje.
+- Wrzuć pliki `.jpg`/`.png` do folderu wpisu. Nie musisz ich zmniejszać, strona sama robi lżejsze wersje.
 - W treści: `![opis zdjęcia](./nazwa-pliku.jpg)`. **Opis w nawiasie kwadratowym (tzw. alt) jest
   obowiązkowy**: czyta go osobom niewidomym czytnik ekranu. Napisz, co widać, np. „Trzy osoby
   przy laptopie na sali hackathonu”, a nie „zdjęcie”.
@@ -205,7 +205,7 @@ Komunikat błędu zawsze podaje ścieżkę do pliku, w którym jest problem (lin
 Zasada jak przy wpisie: zmieniasz plik w `new-website/src/content/`, sprawdzasz podgląd,
 robisz Pull Request. Strona sama układa dane w odpowiednich miejscach.
 
-### Partner — `src/content/partners/<nazwa>.yaml`
+### Partner: `src/content/partners/<nazwa>.yaml`
 
 ```yaml
 name: Miasto Rzeszów
@@ -216,14 +216,14 @@ description: Miasto Rzeszów jest partnerem strategicznym Koła Naukowego Machin
 validUntil: 2026-11-30             # opcjonalne: ostatni dzień współpracy
 ```
 
-- `strategic` — partner strategiczny: kafelek pod logo na górze strony i duża karta w sekcji
+- `strategic` to partner strategiczny: kafelek pod logo na górze strony i duża karta w sekcji
   Partnerzy. Powinien być jeden.
-- `partner` — mały kafelek w sekcji Partnerzy; `university` — uczelnia („Działamy przy” w stopce).
-- `validUntil` — po tej dacie partner **sam znika** ze strony przy najbliższej publikacji.
+- `partner` daje mały kafelek w sekcji Partnerzy, a `university` oznacza uczelnię („Działamy przy” w stopce).
+- `validUntil`: po tej dacie partner **sam znika** ze strony przy najbliższej publikacji.
   Przedłużenie umowy = zmiana daty; współpraca bezterminowa = usunięcie linijki.
 - Logo najlepiej w SVG albo PNG z przezroczystym tłem i bez pustego marginesu.
 
-### Osiągnięcie — `src/content/achievements/<nazwa>-<rok>.yaml`
+### Osiągnięcie: `src/content/achievements/<nazwa>-<rok>.yaml`
 
 ```yaml
 year: 2026
@@ -236,7 +236,7 @@ url: https://adres-artykulu-o-sukcesie
 
 Karty są ułożone od najnowszego roku. `I miejsce` daje wyróżnioną, limonkową kartę.
 
-### Projekt — `src/content/projects/<nazwa>/index.md` (+ `cover.jpg` obok)
+### Projekt: `src/content/projects/<nazwa>/index.md` (+ `cover.jpg` obok)
 
 ```markdown
 ---
@@ -252,11 +252,11 @@ post: studenci-z-kola-naukowego-machine-learning-zwyciezcami-hackathonu-detect-d
 order: 1
 ---
 
-Pełny opis projektu (dziś jeszcze niewyświetlany — patrz TODO.md).
+Pełny opis projektu (dziś jeszcze niewyświetlany, patrz TODO.md).
 ```
 
-- `order` — kolejność; strona główna pokazuje 4 projekty z najmniejszym `order`.
-- `post` (opcjonalne) — nazwa folderu wpisu na blogu; karta projektu prowadzi wtedy do tego wpisu.
+- `order`: kolejność, strona główna pokazuje 4 projekty z najmniejszym `order`.
+- `post` (opcjonalne): nazwa folderu wpisu na blogu; karta projektu prowadzi wtedy do tego wpisu.
   Literówka albo wpis-szkic zatrzyma `npm run build` (patrz „Najczęstsze błędy”).
 
 ## Jak dodać lub zmienić tłumaczenie (wersja angielska)
