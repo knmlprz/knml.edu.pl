@@ -1,5 +1,5 @@
 ---
-title: Projekt LARKFiD — twoja baza wiedzy o regionie
+title: Projekt LARKFiD - twoja baza wiedzy o regionie
 date: 2023-08-23T12:00:00+02:00
 author: Piotr Krawiec
 category: projekty

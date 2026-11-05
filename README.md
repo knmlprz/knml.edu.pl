@@ -152,14 +152,14 @@ Dalsza treść…
 | `category` | Dokładnie jedno z dwóch: `aktualnosci` (wydarzenia, sukcesy) albo `projekty` (opis projektu). Bez polskich znaków. |
 | `cover` | Okładka: `./` + nazwa pliku z tego samego folderu. Pokazuje się na liście wpisów i w podglądzie linku. |
 | `shortTitle` | Krótszy tytuł na kafelek na stronie głównej, gdy `title` jest długi. |
-| `excerpt` | 1-2 zdania zajawki (do ok. 155 znaków). Trafia do Google, podglądu linku i na duży kafelek najnowszego wpisu. |
-| `tags` | Słowa kluczowe. Używaj istniejących (lista: `knml.edu.pl/tags/`), żeby wpisy się grupowały. |
+| `excerpt` | 1-2 zdania zajawki (najwyżej 155 znaków). Trafia do Google, podglądu linku i na duży kafelek najnowszego wpisu. |
+| `tags` | Słowa kluczowe, tylko z listy dozwolonych (patrz [Zasady wpisów](#zasady-wpisów)), żeby wpisy się grupowały. |
 | `githubLink` | Link do kodu. Pod wpisem pojawi się „Kod na GitHubie ↗”. |
 | `draft` | `true` = szkic: wpis **w ogóle się nie pojawi** (ani na stronie, ani w podglądzie). `false` albo brak linijki = opublikowany. |
 
 ### 4. Zdjęcia
 
-- Wrzuć pliki `.jpg`/`.png` do folderu wpisu. Nie musisz ich zmniejszać, strona sama robi lżejsze wersje.
+- Wrzuć pliki `.jpg`, `.png` albo `.webp` do folderu wpisu. Nie musisz ich zmniejszać, strona sama robi lżejsze wersje.
 - W treści: `![opis zdjęcia](./nazwa-pliku.jpg)`. **Opis w nawiasie kwadratowym (tzw. alt) jest
   obowiązkowy**: czyta go osobom niewidomym czytnik ekranu. Napisz, co widać, np. „Trzy osoby
   przy laptopie na sali hackathonu”, a nie „zdjęcie”.
@@ -192,14 +192,72 @@ wybierz `przebudowastrony` (po starcie: `main`), dopisz krótki opis i kliknij *
 
 | Co widzisz | Co to znaczy | Co zrobić |
 |---|---|---|
-| `[ImageNotFound] Could not find requested image ./okladka.jpg` | Nie ma pliku o takiej nazwie w folderze wpisu. | Sprawdź nazwę i rozszerzenie (`.jpg` ≠ `.jpeg` ≠ `.JPG`) i czy plik jest w tym samym folderze. |
-| `data does not match collection schema` + `category: Invalid option: expected one of "aktualnosci"\|"projekty"` | Literówka w kategorii (np. `aktualności` z polskim znakiem). | Wpisz dokładnie `aktualnosci` albo `projekty`. Pod tym komunikatem zawsze jest nazwa pola, które trzeba poprawić. |
-| `data does not match collection schema` + `cover: Required` (lub `title`, `author`, `date`) | Brakuje wymaganego pola. | Dodaj brakującą linijkę z szablonu. |
-| `błędna data w polu date: „2026-31-12”. Wpisz istniejącą datę w formacie RRRR-MM-DD…` albo `date: błędna data…` (u partnerów to samo dla `validUntil`) | Data w złym formacie (`12.10.2026`, `19 października 2026`) albo nieistniejąca (`2026-02-30`, `2026-31-12`). | Wpisz `RRRR-MM-DD`, np. `2026-10-19`. Godzina jest opcjonalna: `2026-10-19T12:00:00+02:00`. |
+| `Nie ma pliku „./okladka.jpg” w folderze wpisu` | Nie ma pliku o takiej nazwie w folderze wpisu. | Sprawdź nazwę i rozszerzenie (`.jpg` ≠ `.jpeg` ≠ `.JPG`) i czy plik jest w tym samym folderze. |
+| `Wpis … nie spełnia zasad wpisów:` + lista | Wpis łamie zasady (brak pola, za długi tytuł, tag spoza listy, obrazek bez opisu…). | Popraw każdą pozycję z listy, komunikat mówi co i gdzie. Zasady: sekcja [Zasady wpisów](#zasady-wpisów). |
+| `błędna data w polu date: „2026-31-12”. Wpisz istniejącą datę w formacie RRRR-MM-DD…` albo `Brakuje daty albo jest błędna…` (u partnerów to samo dla `validUntil`) | Data w złym formacie (`12.10.2026`, `19 października 2026`) albo nieistniejąca (`2026-02-30`, `2026-31-12`). | Wpisz `RRRR-MM-DD`, np. `2026-10-19`. Godzina jest opcjonalna: `2026-10-19T12:00:00+02:00`. |
 | `Projekt „…”: pole post wskazuje wpis „…”, którego nie ma na blogu` (tylko przy `npm run build`) | W projekcie pole `post` ma literówkę albo wskazuje wpis ze statusem `draft: true`. | Wpisz dokładną nazwę folderu wpisu z `src/content/blog/`. |
 | `Nested mappings are not allowed in compact mappings` + linijka z `^` | Dwukropek w tekście metadanych (np. w tytule) psuje zapis. | Weź tekst w cudzysłów: `title: "HackYeah: wygraliśmy"`. |
 
-Komunikat błędu zawsze podaje ścieżkę do pliku, w którym jest problem (linijka `Location`).
+Komunikat błędu zawsze podaje ścieżkę do pliku, w którym jest problem.
+
+## Zasady wpisów
+
+Każdy wpis musi spełniać poniższe zasady. Sprawdza je build: wpis, który je łamie, nie trafi na
+stronę, a autor dostaje po polsku listę tego, co poprawić. **Zmiana zasady = zmiana jednej
+wartości w pliku [`new-website/src/config/zasady-wpisow.ts`](new-website/src/config/zasady-wpisow.ts)**
+(na górze pliku). Z tego samego pliku skorzystają później kreator wpisów i serwer.
+
+### Obowiązkowe zawsze
+
+- tytuł,
+- kategoria: aktualności albo projekty,
+- treść,
+- okładka (zdjęcie główne),
+- opis każdego zdjęcia w treści, dla osób niewidomych i Google,
+- data,
+- autor.
+
+### Do ustalenia na spotkaniu koła
+
+Wartości są startowe. Kolumna „Dziś” pokazuje rekord wśród 20 obecnych wpisów, żeby było
+widać, ile zapasu daje limit.
+
+| Zasada | Wartość startowa | Dziś | Stała w pliku |
+|---|---|---|---|
+| Najdłuższy tytuł | 100 znaków | najwięcej 84 | `MAX_TITLE_LENGTH` |
+| Najdłuższy krótki opis (`excerpt`, Google ucina dłuższe) | 155 znaków | najwięcej 87 | `MAX_EXCERPT_LENGTH` |
+| Najkrótsza treść | 300 znaków (ok. 4 zdania) | najmniej ok. 1210 | `MIN_BODY_LENGTH` |
+| Najdłuższa treść | 20 000 znaków | najwięcej ok. 7200 | `MAX_BODY_LENGTH` |
+| Najwięcej zdjęć we wpisie, razem z okładką | 15 | najwięcej 12 | `MAX_IMAGES` |
+| Największy plik zdjęcia | 10 MB | najwięcej 8,4 MB (GIF), zdjęcia do ok. 2 MB | `MAX_IMAGE_FILE_MB` |
+| Dozwolone formaty zdjęć | JPG, PNG, WebP | 2 wpisy mają inne (niżej) | `ALLOWED_IMAGE_FORMATS` |
+| Dozwolone tagi | 15 tagów używanych dziś | | `ALLOWED_TAGS` |
+
+Lista tagów: aktualności, art, digit detection, hackathon, hackyeah, mnist, NLP, OpenSearch,
+projekt, python, pytorch, quantum computing, streamlit, web-scraping, wmifs. Nowy tag trzeba
+dopisać do listy, dzięki czemu literówka („hackaton”) nie tworzy osobnego tagu.
+
+### Pytania na spotkanie
+
+1. **GIF i SVG.** Dwa stare wpisy łamią zasadę formatów i przechodzą tylko dzięki wyjątkom
+   (`IMAGE_FORMAT_EXCEPTIONS`): [HackYeah 2023: Quantum Art](https://knml.edu.pl/blog/hackyeah2023-quantum-art/)
+   ma 5 animowanych GIF-ów, [MNIST Demo](https://knml.edu.pl/blog/mnist-demo-jak-komputer-widzi-tekst/)
+   ma diagram SVG. Zostawiamy wyjątki, zamieniamy pliki czy dopuszczamy te formaty wszystkim?
+2. **Słabe opisy zdjęć.** Zasada wymaga opisu, ale nie sprawdza, czy jest dobry. W 10 wpisach
+   przeniesionych z uczelni opis zdjęcia to tytuł wpisu, a w MNIST Demo jest m.in. nazwa pliku
+   (`web_page_concept.png`). Poprawiamy to ręcznie?
+3. **Obrazki z innych stron.** MNIST Demo pokazuje 2 obrazki prosto z cudzych serwerów. Gdy tam
+   znikną, znikną i u nas. Czy zakazać takich obrazków w nowych wpisach?
+4. **Okładka bez opisu.** Okładka nie ma pola na opis, bo strona traktuje ją jako ozdobę. Czy tak
+   ma zostać?
+5. **Akceptacja admina.** Czy wpis z kreatora wymaga zatwierdzenia przez admina, czy wystarczy
+   zielony wynik testów (założenie w [planie](docs/plan-kreator.md))?
+
+### Jak zmienić zasadę
+
+1. Zmień wartość na górze `new-website/src/config/zasady-wpisow.ts`.
+2. W `new-website/` uruchom `npm test`. Pokaże każdy obecny wpis, który nowej zasady nie spełnia.
+3. Zaktualizuj tabelę wyżej.
 
 ## Jak dodać lub zmienić partnera, osiągnięcie, projekt
 
@@ -298,13 +356,15 @@ Testy sprawdzają, czy zmiana w kodzie albo w designie czegoś nie psuje. CI uru
 każdym Pull Requeście. Lokalnie, w `new-website/`:
 
 ```bash
-npm test                    # Vitest: funkcje z src/lib (daty, partnerzy z validUntil, projekty)
+npm test                    # Vitest: funkcje z src/lib i zasady wpisów
 npx playwright install chromium   # raz: przeglądarka do testów
 npm run test:e2e            # buduje stronę i uruchamia testy w przeglądarce (Playwright)
 ```
 
 - **`test/lib/`** testuje `src/lib/` na zmyślonych danych z `test/fixtures/content.ts`,
   nie na prawdziwych wpisach.
+- **`test/lib/zasady-wpisow.test.ts`** sprawdza każdą [zasadę wpisów](#zasady-wpisów) i to,
+  że wszystkie prawdziwe wpisy ją spełniają.
 - **`test/e2e/smoke.spec.ts`** otwiera prawdziwą stronę: `/`, `/en/`, `/blog/`, jeden wpis,
   RSS, sitemap i 404.
 - **`test/e2e/wpisy.spec.ts`** otwiera wpisy testowe z `test/fixtures/blog/` (długi tytuł,
@@ -316,7 +376,8 @@ npm run test:e2e            # buduje stronę i uruchamia testy w przeglądarce (
 Wpisy testowe są na stronie **tylko** w buildzie testowym (`npm run build:test`, zmienna
 `KNML_TEST_POSTS=1`, folder `dist-test/`). Zwykły `npm run build` ich nie zawiera. Podgląd
 ich w przeglądarce: `npm run build:test && npm run preview:test`. Nowy przypadek do sprawdzenia =
-nowy folder w `test/fixtures/blog/` (nazwa zaczyna się od `test-`).
+nowy folder w `test/fixtures/blog/` (nazwa zaczyna się od `test-`). Wpisy testowe nie podlegają
+zasadom wpisów, bo celowo je przekraczają (np. za długi tytuł nie może rozsadzić strony).
 
 **Zrzuty porównawcze** (`test/e2e/zrzuty/`) to tylko pomoc: pokazują, jak wpisy wyglądały
 ostatnio. Porównuje się je lokalnie (w CI są pomijane, bo fonty wyglądają inaczej na każdym
