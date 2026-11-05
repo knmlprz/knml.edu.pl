@@ -1,6 +1,9 @@
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { basename, dirname, relative, resolve } from 'node:path';
 import { defineCollection, reference } from 'astro:content';
 import { glob, type Loader } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { DATE_HINT, dateField, localImagePaths, postFieldsSchema, validatePost } from './config/zasady-wpisow';
 
 // RRRR-MM-DD, opcjonalnie z godziną: 2026-10-19T12:00, 2026-10-19 12:00:00+02:00.
 const DATE_FORMAT = /^(\d{4})-(\d{2})-(\d{2})(?:[T ]\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2})?)?$/;
@@ -13,12 +16,6 @@ function isValidDate(text: string): boolean {
   // Date „naprawia” nieistniejące daty (31.02 → 03.03), więc porównujemy z tym, co wpisano.
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
-
-const DATE_HINT = 'Wpisz istniejącą datę w formacie RRRR-MM-DD, np. 2026-10-19 (opcjonalnie z godziną: 2026-10-19T12:00:00+02:00).';
-
-// Pole daty w schemacie. Tu trafia tylko to, czego YAML nie rozpoznał jako daty
-// (np. „19 października 2026”); resztę błędów łapie withDateCheck.
-const dateField = () => z.coerce.date({ error: `błędna data. ${DATE_HINT}` });
 
 // YAML zamienia datę na obiekt Date, zanim zobaczy ją schemat, i po cichu „naprawia” błędne
 // (2026-31-12 → 12.07.2028). Schemat nie ma jak tego wykryć, więc po wczytaniu kolekcji
@@ -42,6 +39,47 @@ function withDateCheck(loader: Loader, field: string, rawFiles: Record<string, s
   };
 }
 
+const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/;
+
+// Czyta z dysku to, czego validatePost potrzebuje oprócz metadanych: treść i rozmiary zdjęć.
+export function checkPostFile(filePath: string, frontmatter: unknown): string[] {
+  const body = readFileSync(filePath, 'utf8').replace(FRONTMATTER, '');
+  const folder = dirname(filePath);
+  const imageSizes: Record<string, number> = {};
+  for (const path of localImagePaths(frontmatter, body)) {
+    const file = resolve(folder, path);
+    if (existsSync(file)) imageSizes[path] = statSync(file).size;
+  }
+  return validatePost({ slug: basename(folder), frontmatter, body, imageSizes });
+}
+
+// Zatrzymuje build na wpisie, który łamie zasady z src/config/zasady-wpisow.ts.
+// Wpisy testowe pomijamy: celowo przekraczają limity i mają tagi spoza listy.
+export function withPostRules(loader: Loader): Loader {
+  return {
+    name: `${loader.name}-with-post-rules`,
+    load: async (context) => {
+      // Astro nie czyta ponownie niezmienionych plików, więc nowy limit albo podmienione
+      // zdjęcie nie zostałyby sprawdzone przy lokalnym buildzie.
+      context.store.clear();
+      await loader.load({
+        ...context,
+        parseData: async (entry) => {
+          const filePath = relative(process.cwd(), entry.filePath!);
+          if (!filePath.startsWith('test/fixtures/')) {
+            const errors = checkPostFile(entry.filePath!, entry.data);
+            if (errors.length) {
+              const list = errors.map((error) => `  - ${error}`).join('\n');
+              throw new Error(`Wpis ${filePath} nie spełnia zasad wpisów:\n${list}\nOpis zasad: README.md, sekcja „Zasady wpisów”.`);
+            }
+          }
+          return context.parseData(entry);
+        },
+      });
+    },
+  };
+}
+
 // Każdy wpis to folder: src/content/blog/<slug>/index.md + zdjęcia obok.
 // Nazwa folderu = adres wpisu /blog/<slug>/ (taki sam jak w Hugo).
 // Wpisy testowe z test/fixtures/blog dochodzą tylko przy KNML_TEST_POSTS=1 (npm run build:test),
@@ -51,7 +89,7 @@ if (process.env.KNML_TEST_POSTS) blogPatterns.push('test/fixtures/blog/*/index.m
 
 const blog = defineCollection({
   loader: withDateCheck(
-    glob({ pattern: blogPatterns, base: '.', generateId: ({ entry }) => entry.split('/').at(-2)! }),
+    withPostRules(glob({ pattern: blogPatterns, base: '.', generateId: ({ entry }) => entry.split('/').at(-2)! })),
     'date',
     import.meta.glob<string>(['/src/content/blog/*/index.md', '/test/fixtures/blog/*/index.md'], {
       query: '?raw',
@@ -59,20 +97,7 @@ const blog = defineCollection({
       eager: true,
     }),
   ),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      // Krótszy tytuł do kart na stronie głównej.
-      shortTitle: z.string().optional(),
-      date: dateField(),
-      author: z.string(),
-      category: z.enum(['aktualnosci', 'projekty']),
-      tags: z.array(z.string()).default([]),
-      cover: image(),
-      excerpt: z.string().optional(),
-      githubLink: z.url().optional(),
-      draft: z.boolean().default(false),
-    }),
+  schema: ({ image }) => postFieldsSchema.extend({ cover: image() }),
 });
 
 // Tłumaczenie na wersję /en/: obiekt `en` z tymi samymi polami tekstowymi co po polsku.

@@ -57,7 +57,8 @@ autor ──► knml.edu.pl/redakcja/          (strona statyczna: kreator, podgl
   Markdown, ale autor go nie widzi.
 - Zdjęcia: przeciągnij i upuść albo wybierz z telefonu, zmiana kolejności, pierwsze = okładka,
   przy każdym pole „Opisz zdjęcie” (wymagane, dla osób niewidomych i Google).
-- Tagi: wybór z listy, nowy tag tylko z potwierdzeniem (koniec z literówkami w tagach).
+- Tagi: tylko wybór z listy dozwolonych (`ALLOWED_TAGS` w `zasady-wpisow.ts`), bez wpisywania
+  własnych (koniec z literówkami w tagach). Nowy tag dodaje admin w pliku zasad.
 - Podgląd na żywo: telefon i komputer, tym samym szablonem co strona.
 - Szkic zapisuje się sam w przeglądarce, więc zamknięcie karty nie kasuje pracy.
 - Po „Opublikuj”: „Publikuję…”, potem „Gotowe” z linkiem. Błędy po polsku, z informacją,

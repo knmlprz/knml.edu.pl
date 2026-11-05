@@ -37,6 +37,13 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
       kolumna „Zasoby”) czekają na treść od zarządu.
 - [ ] Nowe podstrony dopisz do `staticPages` w `src/pages/sitemap.xml.ts`.
 
+## Zasady wpisów (`src/config/zasady-wpisow.ts`)
+
+- [ ] Spotkanie koła: wartości limitów, lista tagów i pytania z README, sekcja „Zasady wpisów”.
+- [ ] Wyjątki od formatów (`IMAGE_FORMAT_EXCEPTIONS`): GIF-y w `hackyeah2023-quantum-art`,
+      SVG w `mnist-demo-jak-komputer-widzi-tekst`. Decyzja: zostawić, zamienić czy dopuścić format.
+- [ ] Opisy zdjęć w 10 wpisach z uczelni powtarzają tytuł wpisu, w MNIST Demo jest m.in. nazwa pliku.
+
 ## Blog i migracja z Hugo
 
 - [ ] Kategoria wpisu (`category`) wyliczona przez `scripts/migrate-hugo.mjs`: tag „aktualności”
