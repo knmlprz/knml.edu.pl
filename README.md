@@ -54,7 +54,8 @@ Stronę publikuje **GitHub Actions**, czyli automat na GitHubie. Instrukcje dla 
   (hosting: GitHub Pages). Uruchamia się po każdej zmianie na `main`, codziennie
   o 03:00 UTC (dzięki temu partner po dacie `validUntil` znika sam) i ręcznie:
   zakładka **Actions** → **Deploy** → **Run workflow**. Nikt nie wgrywa plików ręcznie.
-- **`ci.yml`** przy każdym Pull Requeście uruchamia `npm run check` i `npm run build`.
+- **`ci.yml`** przy każdym Pull Requeście uruchamia `npm run check`, `npm run build` i testy
+  (patrz „Testy”).
   Czerwony krzyżyk przy PR = strona się nie buduje; kliknij **Details**, żeby zobaczyć
   błąd. Takiego PR nie mergujemy.
 
@@ -290,3 +291,40 @@ en:
 
 Pola, które można tłumaczyć: osiągnięcie `title`, `description`; projekt `title`, `category`,
 `description`, `tags`, `meta`; partner `name`, `description`.
+
+## Testy
+
+Testy sprawdzają, czy zmiana w kodzie albo w designie czegoś nie psuje. CI uruchamia je przy
+każdym Pull Requeście. Lokalnie, w `new-website/`:
+
+```bash
+npm test                    # Vitest: funkcje z src/lib (daty, partnerzy z validUntil, projekty)
+npx playwright install chromium   # raz: przeglądarka do testów
+npm run test:e2e            # buduje stronę i uruchamia testy w przeglądarce (Playwright)
+```
+
+- **`test/lib/`** testuje `src/lib/` na zmyślonych danych z `test/fixtures/content.ts`,
+  nie na prawdziwych wpisach.
+- **`test/e2e/smoke.spec.ts`** otwiera prawdziwą stronę: `/`, `/en/`, `/blog/`, jeden wpis,
+  RSS, sitemap i 404.
+- **`test/e2e/wpisy.spec.ts`** otwiera wpisy testowe z `test/fixtures/blog/` (długi tytuł,
+  10 zdjęć, panorama, bardzo duże zdjęcie, wpis bez zdjęć, lista, link, cytat, kod) na 360 px
+  i 1440 px i sprawdza zasady, które obowiązują przy każdym designie: nic nie wystaje w bok,
+  zdjęcia mieszczą się w kolumnie, tekst wpisu ma min. 16 px, przyciski i linki min. 44 px.
+  Gdy po zmianie designu ten test nie przechodzi, popraw CSS, nie test.
+
+Wpisy testowe są na stronie **tylko** w buildzie testowym (`npm run build:test`, zmienna
+`KNML_TEST_POSTS=1`, folder `dist-test/`). Zwykły `npm run build` ich nie zawiera. Podgląd
+ich w przeglądarce: `npm run build:test && npm run preview:test`. Nowy przypadek do sprawdzenia =
+nowy folder w `test/fixtures/blog/` (nazwa zaczyna się od `test-`).
+
+**Zrzuty porównawcze** (`test/e2e/zrzuty/`) to tylko pomoc: pokazują, jak wpisy wyglądały
+ostatnio. Porównuje się je lokalnie (w CI są pomijane, bo fonty wyglądają inaczej na każdym
+systemie). Gdy po zamierzonej zmianie designu `npm run test:e2e` zgłasza różnicę w zrzutach:
+
+1. Obejrzyj różnice: `npx playwright show-report` (zrzut przed, po i różnica).
+2. Jeśli zmiana jest zamierzona, zapisz nowe zrzuty i dodaj je do tego samego PR:
+
+```bash
+npx playwright test --update-snapshots
+```

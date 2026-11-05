@@ -95,6 +95,32 @@ Uruchamiasz je z folderu `new-website/`: `node scripts/<nazwa>.mjs`.
   Migracja jest zrobiona, więc skrypt odmawia ponownego działania (nadpisałby ręczne zmiany).
   Do usunięcia razem z `old-website/` po starcie nowej strony.
 
+## Zdjęcia i aktualizacja Astro
+
+Zdjęcia w treści wpisów (Markdown) mają `srcset` w kilku rozmiarach WebP dopasowanych do
+kolumny tekstu, a `src` każdego obrazu z `srcset` wskazuje największy wariant zamiast oryginału.
+Robią to dwie rzeczy:
+
+- **wtyczka `responsivePostImages` w `astro.config.mjs`** — ustawia zdjęciom z Markdowna
+  `layout`, `widths` i `sizes`. Zależy od **wewnętrznej paczki Astro `@astrojs/markdown-satteri`**
+  (procesor Markdowna, który instaluje samo Astro, nie ma jej w naszym `package.json`) i od jej
+  API wtyczek (`element.filter`, `visit(node, ctx)`, `ctx.setProperty`). Zwykłe
+  `markdown.rehypePlugins` nie wchodzą w grę: w Astro 7 wymagają dodatkowej paczki
+  `@astrojs/markdown-remark` i są oznaczone jako przestarzałe;
+- **`src/image-service.ts`** — domyślny serwis obrazów Astro (sharp) z jedną zmianą: `src` = największy
+  wariant z `srcset`. Korzysta z publicznego API (`astro/assets/services/sharp`, `image.service`).
+
+**Po aktualizacji Astro sprawdź:**
+
+1. `npm run build` przechodzi. Błąd importu `@astrojs/markdown-satteri` = Astro zmieniło
+   procesor Markdowna; sprawdź w dokumentacji Astro („Markdown processor”), jak teraz dodaje się
+   wtyczki, i przenieś `responsivePostImages`.
+2. `npm run test:e2e` przechodzi, zwłaszcza test „plik zdjęcia najwyżej 2× szerszy niż na
+   ekranie” w `test/e2e/wpisy.spec.ts`. Gdy wtyczka po cichu przestanie działać, zdjęcia wrócą
+   do pełnego rozmiaru i ten test to wykaże.
+3. W `dist/blog/<wpis>/index.html` zdjęcie z treści ma `srcset` z `480w … 1640w`, a jego `src`
+   jest tym samym plikiem co wariant `1640w` (albo oryginałem, jeśli zdjęcie jest mniejsze).
+
 ## Komendy
 
 | Komenda | Co robi |
@@ -104,3 +130,6 @@ Uruchamiasz je z folderu `new-website/`: `node scripts/<nazwa>.mjs`.
 | `npm run check` | sprawdza typy w kodzie i poprawność treści ze schematami |
 | `npm run build` | buduje gotową stronę do `dist/` |
 | `npm run preview` | pokazuje zbudowany `dist/` (tak, jak będzie w internecie) |
+| `npm test` | testy `src/lib/` (Vitest) |
+| `npm run build:test` | build z wpisami testowymi do `dist-test/` (podgląd: `npm run preview:test`) |
+| `npm run test:e2e` | oba buildy + testy w przeglądarce (Playwright); opis w README w katalogu głównym, „Testy” |

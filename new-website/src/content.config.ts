@@ -24,14 +24,14 @@ const dateField = () => z.coerce.date({ error: `błędna data. ${DATE_HINT}` });
 // (2026-31-12 → 12.07.2028). Schemat nie ma jak tego wykryć, więc po wczytaniu kolekcji
 // sprawdzamy pole w surowym tekście pliku i zatrzymujemy build z czytelnym komunikatem.
 // rawFiles: import.meta.glob(…, { query: '?raw' }) z plikami kolekcji. Musi być wywołane
-// przy kolekcji, bo Vite wymaga wzorca wpisanego wprost. Klucze są względem tego pliku (./content/…).
+// przy kolekcji, bo Vite wymaga wzorca wpisanego wprost. Wzorce od katalogu new-website (/src/…).
 function withDateCheck(loader: Loader, field: string, rawFiles: Record<string, string>): Loader {
   return {
     name: `${loader.name}-with-date-check`,
     load: async (context) => {
       await loader.load(context);
       for (const entry of context.store.values()) {
-        const raw = rawFiles[entry.filePath?.replace(/^src\//, './') ?? ''];
+        const raw = rawFiles[`/${entry.filePath}`];
         if (raw === undefined) throw new Error(`Nie udało się wczytać ${entry.filePath}, żeby sprawdzić datę.`);
         const value = raw.match(new RegExp(`^${field}:\\s*['"]?([^'"\\n#]*)`, 'm'))?.[1].trim();
         if (value !== undefined && !isValidDate(value)) {
@@ -44,11 +44,20 @@ function withDateCheck(loader: Loader, field: string, rawFiles: Record<string, s
 
 // Każdy wpis to folder: src/content/blog/<slug>/index.md + zdjęcia obok.
 // Nazwa folderu = adres wpisu /blog/<slug>/ (taki sam jak w Hugo).
+// Wpisy testowe z test/fixtures/blog dochodzą tylko przy KNML_TEST_POSTS=1 (npm run build:test),
+// nigdy na stronie produkcyjnej. Opis: README.md w katalogu głównym, sekcja „Testy”.
+const blogPatterns = ['src/content/blog/*/index.md'];
+if (process.env.KNML_TEST_POSTS) blogPatterns.push('test/fixtures/blog/*/index.md');
+
 const blog = defineCollection({
   loader: withDateCheck(
-    glob({ pattern: '*/index.md', base: './src/content/blog' }),
+    glob({ pattern: blogPatterns, base: '.', generateId: ({ entry }) => entry.split('/').at(-2)! }),
     'date',
-    import.meta.glob<string>('./content/blog/*/index.md', { query: '?raw', import: 'default', eager: true }),
+    import.meta.glob<string>(['/src/content/blog/*/index.md', '/test/fixtures/blog/*/index.md'], {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }),
   ),
   schema: ({ image }) =>
     z.object({
@@ -117,7 +126,7 @@ const partners = defineCollection({
   loader: withDateCheck(
     glob({ pattern: '*.yaml', base: './src/content/partners' }),
     'validUntil',
-    import.meta.glob<string>('./content/partners/*.yaml', { query: '?raw', import: 'default', eager: true }),
+    import.meta.glob<string>('/src/content/partners/*.yaml', { query: '?raw', import: 'default', eager: true }),
   ),
   schema: ({ image }) =>
     z.object({

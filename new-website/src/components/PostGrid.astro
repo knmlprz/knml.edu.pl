@@ -41,7 +41,7 @@ const { posts, locale } = Astro.props;
   .post:hover .post__img img { transform: scale(1.04); }
   .post__body { padding: 0 10px; display: flex; flex-direction: column; gap: 12px; }
   .post__meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 14px; color: var(--muted); }
-  .post__title { font-size: 19px; line-height: 1.3; font-weight: 600; }
+  .post__title { font-size: 19px; line-height: 1.3; font-weight: 600; overflow-wrap: anywhere; }
 
   @media (prefers-reduced-motion: reduce) {
     .post, .post__img img { transition: none; }

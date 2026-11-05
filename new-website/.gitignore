@@ -1,5 +1,9 @@
 # build output
 dist/
+# build z wpisami testowymi (npm run build:test) i wyniki Playwrighta
+dist-test/
+test-results/
+playwright-report/
 # generated types
 .astro/
 
