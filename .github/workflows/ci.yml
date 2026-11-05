@@ -29,5 +29,13 @@ jobs:
         run: npm ci
       - name: Sprawdź typy i treść
         run: npm run check
+      - name: Testy src/lib (Vitest)
+        run: npm test
       - name: Zbuduj stronę
         run: npm run build
+      - name: Zbuduj stronę z wpisami testowymi
+        run: npm run build:test
+      - name: Zainstaluj przeglądarkę do testów
+        run: npx playwright install --with-deps chromium
+      - name: Testy w przeglądarce (Playwright)
+        run: npx playwright test
