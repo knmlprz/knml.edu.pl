@@ -1,4 +1,4 @@
-# CLAUDE.md — strona KNML (knml.edu.pl)
+# CLAUDE.md: strona KNML (knml.edu.pl)
 
 Ten plik czyta Claude Code przy każdej sesji. Opisuje **co budujemy, jak i czego nie robić**.
 Leży w **katalogu głównym repo** `knmlprz/knml.edu.pl`.
@@ -20,8 +20,8 @@ knml.edu.pl/                 jedno repo, jeden .git (tylko tutaj)
 ├── .github/workflows/          deploy.yml (publikacja Astro), ci.yml (check + build przy PR)
 ├── CNAME                        domena knml.edu.pl
 ├── CLAUDE.md                    ten plik
-├── old-website/                 stara strona Hugo — TYLKO DO ODCZYTU
-└── new-website/                 nowa strona Astro — tu pracujesz
+├── old-website/                 stara strona Hugo, TYLKO DO ODCZYTU
+└── new-website/                 nowa strona Astro, tu pracujesz
     └── design/                  wzorzec: index.html, assets/ (nie trafia do builda)
 ```
 
@@ -81,7 +81,7 @@ Wszystkie kolory, fonty, promienie i odstępy są w `src/styles/tokens.css`
 - Nowy kolor tylko jako token o nazwie mówiącej o roli (`--color-danger`), nie o wyglądzie.
 - Style komponentu: `<style>` w pliku `.astro` (scoped). Globalnie tylko `tokens.css`
   i `global.css`. Bez Tailwinda i bez bibliotek UI.
-- Fonty: Unbounded (nagłówki), Geist (tekst) — self-hosted przez `@fontsource`, nie z Google CDN.
+- Fonty: Unbounded (nagłówki), Geist (tekst). Self-hosted przez `@fontsource`, nie z Google CDN.
 - Logo: oryginalny kształt z `src/assets/knml-logo.svg`, bez modyfikacji geometrii,
   bez obracania. Animacja tylko jak we wzorcu.
 
@@ -93,7 +93,7 @@ src/
 ├── components/        małe, powtarzalne: SiteHeader, SiteFooter, KnmlLogo, ui/Button, ui/Tag
 ├── sections/          bloki strony głównej: Hero, About, LatestPosts, Achievements, JoinCta, Projects, Partners
 ├── content/           treść w plikach: blog/, achievements/, projects/, partners/
-├── content.config.ts  schematy treści (Zod) — walidacja przy buildzie
+├── content.config.ts  schematy treści (Zod), walidacja przy buildzie
 ├── data/site.ts       stałe: e-mail, linki social, statystyki „O nas”
 ├── i18n/              teksty interfejsu: pl.ts, en.ts, index.ts (t(), getLocale())
 ├── lib/               jedyne miejsce, gdzie pobieramy dane (patrz „Backend”)
@@ -124,7 +124,7 @@ kontaktowy, automatyczne posty na social media z nowych wpisów. Dlatego:
 - **Teraz:** `output: 'static'`, czysty HTML. **Nie instaluj teraz TinaCMS.**
 - **Później:** adapter `@astrojs/node` i trasy API w `src/pages/api/`.
 - **Cały dostęp do danych przez `src/lib/`** (`getLatestPosts()`, `getAchievements()`).
-  Dziś czytają Content Collections, jutro API albo bazę — komponenty się nie zmienią.
+  Dziś czytają Content Collections, jutro API albo bazę, a komponenty się nie zmienią.
 - Sekrety tylko w `.env` (w `.gitignore`); `.env.example` z opisem.
 
 ## Treść i migracja z Hugo
@@ -143,7 +143,7 @@ Zasady:
 - Plik/odwołanie do obrazka, którego nie ma (np. `hackyeach2026.jpeg` ze starej strony),
   zgłoś w `TODO.md` zamiast zgadywać.
 - Schematy (do zatwierdzenia, opis pól w `design/index.html`): `blog`, `achievements`,
-  `projects`, `partners` (sponsor z polem `validUntil` — znika sam po dacie).
+  `projects`, `partners` (sponsor z polem `validUntil`, który znika sam po dacie).
 - Brakujące dane (czekamy na zarząd): sponsor (nazwa, logo, link, umowa do 30.11.2026),
   logo PRz w SVG, kroki „Jak dołączyć”, opisy projektów, pole kategorii wpisu, strony prawne.
 
@@ -179,5 +179,8 @@ Stara strona (z katalogu głównego): `hugo server --source old-website`.
 - Nie dodawać kolorów spoza tokenów ani limonki poza wskazanymi miejscami.
 - Nie zmieniać kształtu logo ani nie obracać go.
 - Nie osadzać feedów z Facebooka, Instagrama ani LinkedIna.
-- Nie używać długich myślników (— i –) w tekstach interfejsu i tytułach; zwykły -.
+- Nie używać długich myślników (pauza i półpauza, U+2014 i U+2013) nigdzie: w tekstach interfejsu,
+  tytułach, dokumentacji (.md), komentarzach w kodzie i komunikatach commitów. W tekstach interfejsu
+  i tytułach zamiast nich zwykły -. W dokumentacji, komentarzach i commitach przepisz zdanie
+  (kropka, przecinek, dwukropek, nawias); zwykły - tylko w zakresach (2022-2023) i nazwach.
 - Nie przepisywać działającego kodu „przy okazji”. Zmiany tylko w zakresie zadania.
