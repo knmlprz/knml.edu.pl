@@ -165,7 +165,7 @@ Dalsza treść…
 | `coverAlt` | Opis okładki dla osób niewidomych (co widać na zdjęciu). Kreator wpisuje go zawsze. |
 | `shortTitle` | Krótszy tytuł na kafelek na stronie głównej, gdy `title` jest długi. |
 | `excerpt` | 1-2 zdania zajawki (najwyżej 155 znaków). Trafia do Google, podglądu linku i na duży kafelek najnowszego wpisu. |
-| `tags` | Słowa kluczowe, tylko z listy dozwolonych (patrz [Zasady wpisów](#zasady-wpisów)), żeby wpisy się grupowały. |
+| `tags` | Słowa kluczowe, żeby wpisy się grupowały. Najpierw sprawdź, czy taki tag już jest (lista: `/tags/`), i wpisz go dokładnie tak samo. Nowy tag: małymi literami. Limity: [Zasady wpisów](#zasady-wpisów). |
 | `githubLink` | Link do kodu. Pod wpisem pojawi się „Kod na GitHubie ↗”. |
 | `draft` | `true` = szkic: wpis **w ogóle się nie pojawi** (ani na stronie, ani w podglądzie). `false` albo brak linijki = opublikowany. |
 
@@ -205,7 +205,7 @@ wybierz `przebudowastrony` (po starcie: `main`), dopisz krótki opis i kliknij *
 | Co widzisz | Co to znaczy | Co zrobić |
 |---|---|---|
 | `Nie ma pliku „./okladka.jpg” w folderze wpisu` | Nie ma pliku o takiej nazwie w folderze wpisu. | Sprawdź nazwę i rozszerzenie (`.jpg` ≠ `.jpeg` ≠ `.JPG`) i czy plik jest w tym samym folderze. |
-| `Wpis … nie spełnia zasad wpisów:` + lista | Wpis łamie zasady (brak pola, za długi tytuł, tag spoza listy, obrazek bez opisu…). | Popraw każdą pozycję z listy, komunikat mówi co i gdzie. Zasady: sekcja [Zasady wpisów](#zasady-wpisów). |
+| `Wpis … nie spełnia zasad wpisów:` + lista | Wpis łamie zasady (brak pola, za długi tytuł, za długi tag, obrazek bez opisu…). | Popraw każdą pozycję z listy, komunikat mówi co i gdzie. Zasady: sekcja [Zasady wpisów](#zasady-wpisów). |
 | `błędna data w polu date: „2026-31-12”. Wpisz istniejącą datę w formacie RRRR-MM-DD…` albo `Brakuje daty albo jest błędna…` (u partnerów to samo dla `validUntil`) | Data w złym formacie (`12.10.2026`, `19 października 2026`) albo nieistniejąca (`2026-02-30`, `2026-31-12`). | Wpisz `RRRR-MM-DD`, np. `2026-10-19`. Godzina jest opcjonalna: `2026-10-19T12:00:00+02:00`. |
 | `Projekt „…”: pole post wskazuje wpis „…”, którego nie ma na blogu` (tylko przy `npm run build`) | W projekcie pole `post` ma literówkę albo wskazuje wpis ze statusem `draft: true`. | Wpisz dokładną nazwę folderu wpisu z `src/content/blog/`. |
 | `Nested mappings are not allowed in compact mappings` + linijka z `^` | Dwukropek w tekście metadanych (np. w tytule) psuje zapis. | Weź tekst w cudzysłów: `title: "HackYeah: wygraliśmy"`. |
@@ -237,17 +237,23 @@ widać, ile zapasu daje limit.
 | Zasada | Wartość startowa | Dziś | Stała w pliku |
 |---|---|---|---|
 | Najdłuższy tytuł | 100 znaków | najwięcej 84 | `MAX_TITLE_LENGTH` |
-| Najdłuższy krótki opis (`excerpt`, Google ucina dłuższe) | 155 znaków | najwięcej 87 | `MAX_EXCERPT_LENGTH` |
+| Najdłuższa zajawka (`excerpt`, Google ucina dłuższe) | 155 znaków | najwięcej 87 | `MAX_EXCERPT_LENGTH` |
 | Najkrótsza treść | 300 znaków (ok. 4 zdania) | najmniej ok. 1210 | `MIN_BODY_LENGTH` |
 | Najdłuższa treść | 20 000 znaków | najwięcej ok. 7200 | `MAX_BODY_LENGTH` |
 | Najwięcej zdjęć we wpisie, razem z okładką | 15 | najwięcej 12 | `MAX_IMAGES` |
 | Największy plik zdjęcia | 10 MB | najwięcej 8,4 MB (GIF), zdjęcia do ok. 2 MB | `MAX_IMAGE_FILE_MB` |
 | Dozwolone formaty zdjęć | JPG, PNG, WebP | 2 wpisy mają inne (niżej) | `ALLOWED_IMAGE_FORMATS` |
-| Dozwolone tagi | 15 tagów używanych dziś | | `ALLOWED_TAGS` |
+| Najdłuższy tag | 30 znaków | najwięcej 17 | `MAX_TAG_LENGTH` |
+| Najwięcej tagów we wpisie | 8 | najwięcej 6 | `MAX_TAGS` |
 
-Lista tagów: aktualności, art, digit detection, hackathon, hackyeah, mnist, NLP, OpenSearch,
-projekt, python, pytorch, quantum computing, streamlit, web-scraping, wmifs. Nowy tag trzeba
-dopisać do listy, dzięki czemu literówka („hackaton”) nie tworzy osobnego tagu.
+**Tagi** może dodawać sam autor, nie ma listy dozwolonych. Tag może mieć tylko litery (także
+polskie), cyfry, spacje i myślniki, bo powstaje z niego adres strony `/tags/<tag>/` (małe
+litery, spacje zamienione na „-”, np. `quantum computing` → `/tags/quantum-computing/`).
+Kreator (`/redakcja/`) podpowiada tagi z istniejących wpisów, zapisuje nowe małymi literami
+i zamienia tag, który różni się od istniejącego tylko wielkością liter albo polskimi znakami,
+na istniejący (`Hackathon` → `hackathon`, `aktualnosci` → `aktualności`), żeby nie powstały
+dwie strony jednego tagu. Robi to `normalizeTag()` w pliku zasad. Literówki („hackaton”) kreator
+nie wyłapie: pokaże ją jako „nowy” tag, a pasujący istniejący tag wyżej w podpowiedziach.
 
 ### Pytania na spotkanie
 
@@ -260,8 +266,8 @@ dopisać do listy, dzięki czemu literówka („hackaton”) nie tworzy osobnego
    (`web_page_concept.png`). Poprawiamy to ręcznie?
 3. **Obrazki z innych stron.** MNIST Demo pokazuje 2 obrazki prosto z cudzych serwerów. Gdy tam
    znikną, znikną i u nas. Czy zakazać takich obrazków w nowych wpisach?
-4. **Okładka bez opisu.** Okładka nie ma pola na opis, bo strona traktuje ją jako ozdobę. Czy tak
-   ma zostać?
+4. **Okładka bez opisu w starych wpisach.** Nowe wpisy z kreatora mają opis okładki (`coverAlt`),
+   20 obecnych go nie ma. Dopisujemy je ręcznie?
 5. **Akceptacja admina.** Czy wpis z kreatora wymaga zatwierdzenia przez admina, czy wystarczy
    zielony wynik testów (założenie w [planie](docs/plan-kreator.md))?
 

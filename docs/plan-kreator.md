@@ -51,15 +51,20 @@ autor ──► knml.edu.pl/redakcja/          (strona statyczna: kreator, podgl
 
 ## Kreator (UX)
 
-- Pola: tytuł, kategoria (Aktualności / Projekty), tekst, zdjęcia, tagi, opcjonalnie krótki
-  opis na kartę i link do GitHuba projektu.
+- Pola: tytuł, kategoria (Aktualności / Projekty), tekst, zdjęcia, tagi, opcjonalnie zajawka
+  (1-2 zdania na kafelek najnowszego wpisu na stronie głównej, do Google i podglądu linku,
+  z licznikiem znaków) i link do GitHuba projektu.
 - Tekst: proste formatowanie przyciskami (pogrubienie, nagłówek, lista, link). Pod spodem
   Markdown, ale autor go nie widzi.
 - Zdjęcia: przeciągnij i upuść albo wybierz z telefonu, zmiana kolejności, pierwsze = okładka,
   przy każdym pole „Opisz zdjęcie” (wymagane, dla osób niewidomych i Google).
-- Tagi: tylko wybór z listy dozwolonych (`ALLOWED_TAGS` w `zasady-wpisow.ts`), bez wpisywania
-  własnych (koniec z literówkami w tagach). Nowy tag dodaje admin w pliku zasad.
-- Podgląd na żywo: telefon i komputer, tym samym szablonem co strona.
+- Tagi: autor wpisuje własne. Kreator podpowiada tagi z istniejących wpisów (liczone
+  automatycznie, bez ręcznej listy), a nowy tag oznacza „nowy”. Tag różniący się od istniejącego
+  tylko wielkością liter albo polskimi znakami („Hackathon”, „aktualnosci”) zamienia na istniejący.
+  Limity (długość, liczba tagów, dozwolone znaki) w `zasady-wpisow.ts`.
+- Podgląd na żywo: telefon i komputer, tym samym szablonem co strona. Pod wpisem karta z listy
+  `/blog/` i kafelek ze strony głównej (te same komponenty co na stronie), żeby było widać,
+  gdzie trafia okładka i zajawka.
 - Szkic zapisuje się sam w przeglądarce, więc zamknięcie karty nie kasuje pracy.
 - Po „Opublikuj”: „Publikuję…”, potem „Gotowe” z linkiem. Błędy po polsku, z informacją,
   co poprawić.
@@ -77,10 +82,10 @@ Obowiązkowe od razu:
 - zdjęcia: JPG, PNG, WebP, HEIC; serwer zmniejsza do maks. 2000 px i usuwa dane GPS.
 
 Do ustalenia na spotkaniu koła (wartości w pliku, na start rozsądne domyślne):
-- maks. długość tytułu i krótkiego opisu,
+- maks. długość tytułu i zajawki,
 - min. i maks. długość tekstu,
 - maks. liczba zdjęć we wpisie i rozmiar pliku,
-- lista dozwolonych tagów,
+- maks. długość tagu i liczba tagów we wpisie,
 - czy wpis wymaga akceptacji admina przed publikacją (domyślnie: nie, wystarczy zielone CI).
 
 ## Odporność na zmiany designu

@@ -3,13 +3,17 @@
 // Bez serwera: zamiast „Opublikuj” jest „Pobierz wpis” (paczka .zip z folderem wpisu).
 // Strona tylko po polsku, poza menu i sitemapą, z noindex. Logika wpisu: src/redakcja/.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import PostTile from '../../components/PostTile.astro';
 import Tag from '../../components/ui/Tag.astro';
-import { ALLOWED_TAGS, POST_CATEGORIES } from '../../config/zasady-wpisow';
+import { MAX_EXCERPT_LENGTH, MAX_TAG_LENGTH, MAX_TAGS, POST_CATEGORIES } from '../../config/zasady-wpisow';
 import { t } from '../../i18n';
-import { getPostSlugs } from '../../lib/posts';
+import { getPostSlugs, getTags } from '../../lib/posts';
 import '../../styles/post.css';
 
 const existingSlugs = await getPostSlugs();
+// Podpowiedzi tagów: tagi z opublikowanych wpisów, od najczęściej używanego.
+const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.length).map((tag) => tag.name);
 ---
 
 <BaseLayout title="Redakcja: nowy wpis - KNML" description="Kreator wpisów na blog KNML." noindex>
@@ -19,7 +23,7 @@ const existingSlugs = await getPostSlugs();
       Wypełnij pola, sprawdź podgląd pod formularzem i pobierz wpis. Szkic zapisuje się sam w tej przeglądarce.
     </p>
 
-    <form id="kreator" class="form" novalidate data-existing-slugs={JSON.stringify(existingSlugs)}>
+    <form id="kreator" class="form" novalidate data-existing-slugs={JSON.stringify(existingSlugs)} data-existing-tags={JSON.stringify(existingTags)}>
       <div class="field">
         <label for="title">Tytuł</label>
         <input id="title" name="title" type="text" autocomplete="off" />
@@ -81,22 +85,34 @@ const existingSlugs = await getPostSlugs();
         </template>
       </fieldset>
 
-      <fieldset class="field">
-        <legend>Tagi (opcjonalnie)</legend>
-        <div class="choices">
-          {ALLOWED_TAGS.map((tag) => (
-            <label class="choice">
-              <input type="checkbox" name="tags" value={tag} />
-              #{tag}
-            </label>
-          ))}
+      <div class="field">
+        <label for="tag-input">Tagi (opcjonalnie)</label>
+        <p class="field__hint" id="tags-hint">
+          Wpisz tag i wybierz podpowiedź albo dodaj nowy. Najwyżej {MAX_TAGS} tagów, każdy do {MAX_TAG_LENGTH} znaków.
+        </p>
+        <ul id="selected-tags" class="chips" aria-label="Wybrane tagi"></ul>
+        <div class="tag-entry">
+          <input id="tag-input" type="text" autocomplete="off" autocapitalize="none" enterkeyhint="done" maxlength={MAX_TAG_LENGTH} aria-describedby="tags-hint" aria-controls="tag-suggestions" />
+          <button type="button" id="tag-add" class="button">Dodaj</button>
         </div>
-      </fieldset>
+        <ul id="tag-suggestions" class="suggestions" aria-label="Podpowiedzi tagów"></ul>
+        <template id="tag-chip">
+          <li class="chip"><span data-tag></span><span class="badge">nowy</span><button type="button" class="chip__remove">×<span class="sr-only"></span></button></li>
+        </template>
+        <template id="tag-suggestion">
+          <li><button type="button" class="suggestion"><span data-tag></span><span class="badge">nowy</span></button></li>
+        </template>
+      </div>
 
       <div class="field">
-        <label for="excerpt">Krótki opis na kartę (opcjonalnie)</label>
-        <textarea id="excerpt" name="excerpt" rows="2"></textarea>
-        <p class="field__hint">1-2 zdania. Pokaże się w Google i w podglądzie linku.</p>
+        <label for="excerpt">Zajawka (opcjonalnie)</label>
+        <textarea id="excerpt" name="excerpt" rows="3" aria-describedby="excerpt-hint excerpt-count"></textarea>
+        <p class="field__hint" id="excerpt-hint">
+          1-2 zdania widoczne na dużym kafelku najnowszego wpisu na stronie głównej, w Google i w podglądzie
+          linku na Discordzie/Facebooku. Jeśli zostawisz puste, Google i podgląd linku pokażą początek tekstu,
+          a kafelek sam tytuł.
+        </p>
+        <p class="field__hint counter" id="excerpt-count" data-max={MAX_EXCERPT_LENGTH}></p>
       </div>
 
       <div class="field">
@@ -137,6 +153,21 @@ const existingSlugs = await getPostSlugs();
       <div class="prose" data-preview="body"></div>
       <p class="article__github" data-preview="github" hidden><a>Kod na GitHubie ↗</a></p>
     </article>
+    <!-- Te same komponenty co lista /blog/ (PostGrid) i sekcja wpisów na stronie głównej (LatestPosts). -->
+    <div class="container preview__tiles">
+      <div>
+        <h3 class="preview__subtitle">Karta na liście wpisów (/blog/, strony tagów)</h3>
+        <div class="preview__card" data-preview="card">
+          <PostCard category="-" dateLabel="-" title="-" />
+        </div>
+      </div>
+      <div>
+        <h3 class="preview__subtitle">Kafelek na stronie głównej, gdy wpis jest najnowszy</h3>
+        <div class="preview__tile" data-preview="tile">
+          <PostTile variant="lead" category="-" dateLabel="-" title="-" excerpt="-" />
+        </div>
+      </div>
+    </div>
   </section>
 </BaseLayout>
 
@@ -144,7 +175,8 @@ const existingSlugs = await getPostSlugs();
   import { strToU8, zipSync, type Zippable } from 'fflate';
   import { marked } from 'marked';
   import { createEditor } from '../../redakcja/edytor';
-  import { buildPost, validateDraft, type Draft } from '../../redakcja/wpis';
+  import { MAX_TAGS, normalizeTag } from '../../config/zasady-wpisow';
+  import { buildPost, suggestTags, validateDraft, type Draft } from '../../redakcja/wpis';
 
   const DRAFT_KEY = 'knml-redakcja-szkic';
   const AUTHOR_KEY = 'knml-redakcja-autor';
@@ -153,6 +185,7 @@ const existingSlugs = await getPostSlugs();
 
   const form = document.querySelector<HTMLFormElement>('#kreator')!;
   const existingSlugs: string[] = JSON.parse(form.dataset.existingSlugs!);
+  const existingTags: string[] = JSON.parse(form.dataset.existingTags!);
   const field = <Element extends HTMLElement>(selector: string) => form.querySelector<Element>(selector)!;
   const title = field<HTMLInputElement>('#title');
   const author = field<HTMLInputElement>('#author');
@@ -164,10 +197,13 @@ const existingSlugs = await getPostSlugs();
   const imageTemplate = field<HTMLTemplateElement>('#image-item');
   const errorsBox = field<HTMLDivElement>('#errors');
   const status = field<HTMLDivElement>('#status');
+  const tagInput = field<HTMLInputElement>('#tag-input');
+  const excerptCount = field<HTMLParagraphElement>('#excerpt-count');
   const preview = (name: string) => document.querySelector<HTMLElement>(`[data-preview="${name}"]`)!;
 
   let images: ImageEntry[] = [];
   let body = '';
+  let tags: string[] = [];
 
   // Przeglądarka może zablokować localStorage (tryb prywatny), wtedy kreator działa bez szkicu.
   const storage = {
@@ -194,7 +230,7 @@ const existingSlugs = await getPostSlugs();
       category: form.querySelector<HTMLInputElement>('[name="category"]:checked')!.value as Draft['category'],
       author: author.value,
       body,
-      tags: [...form.querySelectorAll<HTMLInputElement>('[name="tags"]:checked')].map((input) => input.value),
+      tags: [...tags],
       excerpt: excerpt.value,
       githubLink: githubLink.value,
       images: images.map(({ file, alt }) => ({ name: file.name, size: file.size, alt })),
@@ -217,7 +253,7 @@ const existingSlugs = await getPostSlugs();
     body = saved.body ?? '';
     form.querySelectorAll<HTMLInputElement>('[name="category"]').forEach((input) => (input.checked = input.value === saved.category));
     if (!form.querySelector('[name="category"]:checked')) form.querySelector<HTMLInputElement>('[name="category"]')!.checked = true;
-    form.querySelectorAll<HTMLInputElement>('[name="tags"]').forEach((input) => (input.checked = !!saved.tags?.includes(input.value)));
+    tags = saved.tags ?? [];
   }
 
   // Zamiast zdjęcia HEIC (większość przeglądarek go nie pokaże). Serwer zamieni je na JPG.
@@ -303,6 +339,70 @@ const existingSlugs = await getPostSlugs();
     addImages(event.dataTransfer?.files ?? []);
   });
 
+  // Tagi: wybrane jako „chipy” z przyciskiem usuwania, pod polem podpowiedzi z istniejących wpisów.
+  // Tag spoza istniejących ma etykietę „nowy”, żeby autor widział, że tworzy nową stronę /tags/…/.
+  function fillTag(element: Element, tag: string) {
+    element.querySelector('[data-tag]')!.textContent = `#${tag}`;
+    element.querySelector('.badge')!.toggleAttribute('hidden', existingTags.includes(tag));
+  }
+
+  function renderTags() {
+    field('#selected-tags').replaceChildren(
+      ...tags.map((tag) => {
+        const chip = field<HTMLTemplateElement>('#tag-chip').content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+        fillTag(chip, tag);
+        const remove = chip.querySelector<HTMLButtonElement>('.chip__remove')!;
+        remove.querySelector('.sr-only')!.textContent = ` Usuń tag ${tag}`;
+        remove.addEventListener('click', () => {
+          tags = tags.filter((selected) => selected !== tag);
+          renderTags();
+          update();
+          tagInput.focus();
+        });
+        return chip;
+      }),
+    );
+
+    const typed = tagInput.value.trim() ? normalizeTag(tagInput.value, existingTags) : '';
+    const isNew = typed && !existingTags.includes(typed) && !tags.includes(typed);
+    const full = tags.length >= MAX_TAGS;
+    tagInput.disabled = full;
+    field<HTMLButtonElement>('#tag-add').disabled = full;
+    // Nowy tag na końcu: niedokończone „hackath” nie może wyprzedzić istniejącego „hackathon”.
+    const suggestions = full ? [] : [...suggestTags(tagInput.value, existingTags, tags), ...(isNew ? [typed] : [])];
+    field('#tag-suggestions').replaceChildren(
+      ...suggestions.map((tag) => {
+        const item = field<HTMLTemplateElement>('#tag-suggestion').content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+        fillTag(item, tag);
+        item.querySelector('button')!.addEventListener('click', () => addTag(tag));
+        return item;
+      }),
+    );
+  }
+
+  function addTag(input: string) {
+    const tag = normalizeTag(input, existingTags);
+    if (tag && !tags.includes(tag) && tags.length < MAX_TAGS) tags.push(tag);
+    tagInput.value = '';
+    renderTags();
+    update();
+    if (!tagInput.disabled) tagInput.focus();
+  }
+
+  tagInput.addEventListener('input', renderTags);
+  tagInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    addTag(tagInput.value);
+  });
+  field('#tag-add').addEventListener('click', () => addTag(tagInput.value));
+
+  // Okładka w kafelkach: to samo zdjęcie co w podglądzie wpisu. HEIC się nie wyświetli, wtedy zostaje tło.
+  function coverImage() {
+    const [cover] = images;
+    return cover && !isHeic(cover.file) ? [Object.assign(document.createElement('img'), { src: cover.url, alt: '' })] : [];
+  }
+
   function renderPreview(draft: Draft, post: ReturnType<typeof buildPost>) {
     preview('title').textContent = draft.title;
     preview('category').textContent = form.querySelector<HTMLInputElement>('[name="category"]:checked')!.dataset.label!;
@@ -333,6 +433,24 @@ const existingSlugs = await getPostSlugs();
       else img.src = image.url;
     });
 
+    const card = preview('card');
+    const categoryLabel = preview('category').textContent!;
+    const dateLabel = preview('date').textContent!;
+    card.querySelector('.post__img')!.replaceChildren(...coverImage());
+    card.querySelector('.tag')!.textContent = categoryLabel;
+    card.querySelector('time')!.textContent = dateLabel;
+    card.querySelector('.post__title')!.textContent = draft.title;
+
+    const tile = preview('tile');
+    tile.querySelector('.tile > img')?.remove();
+    tile.querySelector('.tile')!.prepend(...coverImage());
+    tile.querySelector('.tag')!.textContent = categoryLabel;
+    tile.querySelector('time')!.textContent = dateLabel;
+    tile.querySelector('.tile__title')!.textContent = draft.title;
+    const tileExcerpt = tile.querySelector<HTMLElement>('.tile__excerpt')!;
+    tileExcerpt.textContent = draft.excerpt.trim();
+    tileExcerpt.hidden = !draft.excerpt.trim();
+
     preview('github').hidden = !draft.githubLink.trim();
     preview('github').querySelector('a')!.href = draft.githubLink.trim();
   }
@@ -347,6 +465,7 @@ const existingSlugs = await getPostSlugs();
     const draft = readDraft();
     const post = buildPost(draft, { today: new Date(), existingSlugs });
     field<HTMLOutputElement>('#slug').textContent = `knml.edu.pl/blog/${post.slug}/`;
+    excerptCount.textContent = `${draft.excerpt.trim().length} / ${excerptCount.dataset.max} znaków`;
     renderErrors(validateDraft(draft, existingSlugs));
     renderPreview(draft, post);
     saveDraft(draft);
@@ -388,7 +507,7 @@ const existingSlugs = await getPostSlugs();
   );
 
   form.addEventListener('input', (event) => {
-    if (!(event.target as Element).closest('.editor, .images')) update();
+    if (!(event.target as Element).closest('.editor, .images, .tag-entry')) update();
   });
 
   field('#clear').addEventListener('click', () => {
@@ -400,6 +519,8 @@ const existingSlugs = await getPostSlugs();
     images.forEach((image) => URL.revokeObjectURL(image.url));
     images = [];
     renderImages();
+    tags = [];
+    renderTags();
     editor.commands.clearContent(true);
     status.textContent = 'Szkic wyczyszczony.';
   });
@@ -433,6 +554,7 @@ const existingSlugs = await getPostSlugs();
         : '');
   });
 
+  renderTags();
   update();
 </script>
 
@@ -465,6 +587,22 @@ const existingSlugs = await getPostSlugs();
   .choice:has(input:checked) { background: var(--color-brand); color: var(--on-brand); }
   .choice:has(input:focus-visible) { outline: 2px solid var(--color-brand); outline-offset: 2px; }
   .choice input { accent-color: var(--color-brand); width: 18px; height: 18px; margin: 0; }
+
+  .chips, .suggestions { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips:empty, .suggestions:empty { display: none; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding-left: 16px; border-radius: var(--radius-pill); background: var(--color-brand); color: var(--on-brand); font-size: 15px; }
+  .chip__remove { min-width: 44px; min-height: 44px; border: 0; border-radius: var(--radius-pill); background: transparent; color: inherit; font: inherit; font-size: 20px; cursor: pointer; }
+  .chip__remove:focus-visible { outline-color: var(--color-accent); outline-offset: -4px; }
+  .suggestion {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px;
+    border: 0; border-radius: var(--radius-pill); background: var(--tag-bg); color: var(--ink-3); font: inherit; font-size: 15px; cursor: pointer;
+  }
+  .suggestion:hover { text-decoration: underline; }
+  .badge { padding: 2px 8px; border-radius: var(--radius-pill); background: var(--color-accent); color: var(--ink); font-size: 12px; font-weight: 600; }
+  .badge[hidden] { display: none; }
+  .tag-entry { display: flex; gap: 8px; }
+  .tag-entry input { flex: 1; min-width: 0; }
+  .counter { text-align: right; }
 
   .toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
   .toolbar__button, .button {
@@ -522,4 +660,11 @@ const existingSlugs = await getPostSlugs();
   .preview__title { margin: 0 0 6px; font-family: var(--font-display); font-weight: 500; font-size: 24px; }
   .preview :global(.heic-tile) { display: flex; width: 100%; aspect-ratio: 3 / 2; margin-bottom: 36px; }
   .preview :global(.prose .heic-tile) { margin: 1.5em 0 0.5em; }
+  .preview__tiles { display: flex; flex-wrap: wrap; gap: 32px; padding-bottom: clamp(56px, 7vw, 96px); }
+  .preview__tiles > div { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .preview__tiles > div:first-child { flex: 1 1 300px; max-width: 440px; }
+  .preview__tiles > div:last-child { flex: 2 1 320px; }
+  .preview__subtitle { margin: 0; font-size: 16px; font-weight: 600; }
+  /* Kafelek bez okładki (jeszcze nie dodana albo HEIC): ciemne tło, żeby jasny tekst był czytelny. */
+  .preview__tile { border-radius: var(--radius-lg); background: var(--shade); }
 </style>

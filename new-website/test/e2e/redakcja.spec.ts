@@ -83,12 +83,44 @@ for (const width of widths) {
   });
 }
 
+// Kafelki w podglądzie kreatora to te same komponenty co na /blog/ (PostCard) i na stronie głównej
+// (PostTile). Porównujemy wygląd, który nie zależy od szerokości kolumny ani treści.
+const tileStyle = (page: Page, root: string, selectors: string[]) =>
+  page.locator(root).first().evaluate((element, selectors) => {
+    const describe = (el: Element) => {
+      const style = getComputedStyle(el);
+      return [style.fontFamily, style.fontSize, style.lineHeight, style.fontWeight, style.color, style.backgroundColor, style.padding, style.borderRadius, style.minHeight, style.aspectRatio].join(' | ');
+    };
+    return Object.fromEntries(selectors.map((selector) => [selector, describe(selector === ':scope' ? element : element.querySelector(selector)!)]));
+  }, selectors);
+
+for (const width of widths) {
+  test(`${width} px: kafelki w podglądzie wyglądają jak na /blog/ i na stronie głównej`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const cardParts = [':scope', '.post__img', '.post__meta', '.tag', '.post__title'];
+    const tileParts = [':scope', '.tile__body', '.tile__meta', '.tag', '.tile__title', '.tile__excerpt'];
+    await page.goto('/blog/');
+    const realCard = await tileStyle(page, '.post-grid .post', cardParts);
+    await page.goto('/');
+    const realTile = await tileStyle(page, '.tile--lead', tileParts);
+
+    await openWithDraft(page, { title: 'Wpis z kreatora', category: 'aktualnosci', excerpt: 'Zajawka wpisu.', tags: [], body: '' });
+    await page.locator('#images').setInputFiles(join(FIXTURES, 'test-galeria/cover.jpg'));
+    await expect(page.locator('[data-preview="card"] img')).toBeVisible();
+    expect(await tileStyle(page, '[data-preview="card"] .post', cardParts)).toEqual(realCard);
+    expect(await tileStyle(page, '[data-preview="tile"] .tile', tileParts)).toEqual(realTile);
+    await expect(page.locator('[data-preview="tile"] .tile > img')).toHaveCSS('object-fit', 'cover');
+  });
+}
+
 test.describe('360 px', () => {
   test.use({ viewport: { width: 360, height: 800 } });
 
   test('kreator na telefonie: nic nie wystaje w bok, cele dotyku min. 44 px', async ({ page }) => {
     await page.goto('/redakcja/');
     await page.locator('#images').setInputFiles([join(FIXTURES, 'test-galeria/cover.jpg'), join(FIXTURES, 'test-galeria/zdjecie-01.jpg')]);
+    await page.locator('#tag-input').fill('bardzo długi nowy tag z kreatora');
+    await page.locator('#tag-input').press('Enter');
     const { scrollWidth, clientWidth } = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,
@@ -132,7 +164,29 @@ test('od pustego formularza do paczki, z której wpis przechodzi npm run build',
   await expect(page.locator('#slug')).toHaveText(`knml.edu.pl/blog/${slug}/`);
   await page.getByLabel('Autor').fill('Jan Testowy');
   await page.locator('#kreator').getByText('Projekty', { exact: true }).click();
-  await page.locator('#kreator').getByText('#hackathon', { exact: true }).click();
+
+  // Tagi: istniejący wybrany z podpowiedzi (wpisany wielkimi literami), nowy dodany Enterem.
+  const tagInput = page.locator('#tag-input');
+  const suggestions = page.locator('#tag-suggestions');
+  const visibleText = { useInnerText: true };
+  await tagInput.fill('HACKATH');
+  // Najpierw istniejący tag, propozycja nowego (literówki) na końcu.
+  await expect(suggestions.locator('button')).toHaveText(['#hackathon', /^#hackath\s*nowy$/], visibleText);
+  await suggestions.getByRole('button', { name: '#hackathon' }).click();
+  await tagInput.fill('Hackathon');
+  await expect(suggestions.locator('button')).toHaveCount(0);
+  await tagInput.fill('Nowy  Tag Kreatora ');
+  await expect(suggestions.locator('button')).toHaveText([/^#nowy tag kreatora\s*nowy$/], visibleText);
+  await tagInput.press('Enter');
+  const chips = page.locator('#selected-tags li');
+  await expect(chips).toHaveCount(2);
+  await expect(chips).toHaveText([/^#hackathon\s*×/, /^#nowy tag kreatora\s*nowy\s*×/], visibleText);
+  await expect(tagInput).toHaveValue('');
+
+  // Zajawka z licznikiem znaków.
+  const excerptText = 'Zespół KNML wygrał hackathon modelem do wykrywania dronów.';
+  await page.getByLabel('Zajawka (opcjonalnie)').fill(excerptText);
+  await expect(page.locator('#excerpt-count')).toHaveText(`${excerptText.length} / 155 znaków`);
 
   const editor = page.locator('#body-editor [contenteditable]');
   await editor.click();
@@ -169,7 +223,11 @@ test('od pustego formularza do paczki, z której wpis przechodzi npm run build',
   await expect(preview.locator('h1')).toHaveText(title);
   await expect(preview.locator('.article__meta')).toContainText('Projekty');
   await expect(preview.locator('.article__meta')).toContainText('Jan Testowy');
-  await expect(preview.locator('.article__tags')).toHaveText('#hackathon');
+  await expect(preview.locator('.article__tags li')).toHaveText(['#hackathon', '#nowy tag kreatora']);
+  await expect(preview.locator('[data-preview="card"] .post__title')).toHaveText(title);
+  await expect(preview.locator('[data-preview="card"] .post__img img')).toBeVisible();
+  await expect(preview.locator('[data-preview="tile"] .tile__title')).toHaveText(title);
+  await expect(preview.locator('[data-preview="tile"] .tile__excerpt')).toHaveText(excerptText);
   await expect(preview.locator('.prose h2')).toHaveText('Co zrobiliśmy');
   await expect(preview.locator('.prose strong')).toHaveText('Pierwsze miejsce');
   await expect(preview.locator('.prose li')).toHaveText(['model', 'aplikacja']);
@@ -186,6 +244,8 @@ test('od pustego formularza do paczki, z której wpis przechodzi npm run build',
   const markdown = strFromU8(files[`${slug}/index.md`]);
   expect(markdown).toContain(`title: "${title}"`);
   expect(markdown).toContain('category: projekty');
+  expect(markdown).toContain('tags:\n  - "hackathon"\n  - "nowy tag kreatora"\n');
+  expect(markdown).toContain(`excerpt: "${excerptText}"`);
   expect(markdown).toContain('cover: "./cover.jpg"');
   expect(markdown).toContain('## Co zrobiliśmy\n\n**Pierwsze miejsce** na hackathonie.');
   expect(markdown).toContain('- model\n- aplikacja');
@@ -206,6 +266,9 @@ test('od pustego formularza do paczki, z której wpis przechodzi npm run build',
     const html = readFileSync(join(outDir, 'blog', slug, 'index.html'), 'utf8');
     expect(html).toContain('Co zrobiliśmy');
     expect(html).toContain('alt="Zespół na scenie"');
+    // Strona nowego tagu powstaje sama, pod adresem jak dotąd (małe litery, spacje → „-”).
+    expect(html).toContain('href="/tags/nowy-tag-kreatora/"');
+    expect(readFileSync(join(outDir, 'tags', 'nowy-tag-kreatora', 'index.html'), 'utf8')).toContain(title);
   } finally {
     rmSync(postDir, { recursive: true, force: true });
     rmSync(outDir, { recursive: true, force: true });

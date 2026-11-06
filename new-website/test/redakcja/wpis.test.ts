@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
-import { MAX_TITLE_LENGTH, MIN_BODY_LENGTH, validatePost } from '../../src/config/zasady-wpisow';
-import { buildPost, postSlug, validateDraft, type Draft } from '../../src/redakcja/wpis';
+import { MAX_TAGS, MAX_TITLE_LENGTH, MIN_BODY_LENGTH, validatePost } from '../../src/config/zasady-wpisow';
+import { buildPost, postSlug, suggestTags, validateDraft, type Draft } from '../../src/redakcja/wpis';
 
 const TODAY = new Date(2026, 10, 6, 23, 30);
 const body = 'Treść wpisu z kreatora. '.repeat(20).trim();
@@ -139,10 +139,34 @@ describe('sprawdzanie w kreatorze', () => {
     expect(errors({ images: [{ name: 'a.jpg', size: 1, alt: '' }] })).toEqual([expect.stringMatching(/^Opisz zdjęcie 1 \(a\.jpg\)/)]);
   });
 
+  it(`więcej niż ${MAX_TAGS} tagów to błąd`, () => {
+    const tags = Array.from({ length: MAX_TAGS + 1 }, (_, index) => `tag ${index}`);
+    expect(errors({ tags })).toEqual([expect.stringMatching(/tagów/)]);
+  });
+
   it('limity sprawdza validatePost z zasad wpisów', () => {
     expect(errors({ title: 'a'.repeat(MAX_TITLE_LENGTH + 1) })).toEqual([expect.stringMatching(/^Tytuł ma/)]);
     expect(errors({ body: 'a'.repeat(MIN_BODY_LENGTH - 1) })).toEqual([expect.stringMatching(/^Treść ma/)]);
     expect(errors({ githubLink: 'github.com/knml' })).toEqual([expect.stringMatching(/GitHuba/)]);
     expect(errors({ images: [{ name: 'a.gif', size: 1, alt: 'x' }] })).toEqual([expect.stringMatching(/niedozwolony format/)]);
+  });
+});
+
+describe('podpowiedzi tagów', () => {
+  const existing = ['aktualności', 'hackathon', 'hackyeah', 'NLP', 'python'];
+
+  it('bez wpisanego tekstu: wszystkie istniejące tagi poza wybranymi', () => {
+    expect(suggestTags('', existing, ['python'])).toEqual(['aktualności', 'hackathon', 'hackyeah', 'NLP']);
+  });
+
+  it('pasujące do wpisanego fragmentu, bez względu na wielkość liter i polskie znaki', () => {
+    expect(suggestTags('HACK', existing, [])).toEqual(['hackathon', 'hackyeah']);
+    expect(suggestTags('aktualnosci', existing, [])).toEqual(['aktualności']);
+    expect(suggestTags('nl', existing, [])).toEqual(['NLP']);
+    expect(suggestTags('  Yeah ', existing, [])).toEqual(['hackyeah']);
+  });
+
+  it('nic nie pasuje: pusta lista (kreator proponuje wtedy nowy tag)', () => {
+    expect(suggestTags('rust', existing, [])).toEqual([]);
   });
 });

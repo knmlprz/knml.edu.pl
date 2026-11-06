@@ -1,0 +1,61 @@
+---
+// Kafelek wpisu na zdjęciu: sekcja „Z życia koła” na stronie głównej (LatestPosts) i podgląd
+// w kreatorze /redakcja/. lead = duży kafelek najnowszego wpisu z zajawką, small = dwa kolejne.
+// Okładka przychodzi przez <slot />, bo kreator wstawia ją dopiero w przeglądarce.
+import Tag from './ui/Tag.astro';
+
+interface Props {
+  variant: 'lead' | 'small';
+  /** Bez adresu (podgląd w kreatorze) kafelek nigdzie nie prowadzi. */
+  href?: string;
+  category: string;
+  dateIso?: string;
+  dateLabel: string;
+  title: string;
+  /** Tylko lead. */
+  excerpt?: string;
+  /** Dopisek „In Polish” w wersji EN. */
+  inPolish?: string;
+  /** lang tytułu i zajawki (wpisy są po polsku, także na stronie EN). */
+  lang?: string;
+}
+
+const { variant, href, category, dateIso, dateLabel, title, excerpt, inPolish, lang } = Astro.props;
+---
+
+<a class:list={['tile', `tile--${variant}`]} href={href}>
+  <slot />
+  <span class="tile__body">
+    {variant === 'lead' ? (
+      <span class="tile__meta">
+        <Tag variant="accent">{category}</Tag>
+        <time datetime={dateIso}>{dateLabel}</time>
+        {inPolish && <span>· {inPolish}</span>}
+      </span>
+    ) : (
+      <span class="tile__meta"><time datetime={dateIso}>{dateLabel}</time> · {category}{inPolish && ` · ${inPolish}`}</span>
+    )}
+    <span class="tile__title" lang={lang}>{title}</span>
+    {variant === 'lead' && excerpt && <span class="tile__excerpt" lang={lang}>{excerpt}</span>}
+  </span>
+</a>
+
+<style>
+  .tile { position: relative; overflow: hidden; display: block; border-radius: var(--radius-lg); color: var(--on-photo); text-decoration: none; }
+  .tile--lead { flex: 2 1 560px; min-height: 540px; }
+  .tile--small { flex: 1 1 262px; min-height: 262px; }
+  /* :global, bo zdjęcie przychodzi ze slotu (albo z kreatora) i nie ma atrybutu tego komponentu. */
+  .tile > :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.2,.7,.2,1); }
+  .tile[href]:hover > :global(img) { transform: scale(1.04); }
+  .tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, color-mix(in srgb, var(--shade) 0%, transparent) 35%, color-mix(in srgb, var(--shade) 88%, transparent) 100%); }
+  .tile__body { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+  .tile--lead .tile__body { padding: clamp(20px, 2.4vw, 32px); gap: 12px; }
+  .tile__meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--on-photo-muted); }
+  .tile__title { font-size: 21px; line-height: 1.2; font-weight: 600; }
+  .tile--lead .tile__title { font-family: var(--font-display); font-size: clamp(24px, 2.4vw, 36px); line-height: 1.12; font-weight: 500; letter-spacing: -0.02em; max-width: 20ch; }
+  .tile__excerpt { font-size: 16px; line-height: 1.5; color: var(--on-photo-muted); max-width: 56ch; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile > :global(img) { transition: none; }
+  }
+</style>

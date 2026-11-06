@@ -1,4 +1,4 @@
-import { MIN_BODY_LENGTH, POST_CATEGORIES, validatePost } from '../config/zasady-wpisow';
+import { MIN_BODY_LENGTH, POST_CATEGORIES, tagKey, validatePost } from '../config/zasady-wpisow';
 
 // Tworzenie pliku wpisu z danych kreatora (/redakcja/). Nic tu nie wie o wyglądzie ani o przeglądarce,
 // więc ten sam kod może później działać na serwerze.
@@ -76,6 +76,12 @@ function postFiles(images: DraftImage[]): PostFile[] {
     const fileName = needsConversion ? postName.replace(/jpg$/, extension) : postName;
     return { fileName, postPath: `./${postName}`, needsConversion };
   });
+}
+
+// Istniejące tagi pasujące do tego, co autor wpisuje (bez wpisanego tekstu: wszystkie), bez już wybranych.
+export function suggestTags(query: string, existingTags: readonly string[], selectedTags: readonly string[]): string[] {
+  const key = tagKey(query);
+  return existingTags.filter((tag) => !selectedTags.includes(tag) && tagKey(tag).includes(key));
 }
 
 // Data w strefie czasowej autora (toISOString dałby datę UTC, czyli po 23:00 już jutrzejszą).
