@@ -1,0 +1,525 @@
+---
+// Kreator wpisów (faza 3 z docs/plan-kreator.md): formularz, podgląd i szkic w przeglądarce.
+// Bez serwera: zamiast „Opublikuj” jest „Pobierz wpis” (paczka .zip z folderem wpisu).
+// Strona tylko po polsku, poza menu i sitemapą, z noindex. Logika wpisu: src/redakcja/.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Tag from '../../components/ui/Tag.astro';
+import { ALLOWED_TAGS, POST_CATEGORIES } from '../../config/zasady-wpisow';
+import { t } from '../../i18n';
+import { getPostSlugs } from '../../lib/posts';
+import '../../styles/post.css';
+
+const existingSlugs = await getPostSlugs();
+---
+
+<BaseLayout title="Redakcja: nowy wpis - KNML" description="Kreator wpisów na blog KNML." noindex>
+  <div class="container redakcja">
+    <h1 class="redakcja__title">Nowy wpis</h1>
+    <p class="redakcja__lead">
+      Wypełnij pola, sprawdź podgląd pod formularzem i pobierz wpis. Szkic zapisuje się sam w tej przeglądarce.
+    </p>
+
+    <form id="kreator" class="form" novalidate data-existing-slugs={JSON.stringify(existingSlugs)}>
+      <div class="field">
+        <label for="title">Tytuł</label>
+        <input id="title" name="title" type="text" autocomplete="off" />
+        <p class="field__hint">Adres wpisu: <output id="slug">knml.edu.pl/blog/nowy-wpis/</output></p>
+      </div>
+
+      <fieldset class="field">
+        <legend>Kategoria</legend>
+        <div class="choices">
+          {POST_CATEGORIES.map((category, index) => (
+            <label class="choice">
+              <input type="radio" name="category" value={category} checked={index === 0} data-label={t('pl', `category.${category}`)} />
+              {t('pl', `category.${category}`)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="author">Autor</label>
+        <input id="author" name="author" type="text" autocomplete="name" />
+        <p class="field__hint">Np. „Jan Kowalski” albo „J. Kowalski, A. Nowak”. Ta przeglądarka zapamięta autora.</p>
+      </div>
+
+      <div class="field">
+        <span class="field__label" id="body-label">Treść</span>
+        <div class="toolbar" role="toolbar" aria-label="Formatowanie treści" aria-controls="body-editor">
+          <button type="button" class="toolbar__button" data-format="bold" aria-pressed="false"><b>B</b><span class="sr-only"> Pogrubienie</span></button>
+          <button type="button" class="toolbar__button" data-format="heading" aria-pressed="false">Nagłówek</button>
+          <button type="button" class="toolbar__button" data-format="bulletList" aria-pressed="false">Lista</button>
+          <button type="button" class="toolbar__button" data-format="link" aria-pressed="false">Link</button>
+        </div>
+        <div id="body-editor" class="editor"></div>
+        <p class="field__hint">Wklejony tekst traci kolory, czcionki i tabele: wygląd wpisu ustala strona.</p>
+      </div>
+
+      <fieldset class="field">
+        <legend>Zdjęcia</legend>
+        <p class="field__hint">Pierwsze zdjęcie to okładka, pozostałe pojawią się na końcu wpisu w tej kolejności. Zdjęcia nie zapisują się w szkicu.</p>
+        <label class="dropzone" id="dropzone">
+          <input id="images" type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" class="sr-only" />
+          <span>Wybierz zdjęcia albo przeciągnij je tutaj</span>
+        </label>
+        <ol id="image-list" class="images"></ol>
+        <template id="image-item">
+          <li class="image">
+            <div class="image__thumb"></div>
+            <div class="image__body">
+              <p class="image__name"><span class="image__cover">Okładka</span> <span data-name></span></p>
+              <label class="image__alt-label">Opis zdjęcia (co na nim widać)</label>
+              <input class="image__alt" type="text" />
+              <div class="image__actions">
+                <button type="button" class="button button--small" data-action="up">↑<span class="sr-only"> Przesuń wyżej</span></button>
+                <button type="button" class="button button--small" data-action="down">↓<span class="sr-only"> Przesuń niżej</span></button>
+                <button type="button" class="button button--small" data-action="remove">Usuń</button>
+              </div>
+            </div>
+          </li>
+        </template>
+      </fieldset>
+
+      <fieldset class="field">
+        <legend>Tagi (opcjonalnie)</legend>
+        <div class="choices">
+          {ALLOWED_TAGS.map((tag) => (
+            <label class="choice">
+              <input type="checkbox" name="tags" value={tag} />
+              #{tag}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="excerpt">Krótki opis na kartę (opcjonalnie)</label>
+        <textarea id="excerpt" name="excerpt" rows="2"></textarea>
+        <p class="field__hint">1-2 zdania. Pokaże się w Google i w podglądzie linku.</p>
+      </div>
+
+      <div class="field">
+        <label for="githubLink">Link do kodu na GitHubie (opcjonalnie)</label>
+        <input id="githubLink" name="githubLink" type="url" inputmode="url" placeholder="https://github.com/knmlprz/..." />
+      </div>
+
+      <div id="errors" class="check" tabindex="-1">
+        <h2 class="check__title" data-title>Do poprawienia przed pobraniem</h2>
+        <ul data-list></ul>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="download" class="button button--primary">Pobierz wpis</button>
+        <button type="button" id="clear" class="button">Wyczyść szkic</button>
+      </div>
+      <div id="status" class="status" role="status"></div>
+    </form>
+  </div>
+
+  <section id="podglad" class="preview" aria-labelledby="podglad-title">
+    <div class="container">
+      <h2 id="podglad-title" class="preview__title">Podgląd</h2>
+      <p class="field__hint">Tak wpis będzie wyglądał na stronie. Na telefonie zobaczysz wersję na telefon.</p>
+    </div>
+    <!-- Ten sam układ i te same klasy co src/pages/blog/[...slug].astro (style: src/styles/post.css). -->
+    <article class="container article">
+      <header class="article__head">
+        <p class="article__meta">
+          <Tag variant="accent"><span data-preview="category"></span></Tag>
+          <time data-preview="date"></time>
+          <span data-preview="author"></span>
+        </p>
+        <h1 class="article__title" data-preview="title"></h1>
+        <ul class="article__tags" aria-label="Tagi" data-preview="tags"></ul>
+      </header>
+      <div data-preview="cover"></div>
+      <div class="prose" data-preview="body"></div>
+      <p class="article__github" data-preview="github" hidden><a>Kod na GitHubie ↗</a></p>
+    </article>
+  </section>
+</BaseLayout>
+
+<script>
+  import { strToU8, zipSync, type Zippable } from 'fflate';
+  import { marked } from 'marked';
+  import { createEditor } from '../../redakcja/edytor';
+  import { buildPost, validateDraft, type Draft } from '../../redakcja/wpis';
+
+  const DRAFT_KEY = 'knml-redakcja-szkic';
+  const AUTHOR_KEY = 'knml-redakcja-autor';
+
+  type ImageEntry = { file: File; url: string; alt: string };
+
+  const form = document.querySelector<HTMLFormElement>('#kreator')!;
+  const existingSlugs: string[] = JSON.parse(form.dataset.existingSlugs!);
+  const field = <Element extends HTMLElement>(selector: string) => form.querySelector<Element>(selector)!;
+  const title = field<HTMLInputElement>('#title');
+  const author = field<HTMLInputElement>('#author');
+  const excerpt = field<HTMLTextAreaElement>('#excerpt');
+  const githubLink = field<HTMLInputElement>('#githubLink');
+  const imageInput = field<HTMLInputElement>('#images');
+  const dropzone = field<HTMLLabelElement>('#dropzone');
+  const imageList = field<HTMLOListElement>('#image-list');
+  const imageTemplate = field<HTMLTemplateElement>('#image-item');
+  const errorsBox = field<HTMLDivElement>('#errors');
+  const status = field<HTMLDivElement>('#status');
+  const preview = (name: string) => document.querySelector<HTMLElement>(`[data-preview="${name}"]`)!;
+
+  let images: ImageEntry[] = [];
+  let body = '';
+
+  // Przeglądarka może zablokować localStorage (tryb prywatny), wtedy kreator działa bez szkicu.
+  const storage = {
+    get: (key: string) => {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    set: (key: string, value: string | null) => {
+      try {
+        if (value === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, value);
+      } catch {}
+    },
+  };
+
+  const isHeic = (file: File) => /\.(heic|heif)$/i.test(file.name) || /image\/hei[cf]/.test(file.type);
+
+  function readDraft(): Draft {
+    return {
+      title: title.value,
+      category: form.querySelector<HTMLInputElement>('[name="category"]:checked')!.value as Draft['category'],
+      author: author.value,
+      body,
+      tags: [...form.querySelectorAll<HTMLInputElement>('[name="tags"]:checked')].map((input) => input.value),
+      excerpt: excerpt.value,
+      githubLink: githubLink.value,
+      images: images.map(({ file, alt }) => ({ name: file.name, size: file.size, alt })),
+    };
+  }
+
+  function saveDraft(draft: Draft) {
+    const { images: _, author: __, ...text } = draft;
+    storage.set(DRAFT_KEY, JSON.stringify(text));
+    storage.set(AUTHOR_KEY, draft.author);
+  }
+
+  function loadDraft() {
+    author.value = storage.get(AUTHOR_KEY) ?? '';
+    const saved = JSON.parse(storage.get(DRAFT_KEY) ?? 'null') as Partial<Draft> | null;
+    if (!saved) return;
+    title.value = saved.title ?? '';
+    excerpt.value = saved.excerpt ?? '';
+    githubLink.value = saved.githubLink ?? '';
+    body = saved.body ?? '';
+    form.querySelectorAll<HTMLInputElement>('[name="category"]').forEach((input) => (input.checked = input.value === saved.category));
+    if (!form.querySelector('[name="category"]:checked')) form.querySelector<HTMLInputElement>('[name="category"]')!.checked = true;
+    form.querySelectorAll<HTMLInputElement>('[name="tags"]').forEach((input) => (input.checked = !!saved.tags?.includes(input.value)));
+  }
+
+  // Zamiast zdjęcia HEIC (większość przeglądarek go nie pokaże). Serwer zamieni je na JPG.
+  function heicTile(extraClass = '') {
+    const tile = document.createElement('div');
+    tile.className = `placeholder heic-tile ${extraClass}`;
+    tile.textContent = 'Zdjęcie HEIC: podgląd po publikacji';
+    return tile;
+  }
+
+  function renderImages() {
+    imageList.replaceChildren(
+      ...images.map((image, index) => {
+        const item = imageTemplate.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+        const thumb = item.querySelector('.image__thumb')!;
+        if (isHeic(image.file)) thumb.append(heicTile());
+        else thumb.append(Object.assign(document.createElement('img'), { src: image.url, alt: '' }));
+        item.querySelector('.image__cover')!.toggleAttribute('hidden', index > 0);
+        item.querySelector('[data-name]')!.textContent = image.file.name;
+        const alt = item.querySelector<HTMLInputElement>('.image__alt')!;
+        alt.id = `alt-${index}`;
+        alt.value = image.alt;
+        alt.addEventListener('input', () => {
+          image.alt = alt.value;
+          update();
+        });
+        item.querySelector('label')!.htmlFor = alt.id;
+        item.querySelectorAll<HTMLButtonElement>('[data-action]').forEach((button) => {
+          button.dataset.index = String(index);
+          const action = button.dataset.action;
+          if (action === 'up') button.disabled = index === 0;
+          if (action === 'down') button.disabled = index === images.length - 1;
+          button.querySelector('.sr-only')?.prepend(`Zdjęcie ${index + 1}: `);
+        });
+        return item;
+      }),
+    );
+  }
+
+  function addImages(files: Iterable<File>) {
+    const skipped: string[] = [];
+    for (const file of files) {
+      if (file.type.startsWith('image/') || isHeic(file)) images.push({ file, url: URL.createObjectURL(file), alt: '' });
+      else skipped.push(file.name);
+    }
+    status.textContent = skipped.length ? `Pominięto pliki, które nie są zdjęciami: ${skipped.join(', ')}.` : '';
+    renderImages();
+    update();
+  }
+
+  imageList.addEventListener('click', (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>('[data-action]');
+    if (!button) return;
+    const index = Number(button.dataset.index);
+    const action = button.dataset.action;
+    if (action === 'remove') {
+      URL.revokeObjectURL(images[index].url);
+      images.splice(index, 1);
+    } else {
+      const target = action === 'up' ? index - 1 : index + 1;
+      [images[index], images[target]] = [images[target], images[index]];
+    }
+    renderImages();
+    update();
+    // Po przebudowie listy focus wraca w to samo miejsce, żeby można było przesuwać dalej z klawiatury.
+    const nextIndex = action === 'remove' ? Math.min(index, images.length - 1) : action === 'up' ? index - 1 : index + 1;
+    const nextButton = imageList.querySelector<HTMLButtonElement>(`[data-index="${nextIndex}"][data-action="${action === 'remove' ? 'remove' : action}"]:not(:disabled)`);
+    (nextButton ?? imageList.querySelector<HTMLButtonElement>(`[data-index="${nextIndex}"][data-action]:not(:disabled)`) ?? imageInput).focus();
+  });
+
+  imageInput.addEventListener('change', () => {
+    addImages(imageInput.files ?? []);
+    imageInput.value = '';
+  });
+  dropzone.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    dropzone.classList.add('dropzone--over');
+  });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dropzone--over'));
+  dropzone.addEventListener('drop', (event) => {
+    event.preventDefault();
+    dropzone.classList.remove('dropzone--over');
+    addImages(event.dataTransfer?.files ?? []);
+  });
+
+  function renderPreview(draft: Draft, post: ReturnType<typeof buildPost>) {
+    preview('title').textContent = draft.title;
+    preview('category').textContent = form.querySelector<HTMLInputElement>('[name="category"]:checked')!.dataset.label!;
+    // Tak samo jak formatDate() w src/lib/posts.ts (tamtego pliku nie da się wczytać w przeglądarce).
+    preview('date').textContent = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    preview('author').textContent = draft.author;
+    preview('tags').replaceChildren(
+      ...draft.tags.map((tag) => {
+        const item = document.createElement('li');
+        item.append(Object.assign(document.createElement('a'), { textContent: `#${tag}` }));
+        return item;
+      }),
+    );
+    preview('tags').hidden = draft.tags.length === 0;
+
+    const [cover] = images;
+    if (!cover) preview('cover').replaceChildren();
+    else if (isHeic(cover.file)) preview('cover').replaceChildren(heicTile('article__cover'));
+    else preview('cover').replaceChildren(Object.assign(document.createElement('img'), { className: 'article__cover', src: cover.url, alt: cover.alt }));
+
+    // Treść pisze sam autor w swojej przeglądarce, więc wstawienie HTML z Markdowna jest bezpieczne.
+    preview('body').innerHTML = marked.parse(post.body, { async: false });
+    const urlByPath = new Map(post.files.map((file, index) => [file.postPath, images[index]]));
+    preview('body').querySelectorAll('img').forEach((img) => {
+      const image = urlByPath.get(img.getAttribute('src')!);
+      if (!image) return;
+      if (isHeic(image.file)) img.replaceWith(heicTile());
+      else img.src = image.url;
+    });
+
+    preview('github').hidden = !draft.githubLink.trim();
+    preview('github').querySelector('a')!.href = draft.githubLink.trim();
+  }
+
+  function renderErrors(errors: string[]) {
+    errorsBox.querySelector('[data-title]')!.textContent = errors.length ? 'Do poprawienia przed pobraniem' : 'Wpis spełnia zasady. Możesz go pobrać.';
+    errorsBox.querySelector('[data-list]')!.replaceChildren(...errors.map((error) => Object.assign(document.createElement('li'), { textContent: error })));
+    errorsBox.classList.toggle('check--ok', errors.length === 0);
+  }
+
+  function update() {
+    const draft = readDraft();
+    const post = buildPost(draft, { today: new Date(), existingSlugs });
+    field<HTMLOutputElement>('#slug').textContent = `knml.edu.pl/blog/${post.slug}/`;
+    renderErrors(validateDraft(draft, existingSlugs));
+    renderPreview(draft, post);
+    saveDraft(draft);
+  }
+
+  loadDraft();
+  const editor = createEditor(
+    field('#body-editor'),
+    body,
+    (markdown) => {
+      body = markdown;
+      update();
+    },
+    { 'aria-labelledby': 'body-label', role: 'textbox', 'aria-multiline': 'true', class: 'editor__content prose' },
+  );
+
+  // Kliknięcie przycisku formatowania nie zabiera focusu edytorowi: tekst pisany zaraz po nim
+  // nie ginie, a na telefonie nie chowa się klawiatura.
+  field('.toolbar').addEventListener('mousedown', (event) => event.preventDefault());
+  const toolbarButtons = form.querySelectorAll<HTMLButtonElement>('[data-format]');
+  const isFormatActive = (format: string) => (format === 'heading' ? editor.isActive('heading', { level: 2 }) : editor.isActive(format));
+  editor.on('transaction', () => {
+    toolbarButtons.forEach((button) => button.setAttribute('aria-pressed', String(isFormatActive(button.dataset.format!))));
+  });
+  toolbarButtons.forEach((button) =>
+    button.addEventListener('click', () => {
+      const chain = editor.chain().focus();
+      const format = button.dataset.format;
+      if (format === 'bold') chain.toggleBold().run();
+      if (format === 'heading') chain.toggleHeading({ level: 2 }).run();
+      if (format === 'bulletList') chain.toggleBulletList().run();
+      if (format !== 'link') return;
+      if (editor.isActive('link')) return chain.unsetLink().run();
+      const href = prompt('Adres linku, np. https://knml.edu.pl/')?.trim();
+      if (!href) return;
+      if (editor.state.selection.empty) chain.insertContent({ type: 'text', text: href, marks: [{ type: 'link', attrs: { href } }] }).run();
+      else chain.setLink({ href }).run();
+    }),
+  );
+
+  form.addEventListener('input', (event) => {
+    if (!(event.target as Element).closest('.editor, .images')) update();
+  });
+
+  field('#clear').addEventListener('click', () => {
+    if (!confirm('Wyczyścić szkic? Tytuł, treść, zdjęcia i tagi znikną. Autor zostanie.')) return;
+    storage.set(DRAFT_KEY, null);
+    const savedAuthor = author.value;
+    form.reset();
+    author.value = savedAuthor;
+    images.forEach((image) => URL.revokeObjectURL(image.url));
+    images = [];
+    renderImages();
+    editor.commands.clearContent(true);
+    status.textContent = 'Szkic wyczyszczony.';
+  });
+
+  field('#download').addEventListener('click', async () => {
+    const draft = readDraft();
+    const errors = validateDraft(draft, existingSlugs);
+    if (errors.length) {
+      renderErrors(errors);
+      status.textContent = 'Wpis ma błędy, popraw je według listy powyżej.';
+      errorsBox.focus();
+      return;
+    }
+    const post = buildPost(draft, { today: new Date(), existingSlugs });
+    const files: Zippable = { [`${post.slug}/index.md`]: strToU8(post.markdown) };
+    for (const [index, file] of post.files.entries()) {
+      // Zdjęcia są już skompresowane, ponowna kompresja tylko spowolniłaby telefon.
+      files[`${post.slug}/${file.fileName}`] = [new Uint8Array(await images[index].file.arrayBuffer()), { level: 0 }];
+    }
+    const url = URL.createObjectURL(new Blob([zipSync(files)], { type: 'application/zip' }));
+    Object.assign(document.createElement('a'), { href: url, download: `${post.slug}.zip` }).click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+
+    const toConvert = post.files.filter((file) => file.needsConversion);
+    status.textContent =
+      `Pobrano ${post.slug}.zip. Rozpakuj folder ${post.slug} do new-website/src/content/blog/ i otwórz Pull Request (README, „Jak dodać wpis na blog”).` +
+      (toConvert.length
+        ? ` Uwaga: zdjęcia HEIC trzeba przed tym przekonwertować na JPG i zapisać pod nazwą, której używa wpis: ${toConvert
+            .map((file) => `${file.fileName} → ${file.postPath.slice(2)}`)
+            .join(', ')}.`
+        : '');
+  });
+
+  update();
+</script>
+
+<style>
+  .redakcja { max-width: 820px; padding-block: 40px 24px; }
+  .redakcja__title { margin: 0 0 12px; font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 44px); font-weight: 500; letter-spacing: -0.03em; }
+  .redakcja__lead { margin: 0 0 32px; font-size: 17px; line-height: 1.6; color: var(--body); }
+
+  .form { display: flex; flex-direction: column; gap: 28px; }
+  .field { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+  .field > label, .field > legend, .field__label { font-weight: 600; font-size: 16px; padding: 0; margin-bottom: 0; }
+  .field > legend { margin-bottom: 8px; }
+  .field__hint { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+
+  input[type='text'], input[type='url'], textarea {
+    width: 100%; min-height: 48px; padding: 10px 14px;
+    font: inherit; font-size: 16px; color: var(--ink);
+    background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius-sm);
+  }
+  textarea { resize: vertical; }
+  input:focus-visible, textarea:focus-visible, .editor :global(.editor__content:focus-visible), .check:focus-visible {
+    outline: 2px solid var(--color-brand); outline-offset: 2px;
+  }
+
+  .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px;
+    border-radius: var(--radius-pill); background: var(--tag-bg); color: var(--ink-3); font-size: 15px; cursor: pointer;
+  }
+  .choice:has(input:checked) { background: var(--color-brand); color: var(--on-brand); }
+  .choice:has(input:focus-visible) { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+  .choice input { accent-color: var(--color-brand); width: 18px; height: 18px; margin: 0; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
+  .toolbar__button, .button {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 16px;
+    font: inherit; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer;
+    background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius-pill);
+  }
+  .toolbar__button[aria-pressed='true'] { background: var(--color-brand); border-color: var(--color-brand); color: var(--on-brand); }
+  .button:disabled { opacity: 0.4; cursor: default; }
+  .button--primary { min-height: 52px; padding: 0 26px; font-size: 17px; background: var(--color-brand); border-color: var(--color-brand); color: var(--on-brand); }
+  .button--primary:hover { filter: brightness(1.15); }
+  .button--small { padding: 0 14px; }
+
+  .editor :global(.editor__content) {
+    min-height: 240px; padding: 4px 16px; font-size: 17px;
+    background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius-sm);
+  }
+  .editor :global(.editor__content h2:first-child) { margin-top: 0.6em; }
+
+  .dropzone {
+    display: flex; align-items: center; justify-content: center; min-height: 96px; padding: 16px;
+    border: 2px dashed var(--placeholder-line); border-radius: var(--radius-md);
+    color: var(--ink-2); font-weight: 600; text-align: center; cursor: pointer;
+  }
+  .dropzone:focus-within, .dropzone--over { border-color: var(--color-brand); background: var(--section); }
+  .dropzone:focus-within { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+
+  .images { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .images :global(.image) {
+    display: grid; grid-template-columns: 96px 1fr; gap: 14px; padding: 12px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md);
+  }
+  .images :global(.image__thumb img), .images :global(.image__thumb .heic-tile) { width: 96px; height: 96px; object-fit: cover; border-radius: var(--radius-sm); }
+  .images :global(.image__thumb .heic-tile) { padding: 6px; font-size: 11px; }
+  .images :global(.image__body) { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .images :global(.image__name) { margin: 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+  .images :global(.image__cover) { display: inline-flex; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--color-accent); color: var(--ink); font-weight: 600; }
+  .images :global(.image__cover[hidden]) { display: none; }
+  .images :global(.image__alt-label) { font-weight: 600; font-size: 15px; }
+  .images :global(.image__actions) { display: flex; flex-wrap: wrap; gap: 6px; }
+  @media (max-width: 480px) {
+    .images :global(.image) { grid-template-columns: 1fr; }
+  }
+
+  .check { padding: 16px 20px; border-radius: var(--radius-md); background: var(--section); }
+  .check__title { margin: 0; font-size: 17px; }
+  .check ul { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 1.5; }
+  .check--ok ul { display: none; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .status { font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+  .status:empty { display: none; }
+
+  .preview { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 32px; }
+  .preview__title { margin: 0 0 6px; font-family: var(--font-display); font-weight: 500; font-size: 24px; }
+  .preview :global(.heic-tile) { display: flex; width: 100%; aspect-ratio: 3 / 2; margin-bottom: 36px; }
+  .preview :global(.prose .heic-tile) { margin: 1.5em 0 0.5em; }
+</style>

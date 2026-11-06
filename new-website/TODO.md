@@ -44,6 +44,19 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
       SVG w `mnist-demo-jak-komputer-widzi-tekst`. Decyzja: zostawić, zamienić czy dopuścić format.
 - [ ] Opisy zdjęć w 10 wpisach z uczelni powtarzają tytuł wpisu, w MNIST Demo jest m.in. nazwa pliku.
 
+## Kreator wpisów (`/redakcja/`, faza 3 z `docs/plan-kreator.md`)
+
+- [ ] Zdjęcia nie zapisują się w szkicu (localStorage ma za mało miejsca). Po zamknięciu karty
+      tekst zostaje, zdjęcia trzeba dodać ponownie. Opcja: zapisywać pliki zdjęć w IndexedDB
+      (baza w przeglądarce, mieści pliki, ok. 30 linijek kodu bez nowej paczki). Do decyzji, czy
+      warto przed fazą 4, w której szkic mógłby trzymać serwer.
+- [ ] HEIC: kreator przyjmuje, ale konwersję na JPG robi dziś autor ręcznie (w fazie 4 serwer).
+- [ ] Osobny PR: `zod/mini` w `src/config/zasady-wpisow.ts`. JS kreatora ma dziś ok. 525 KB
+      (ok. 165 KB gzip), z czego największa część to `zod` z pliku zasad.
+- Teksty kreatora są wpisane w `src/pages/redakcja/index.astro`, nie w `src/i18n/`,
+  bo strona jest tylko po polsku (zasada 7 w CLAUDE.md).
+- Decyzja o kreatorze: `docs/adr/0003-kreator-zamiast-tiny.md`.
+
 ## Blog i migracja z Hugo
 
 - [ ] Kategoria wpisu (`category`) wyliczona przez `scripts/migrate-hugo.mjs`: tag „aktualności”

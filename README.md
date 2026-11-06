@@ -84,6 +84,16 @@ po polsku, w trybie rozkazującym: „Dodaj wpis o hackathonie X”.
 
 ## Jak dodać wpis na blog
 
+**Najprościej: kreator.** Otwórz `/redakcja/` (lokalnie: `http://localhost:4321/redakcja/`),
+wpisz tytuł i treść, dodaj zdjęcia z opisami, sprawdź podgląd i kliknij **Pobierz wpis**.
+Dostaniesz paczkę `.zip` z gotowym folderem wpisu: rozpakuj go do
+`new-website/src/content/blog/` i dalej postępuj od kroku 5. Zdjęcia HEIC z iPhone'a
+przed tym przekonwertuj na JPG (kreator podpowie nazwy). Szkic zapisuje się w przeglądarce,
+ale bez zdjęć. Publikacja jednym kliknięciem przyjdzie z serwerem koła
+([docs/plan-kreator.md](docs/plan-kreator.md)).
+
+Ręcznie, bez kreatora:
+
 ### 1. Nowa gałąź
 
 ```bash
@@ -124,6 +134,7 @@ category: aktualnosci
 cover: ./okladka.jpg
 
 # OPCJONALNE (możesz usunąć całą linijkę)
+coverAlt: Zespół KNML na scenie HackYeah
 shortTitle: Wygrana na HackYeah 2026
 excerpt: Nasz zespół zajął I miejsce w kategorii AI na największym hackathonie w Polsce.
 tags:
@@ -151,6 +162,7 @@ Dalsza treść…
 | `author` | Imię i nazwisko albo np. `Zarząd KNML`. |
 | `category` | Dokładnie jedno z dwóch: `aktualnosci` (wydarzenia, sukcesy) albo `projekty` (opis projektu). Bez polskich znaków. |
 | `cover` | Okładka: `./` + nazwa pliku z tego samego folderu. Pokazuje się na liście wpisów i w podglądzie linku. |
+| `coverAlt` | Opis okładki dla osób niewidomych (co widać na zdjęciu). Kreator wpisuje go zawsze. |
 | `shortTitle` | Krótszy tytuł na kafelek na stronie głównej, gdy `title` jest długi. |
 | `excerpt` | 1-2 zdania zajawki (najwyżej 155 znaków). Trafia do Google, podglądu linku i na duży kafelek najnowszego wpisu. |
 | `tags` | Słowa kluczowe, tylko z listy dozwolonych (patrz [Zasady wpisów](#zasady-wpisów)), żeby wpisy się grupowały. |
@@ -365,8 +377,14 @@ npm run test:e2e            # buduje stronę i uruchamia testy w przeglądarce (
   nie na prawdziwych wpisach.
 - **`test/lib/zasady-wpisow.test.ts`** sprawdza każdą [zasadę wpisów](#zasady-wpisów) i to,
   że wszystkie prawdziwe wpisy ją spełniają.
+- **`test/redakcja/`** sprawdza kreator bez przeglądarki: tworzenie `index.md` i adresu wpisu
+  (polskie znaki, zajęte adresy), edytor (Markdown wraca bez zmian, wklejony tekst traci kolory,
+  czcionki, tabele i obrazki).
 - **`test/e2e/smoke.spec.ts`** otwiera prawdziwą stronę: `/`, `/en/`, `/blog/`, jeden wpis,
-  RSS, sitemap i 404.
+  RSS, sitemap, 404 i `/redakcja/` (noindex), i pilnuje, żeby kodu edytora nie było poza kreatorem.
+- **`test/e2e/redakcja.spec.ts`** przechodzi kreator jak autor: wypełnienie, zdjęcia z dysku,
+  błąd przy zdjęciu bez opisu, podgląd, pobranie paczki i `astro build` z wpisem z tej paczki.
+  Sprawdza też, że podgląd wygląda jak strona wpisu testowego (te same wymiary i style).
 - **`test/e2e/wpisy.spec.ts`** otwiera wpisy testowe z `test/fixtures/blog/` (długi tytuł,
   10 zdjęć, panorama, bardzo duże zdjęcie, wpis bez zdjęć, lista, link, cytat, kod) na 360 px
   i 1440 px i sprawdza zasady, które obowiązują przy każdym designie: nic nie wystaje w bok,

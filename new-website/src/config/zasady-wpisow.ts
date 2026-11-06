@@ -70,6 +70,8 @@ export const postFieldsSchema = z.object({
   }),
   tags: z.array(z.string(), { error: 'Tagi (pole tags) muszą być listą. Każdy tag w osobnej linijce, zaczynając od „- ”.' }).default([]),
   cover: requiredText('Brakuje okładki (pole cover). Dodaj zdjęcie do folderu wpisu i wpisz np. cover: ./okladka.jpg.'),
+  // Opis okładki dla czytników ekranu. Kreator wymaga go zawsze; w starszych wpisach go nie ma.
+  coverAlt: z.string({ error: 'Opis okładki (pole coverAlt) musi być tekstem. Wpisz go albo usuń całą linijkę.' }).optional(),
   excerpt: z.string({ error: EXCERPT_NOT_TEXT }).optional(),
   githubLink: z.url({ error: 'Błędny link do GitHuba (pole githubLink). Wpisz pełny adres zaczynający się od https://.' }).optional(),
   draft: z.boolean({ error: 'Pole draft może mieć tylko wartość true albo false.' }).default(false),

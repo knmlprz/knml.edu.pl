@@ -6,7 +6,7 @@ import { satteri } from '@astrojs/markdown-satteri';
 
 // Zdjęcia w treści wpisów (Markdown) jako responsywne obrazy Astro: kilka rozmiarów WebP
 // w srcset, lazy loading. Szerokości liczone od kolumny tekstu wpisu: .article w
-// src/pages/blog/[...slug].astro ma max. 900 px, minus odstępy po bokach = 820 px.
+// src/styles/post.css ma max. 900 px, minus odstępy po bokach = 820 px.
 // Zmienisz szerokość kolumny, zmień też POST_IMAGE_SIZES; pilnuje tego test w test/e2e/wpisy.spec.ts.
 const POST_IMAGE_SIZES = '(min-width: 900px) 820px, calc(100vw - 32px)';
 // 1× i 2× (ekrany o dużej gęstości) dla telefonu i kolumny na komputerze.

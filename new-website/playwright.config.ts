@@ -16,6 +16,8 @@ export default defineConfig({
     { name: 'smoke', testMatch: 'smoke.spec.ts', use: { baseURL: PROD_URL } },
     // Strona z wpisami testowymi z test/fixtures/blog.
     { name: 'wpisy', testMatch: ['wpisy.spec.ts', 'zrzuty.spec.ts'], use: { baseURL: TEST_POSTS_URL } },
+    // Kreator wpisów: podgląd porównywany ze stroną wpisu testowego.
+    { name: 'redakcja', testMatch: 'redakcja.spec.ts', use: { baseURL: TEST_POSTS_URL } },
   ],
   // --ignore-lock: Astro domyślnie pozwala na jeden podgląd naraz, a tu potrzebne są dwa.
   webServer: [

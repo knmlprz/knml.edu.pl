@@ -61,8 +61,9 @@ knml.edu.pl/                 jedno repo, jeden .git (tylko tutaj)
    definiujemy raz (token CSS albo `src/data/site.ts`) i tylko się do niego odwołujemy.
 6. **Nie wymyślaj treści.** Brakujące dane zostawiaj jako widoczny placeholder `[TAK JAK TU]`
    i dopisz je do `TODO.md` w `new-website/`.
-7. **Każdy nowy tekst interfejsu dodajesz do `src/i18n/pl.ts` i `src/i18n/en.ts`** (ten sam klucz),
+7. **Teksty stron publicznych dodajesz do `src/i18n/pl.ts` i `src/i18n/en.ts`** (ten sam klucz),
    w komponencie tylko `t(locale, 'klucz')`. Brak klucza w `en.ts` zatrzymuje `npm run check`.
+   `/redakcja/` jest tylko po polsku i ma teksty w swoim pliku (`src/pages/redakcja/index.astro`).
 
 ## Kolory i style: tylko tokeny
 
