@@ -1,0 +1,12 @@
+# Pliki, które trafiają do obrazu services/api/Dockerfile (budowanego z katalogu głównego repo).
+# Wszystko inne, w tym .env z sekretami, zostaje poza obrazem.
+*
+!services/api/
+!new-website/src/config/
+!new-website/src/redakcja/
+services/api/node_modules/
+services/api/dist/
+services/api/.env
+**/*.pem
+services/api/test-results/
+services/api/playwright-report/

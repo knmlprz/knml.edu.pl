@@ -20,3 +20,11 @@ new-website/.env
 .idea/
 .vscode/
 .DS_Store
+# --- API publikacji (services/api/) ---
+services/api/node_modules/
+services/api/dist/
+services/api/.env
+# klucze prywatne (np. klucz GitHub App) nigdy do repo, w żadnym folderze
+*.pem
+services/api/test-results/
+services/api/playwright-report/

@@ -10,6 +10,7 @@ jeszcze Astro ani gita. Przeczytaj go raz od początku do końca.
 knml.edu.pl/
 ├── new-website/     nowa strona (Astro), tu pracujesz
 ├── old-website/     stara strona (Hugo), tylko do odczytu, nic tu nie zmieniaj
+├── services/api/    API publikacji wpisów z kreatora (osobna usługa, serwer koła)
 ├── docs/adr/        krótkie notatki „dlaczego tak zdecydowaliśmy”
 ├── .github/         automatyczna publikacja strony (nie ruszaj bez zgody zarządu)
 ├── CNAME            domena knml.edu.pl (nie ruszaj)
@@ -18,6 +19,7 @@ knml.edu.pl/
 
 - [new-website/README.md](new-website/README.md): jak zbudowany jest kod strony.
 - [new-website/TODO.md](new-website/TODO.md): czego jeszcze brakuje (dane od zarządu, decyzje).
+- [services/api/README.md](services/api/README.md): API publikacji (uruchomienie, testy, ustawienia GitHuba).
 - [CLAUDE.md](CLAUDE.md): kolory, zasady kodu, czego nie robić.
 
 ## Uruchomienie strony na swoim komputerze
@@ -89,8 +91,12 @@ wpisz tytuł i treść, dodaj zdjęcia z opisami, sprawdź podgląd i kliknij **
 Dostaniesz paczkę `.zip` z gotowym folderem wpisu: rozpakuj go do
 `new-website/src/content/blog/` i dalej postępuj od kroku 5. Zdjęcia HEIC z iPhone'a
 przed tym przekonwertuj na JPG (kreator podpowie nazwy). Szkic zapisuje się w przeglądarce,
-ale bez zdjęć. Publikacja jednym kliknięciem przyjdzie z serwerem koła
-([docs/plan-kreator.md](docs/plan-kreator.md)).
+ale bez zdjęć.
+
+Gdy działa API publikacji ([services/api](services/api/README.md)), kreator ma też
+**Zaloguj się przez GitHub** i **Opublikuj**: wpis trafia do repo jako Pull Request i pojawia
+się na stronie po zielonym CI, bez paczki i bez gita. Dostęp mają osoby z zespołu
+`redakcja-strony` na GitHubie. „Pobierz wpis” zostaje jako zapas.
 
 Ręcznie, bez kreatora:
 
@@ -269,7 +275,9 @@ nie wyłapie: pokaże ją jako „nowy” tag, a pasujący istniejący tag wyże
 4. **Okładka bez opisu w starych wpisach.** Nowe wpisy z kreatora mają opis okładki (`coverAlt`),
    20 obecnych go nie ma. Dopisujemy je ręcznie?
 5. **Akceptacja admina.** Czy wpis z kreatora wymaga zatwierdzenia przez admina, czy wystarczy
-   zielony wynik testów (założenie w [planie](docs/plan-kreator.md))?
+   zielony wynik testów (założenie w [planie](docs/plan-kreator.md))? Na start
+   `REQUIRES_ADMIN_APPROVAL = false`, ustawienia repo do obu wariantów:
+   [services/api/README.md](services/api/README.md#ustawienia-repo-na-githubie).
 
 ### Jak zmienić zasadę
 

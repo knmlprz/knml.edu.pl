@@ -19,6 +19,10 @@ export const ALLOWED_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
 // a normalizeTag() niżej pilnuje, żeby „Hackathon” nie stał się drugim tagiem obok „hackathon”.
 export const MAX_TAG_LENGTH = 30;
 export const MAX_TAGS = 8;
+// false: wpis z kreatora trafia na stronę sam, gdy CI jest zielone (auto-merge).
+// true: Pull Request z wpisem czeka, aż zatwierdzi go admin redakcji. Ustawienia repo do obu
+// wariantów: services/api/README.md, „Ustawienia repo na GitHubie”.
+export const REQUIRES_ADMIN_APPROVAL = false;
 
 // Stare wpisy z formatem spoza listy. Nowych tu nie dopisujemy, koło decyduje, co z tymi zrobić.
 export const IMAGE_FORMAT_EXCEPTIONS: Record<string, string[]> = {

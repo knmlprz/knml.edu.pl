@@ -84,7 +84,9 @@ sekcjom (`<Hero locale={locale} />`). Decyzja: [docs/adr/0002-wersja-en.md](../d
 - `pages/404.astro`: strona „nie znaleziono” (GitHub Pages pokazuje ją sam).
 - `pages/redakcja/index.astro`: kreator wpisów. Jedyna strona z większym JS (edytor Tiptap,
   podgląd przez `marked`, paczka `.zip` przez `fflate`), wczytywanym tylko na niej. Tylko po
-  polsku, `noindex`, celowo poza menu i poza `staticPages` w sitemapie. Podgląd ma ten sam
+  polsku, `noindex`, celowo poza menu i poza `staticPages` w sitemapie. Z `PUBLIC_API_URL`
+  (`.env.example`) ma logowanie i „Opublikuj” przez [API publikacji](../services/api/README.md);
+  build testowy (`npm run build:test`) ustawia go na `http://localhost:8787`. Podgląd ma ten sam
   układ i te same klasy co `pages/blog/[...slug].astro`: zmieniasz jedno, zmień drugie
   (`test/e2e/redakcja.spec.ts` to wyłapie).
 

@@ -50,12 +50,23 @@ Placeholdery `[TAK JAK TU]` widoczne na stronie czekają na dane od zarządu ko�
       tekst zostaje, zdjęcia trzeba dodać ponownie. Opcja: zapisywać pliki zdjęć w IndexedDB
       (baza w przeglądarce, mieści pliki, ok. 30 linijek kodu bez nowej paczki). Do decyzji, czy
       warto przed fazą 4, w której szkic mógłby trzymać serwer.
-- [ ] HEIC: kreator przyjmuje, ale konwersję na JPG robi dziś autor ręcznie (w fazie 4 serwer).
+- [ ] HEIC: przy „Opublikuj” zamienia go API (faza 4). Przy „Pobierz wpis” nadal autor ręcznie.
 - [ ] Osobny PR: `zod/mini` w `src/config/zasady-wpisow.ts`. JS kreatora ma dziś ok. 525 KB
       (ok. 165 KB gzip), z czego największa część to `zod` z pliku zasad.
 - Teksty kreatora są wpisane w `src/pages/redakcja/index.astro`, nie w `src/i18n/`,
   bo strona jest tylko po polsku (zasada 7 w CLAUDE.md).
 - Decyzja o kreatorze: `docs/adr/0003-kreator-zamiast-tiny.md`.
+
+## API publikacji (`services/api/`, faza 4 gotowa lokalnie)
+
+- [ ] Faza 5 (serwer koła, GitHub App, zespół `redakcja-strony`, ustawienia repo, DNS, HTTPS,
+      `PUBLIC_API_URL` w `deploy.yml`): lista kroków w `services/api/README.md`, „Faza 5”.
+- [ ] Spotkanie koła: `REQUIRES_ADMIN_APPROVAL` w `src/config/zasady-wpisow.ts` (auto-merge czy
+      akceptacja admina).
+- [ ] Faza 6: edycja i usuwanie wpisów. `GET /moje-wpisy` widzi dziś tylko ostatnie 100 PR-ów
+      w repo i tylko wpisy dodane kreatorem (gałęzie `wpis/<login>/<adres>`).
+- [ ] Po „Zaloguj się” strona przeładowuje się, a zdjęcia nie zapisują się w szkicu (patrz wyżej,
+      IndexedDB). Kreator prosi o zalogowanie przed dodaniem zdjęć.
 
 ## Blog i migracja z Hugo
 

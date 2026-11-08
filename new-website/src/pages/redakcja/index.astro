@@ -1,6 +1,7 @@
 ---
-// Kreator wpisów (faza 3 z docs/plan-kreator.md): formularz, podgląd i szkic w przeglądarce.
-// Bez serwera: zamiast „Opublikuj” jest „Pobierz wpis” (paczka .zip z folderem wpisu).
+// Kreator wpisów (docs/plan-kreator.md): formularz, podgląd i szkic w przeglądarce.
+// Z adresem API publikacji (PUBLIC_API_URL, usługa services/api) dochodzi logowanie przez GitHub
+// i „Opublikuj”. „Pobierz wpis” (paczka .zip z folderem wpisu) zostaje jako zapas.
 // Strona tylko po polsku, poza menu i sitemapą, z noindex. Logika wpisu: src/redakcja/.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
@@ -11,6 +12,8 @@ import { t } from '../../i18n';
 import { getPostSlugs, getTags } from '../../lib/posts';
 import '../../styles/post.css';
 
+// Pusty adres: strona bez publikacji, tylko „Pobierz wpis” (np. gdy serwer koła jeszcze nie działa).
+const apiUrl: string = import.meta.env.PUBLIC_API_URL ?? '';
 const existingSlugs = await getPostSlugs();
 // Podpowiedzi tagów: tagi z opublikowanych wpisów, od najczęściej używanego.
 const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.length).map((tag) => tag.name);
@@ -20,8 +23,16 @@ const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.l
   <div class="container redakcja">
     <h1 class="redakcja__title">Nowy wpis</h1>
     <p class="redakcja__lead">
-      Wypełnij pola, sprawdź podgląd pod formularzem i pobierz wpis. Szkic zapisuje się sam w tej przeglądarce.
+      Wypełnij pola, sprawdź podgląd pod formularzem i {apiUrl ? 'opublikuj' : 'pobierz'} wpis. Szkic zapisuje się sam w tej przeglądarce.
     </p>
+
+    {apiUrl && (
+      <div id="account" class="account" data-api-url={apiUrl}>
+        <p id="account-text" class="account__text">Sprawdzam logowanie…</p>
+        <a id="login" class="button" href={`${apiUrl}/auth/login`} hidden>Zaloguj się przez GitHub</a>
+        <button type="button" id="logout" class="button" hidden>Wyloguj</button>
+      </div>
+    )}
 
     <form id="kreator" class="form" novalidate data-existing-slugs={JSON.stringify(existingSlugs)} data-existing-tags={JSON.stringify(existingTags)}>
       <div class="field">
@@ -121,12 +132,13 @@ const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.l
       </div>
 
       <div id="errors" class="check" tabindex="-1">
-        <h2 class="check__title" data-title>Do poprawienia przed pobraniem</h2>
+        <h2 class="check__title" data-title>Do poprawienia przed {apiUrl ? 'publikacją' : 'pobraniem'}</h2>
         <ul data-list></ul>
       </div>
 
       <div class="actions">
-        <button type="button" id="download" class="button button--primary">Pobierz wpis</button>
+        {apiUrl && <button type="button" id="publish" class="button button--primary" hidden>Opublikuj</button>}
+        <button type="button" id="download" class={apiUrl ? 'button' : 'button button--primary'}>Pobierz wpis</button>
         <button type="button" id="clear" class="button">Wyczyść szkic</button>
       </div>
       <div id="status" class="status" role="status"></div>
@@ -200,6 +212,8 @@ const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.l
   const tagInput = field<HTMLInputElement>('#tag-input');
   const excerptCount = field<HTMLParagraphElement>('#excerpt-count');
   const preview = (name: string) => document.querySelector<HTMLElement>(`[data-preview="${name}"]`)!;
+  const apiUrl = document.querySelector<HTMLElement>('#account')?.dataset.apiUrl ?? '';
+  const publishButton = form.querySelector<HTMLButtonElement>('#publish');
 
   let images: ImageEntry[] = [];
   let body = '';
@@ -456,7 +470,9 @@ const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.l
   }
 
   function renderErrors(errors: string[]) {
-    errorsBox.querySelector('[data-title]')!.textContent = errors.length ? 'Do poprawienia przed pobraniem' : 'Wpis spełnia zasady. Możesz go pobrać.';
+    errorsBox.querySelector('[data-title]')!.textContent = errors.length
+      ? `Do poprawienia przed ${apiUrl ? 'publikacją' : 'pobraniem'}`
+      : `Wpis spełnia zasady. Możesz go ${apiUrl ? 'opublikować' : 'pobrać'}.`;
     errorsBox.querySelector('[data-list]')!.replaceChildren(...errors.map((error) => Object.assign(document.createElement('li'), { textContent: error })));
     errorsBox.classList.toggle('check--ok', errors.length === 0);
   }
@@ -510,8 +526,7 @@ const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.l
     if (!(event.target as Element).closest('.editor, .images, .tag-entry')) update();
   });
 
-  field('#clear').addEventListener('click', () => {
-    if (!confirm('Wyczyścić szkic? Tytuł, treść, zdjęcia i tagi znikną. Autor zostanie.')) return;
+  function clearDraft() {
     storage.set(DRAFT_KEY, null);
     const savedAuthor = author.value;
     form.reset();
@@ -522,18 +537,32 @@ const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.l
     tags = [];
     renderTags();
     editor.commands.clearContent(true);
+  }
+
+  field('#clear').addEventListener('click', () => {
+    if (!confirm('Wyczyścić szkic? Tytuł, treść, zdjęcia i tagi znikną. Autor zostanie.')) return;
+    clearDraft();
     status.textContent = 'Szkic wyczyszczony.';
   });
 
-  field('#download').addEventListener('click', async () => {
+  function showErrors(errors: string[], message: string) {
+    renderErrors(errors);
+    status.textContent = message;
+    errorsBox.focus();
+  }
+
+  // Szkic gotowy do wysłania albo null, gdy ma błędy (wtedy lista błędów dostaje focus).
+  function finishedDraft(): Draft | null {
     const draft = readDraft();
     const errors = validateDraft(draft, existingSlugs);
-    if (errors.length) {
-      renderErrors(errors);
-      status.textContent = 'Wpis ma błędy, popraw je według listy powyżej.';
-      errorsBox.focus();
-      return;
-    }
+    if (!errors.length) return draft;
+    showErrors(errors, 'Wpis ma błędy, popraw je według listy powyżej.');
+    return null;
+  }
+
+  field('#download').addEventListener('click', async () => {
+    const draft = finishedDraft();
+    if (!draft) return;
     const post = buildPost(draft, { today: new Date(), existingSlugs });
     const files: Zippable = { [`${post.slug}/index.md`]: strToU8(post.markdown) };
     for (const [index, file] of post.files.entries()) {
@@ -554,8 +583,97 @@ const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.l
         : '');
   });
 
+  // Publikacja przez API (services/api). Logowanie przez GitHub ustawia ciasteczko sesji na adresie API,
+  // dlatego każde zapytanie idzie z credentials: 'include'.
+  const api = (path: string, init: RequestInit = {}) => fetch(`${apiUrl}${path}`, { credentials: 'include', ...init });
+
+  async function checkLogin() {
+    const text = document.querySelector('#account-text')!;
+    const login = document.querySelector<HTMLAnchorElement>('#login')!;
+    const logout = document.querySelector<HTMLButtonElement>('#logout')!;
+    let response: Response;
+    try {
+      response = await api('/me');
+    } catch {
+      text.textContent = 'Serwer publikacji nie odpowiada. Możesz pobrać wpis i wysłać go adminowi strony.';
+      return;
+    }
+    const body = await response.json().catch(() => ({}));
+    login.hidden = response.status !== 401;
+    // Konto spoza redakcji też może się wylogować, np. żeby zalogować się innym.
+    logout.hidden = response.status !== 200 && response.status !== 403;
+    publishButton!.hidden = !response.ok;
+    if (response.ok) {
+      text.textContent = `Zalogowano jako ${body.name} (${body.login}).`;
+      if (!author.value.trim()) {
+        author.value = body.name;
+        update();
+      }
+    } else if (response.status === 401) {
+      text.textContent = 'Zaloguj się, żeby opublikować wpis. Najlepiej przed dodaniem zdjęć: zdjęcia nie zapisują się w szkicu.';
+    } else {
+      text.textContent = body.error ?? `Nie udało się sprawdzić logowania (błąd ${response.status}).`;
+    }
+  }
+
+  function showPublished({ postUrl, prUrl, autoMerge }: { postUrl: string; prUrl: string; autoMerge: boolean }) {
+    const link = (href: string, textContent: string) => Object.assign(document.createElement('a'), { href, textContent });
+    status.replaceChildren(
+      autoMerge
+        ? 'Gotowe! Wpis pojawi się na stronie za kilka minut, gdy przejdzie automatyczne sprawdzenie: '
+        : 'Gotowe! Wpis czeka na akceptację admina redakcji, potem pojawi się pod adresem ',
+      link(postUrl, postUrl.replace(/^https?:\/\//, '')),
+      '. Postęp widać w ',
+      link(prUrl, 'Pull Requeście na GitHubie'),
+      '.',
+    );
+  }
+
+  publishButton?.addEventListener('click', async () => {
+    const draft = finishedDraft();
+    if (!draft) return;
+    const { images: _, ...fields } = draft;
+    const data = new FormData();
+    data.set('wpis', JSON.stringify({ ...fields, alts: draft.images.map((image) => image.alt) }));
+    images.forEach(({ file }) => data.append('zdjecia', file));
+
+    publishButton.disabled = true;
+    status.textContent = 'Publikuję…';
+    try {
+      const response = await api('/wpisy', { method: 'POST', body: data });
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 201) {
+        clearDraft();
+        showPublished(body);
+        return;
+      }
+      if (response.status === 401) await checkLogin();
+      if (body.errors) showErrors(body.errors, 'Serwer nie przyjął wpisu, popraw go według listy powyżej.');
+      else status.textContent = body.error ?? `Nie udało się opublikować (błąd ${response.status}). Szkic jest zapisany w przeglądarce.`;
+    } catch {
+      status.textContent = 'Nie udało się połączyć z serwerem publikacji. Sprawdź internet i spróbuj ponownie. Szkic jest zapisany w przeglądarce, możesz też pobrać wpis.';
+    } finally {
+      publishButton.disabled = false;
+    }
+  });
+
+  document.querySelector('#logout')?.addEventListener('click', async () => {
+    await api('/auth/logout', { method: 'POST' }).catch(() => {});
+    await checkLogin();
+  });
+
   renderTags();
   update();
+  if (apiUrl) {
+    // Powrót z GitHuba po nieudanym logowaniu (services/api, /auth/callback).
+    const url = new URL(location.href);
+    if (url.searchParams.get('logowanie') === 'blad') {
+      status.textContent = 'Logowanie przez GitHub się nie udało. Spróbuj jeszcze raz.';
+      url.searchParams.delete('logowanie');
+      history.replaceState(null, '', url);
+    }
+    checkLogin();
+  }
 </script>
 
 <style>
@@ -651,6 +769,12 @@ const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.l
   .check__title { margin: 0; font-size: 17px; }
   .check ul { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 1.5; }
   .check--ok ul { display: none; }
+
+  .button[hidden] { display: none; }
+
+  .account { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 32px; padding: 16px 20px; border-radius: var(--radius-md); background: var(--section); }
+  .account__text { flex: 1 1 260px; margin: 0; font-size: 15px; line-height: 1.5; }
+  a.button { text-decoration: none; }
 
   .actions { display: flex; flex-wrap: wrap; gap: 12px; }
   .status { font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
