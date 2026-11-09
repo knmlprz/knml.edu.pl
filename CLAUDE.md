@@ -20,12 +20,15 @@ knml.edu.pl/                 jedno repo, jeden .git (tylko tutaj)
 ├── .github/workflows/          deploy.yml (publikacja Astro), ci.yml (check + build przy PR)
 ├── CNAME                        domena knml.edu.pl
 ├── CLAUDE.md                    ten plik
+├── .dockerignore                co trafia do obrazu API (budowanego z katalogu głównego)
 ├── old-website/                 stara strona Hugo, TYLKO DO ODCZYTU
-└── new-website/                 nowa strona Astro, tu pracujesz
-    └── design/                  wzorzec: index.html, assets/ (nie trafia do builda)
+├── new-website/                 nowa strona Astro, tu pracujesz
+│   └── design/                  wzorzec: index.html, assets/ (nie trafia do builda)
+├── services/api/                API publikacji wpisów z kreatora (Node 22 + Hono, Docker)
+└── docs/                        plan-kreator.md, adr/ (decyzje)
 ```
 
-- Wszystkie komendy `npm` uruchamiaj w `new-website/` (`cd new-website`).
+- Komendy `npm` strony uruchamiaj w `new-website/` (`cd new-website`), API w `services/api/`.
 - `old-website/` służy tylko jako źródło treści. Nie zmieniaj tam niczego i niczego nie usuwaj.
 - Pracujemy na gałęzi **`przebudowastrony`**. **Nigdy** nie pushuj ani nie merguj do `main`.
   Merge do `main` robi człowiek po testach, gdy nowa strona jest gotowa.
@@ -43,7 +46,13 @@ knml.edu.pl/                 jedno repo, jeden .git (tylko tutaj)
   `check` i `build` przy każdym PR i pushu na `przebudowastrony`, bez publikacji.
   Stary `hugo.yml` usunięty (stara strona zostaje w `old-website/` i w historii gita).
   Gałąź `przebudowastrony` się nie publikuje. Domena bez zmian.
-- **Później:** serwer koła + backend (patrz niżej). Szczegóły serwera: **TODO, zarząd koła.**
+- **Strona zostaje statyczna** na GitHub Pages, także po uruchomieniu API.
+- **API publikacji** (`services/api/`) działa osobno na serwerze koła pod `api.knml.edu.pl`
+  (kontener z `services/api/Dockerfile`, `podman compose up`). Dziś tylko lokalnie (faza 4
+  z `docs/plan-kreator.md`); uruchomienie na serwerze to faza 5, lista kroków w
+  `services/api/README.md`. Szczegóły serwera: **TODO, zarząd koła.**
+- Strona zna API tylko przez `PUBLIC_API_URL` przy buildzie. Bez niej kreator ma tylko
+  „Pobierz wpis”.
 - W `astro.config.mjs`: `site: 'https://knml.edu.pl'`, bez `base`.
 
 ## Zasady pisania kodu (najważniejsze)
@@ -61,8 +70,9 @@ knml.edu.pl/                 jedno repo, jeden .git (tylko tutaj)
    definiujemy raz (token CSS albo `src/data/site.ts`) i tylko się do niego odwołujemy.
 6. **Nie wymyślaj treści.** Brakujące dane zostawiaj jako widoczny placeholder `[TAK JAK TU]`
    i dopisz je do `TODO.md` w `new-website/`.
-7. **Każdy nowy tekst interfejsu dodajesz do `src/i18n/pl.ts` i `src/i18n/en.ts`** (ten sam klucz),
+7. **Teksty stron publicznych dodajesz do `src/i18n/pl.ts` i `src/i18n/en.ts`** (ten sam klucz),
    w komponencie tylko `t(locale, 'klucz')`. Brak klucza w `en.ts` zatrzymuje `npm run check`.
+   `/redakcja/` jest tylko po polsku i ma teksty w swoim pliku (`src/pages/redakcja/index.astro`).
 
 ## Kolory i style: tylko tokeny
 
@@ -116,16 +126,27 @@ src/
   polami tekstowymi. Brakujące pole strona EN pokazuje po polsku (`localizeEntry()` z `src/i18n/`, wołane w `src/lib/`).
 - Nazwa „Koło Naukowe Machine Learning” i skrót KNML się nie tłumaczą. Angielski: en-GB.
 
-## Backend (przyszłość)
+## Backend: API publikacji (`services/api/`)
 
-Z czasem: TinaCMS do dodawania postów (każdy nowicjusz ma umieć dodać wpis), formularz
-kontaktowy, automatyczne posty na social media z nowych wpisów. Dlatego:
+Wpisy dodaje się kreatorem `/redakcja/` (zamiast TinaCMS, `docs/adr/0003-kreator-zamiast-tiny.md`).
+„Opublikuj” wysyła wpis do API, które przez GitHub App tworzy gałąź `wpis/<login>/<adres>`,
+commit i PR z auto-merge po zielonym CI (`docs/adr/0004-api-publikacji.md`). Zasady:
 
-- **Teraz:** `output: 'static'`, czysty HTML. **Nie instaluj teraz TinaCMS.**
-- **Później:** adapter `@astrojs/node` i trasy API w `src/pages/api/`.
-- **Cały dostęp do danych przez `src/lib/`** (`getLatestPosts()`, `getAchievements()`).
-  Dziś czytają Content Collections, jutro API albo bazę, a komponenty się nie zmienią.
-- Sekrety tylko w `.env` (w `.gitignore`); `.env.example` z opisem.
+- **Strona:** `output: 'static'`, czysty HTML. Bez adaptera `@astrojs/node` i bez tras API
+  w `new-website/src/pages/api/`: serwerowy kod jest tylko w `services/api/`.
+- **Logika wpisów tylko w `new-website/src/config/zasady-wpisow.ts` i `new-website/src/redakcja/wpis.ts`.**
+  API je importuje, nie kopiuje. Nowa zasada albo zmiana pliku wpisu = zmiana tam, nie w API.
+  Te pliki nie mogą importować niczego z Astro ani z przeglądarki (używa ich też Node).
+- **Sekrety tylko w `.env`** (`services/api/.env`, `new-website/.env`, oba w `.gitignore`, poza
+  obrazem Docker przez `.dockerignore`). Każda nowa zmienna trafia do `.env.example` z opisem.
+  Klucze `.pem` nigdy do repo. W kodzie i testach żadnych prawdziwych tokenów.
+- **Dostęp:** zespół `redakcja-strony` w `knmlprz`, sprawdzany przy każdym żądaniu;
+  maintainerzy zespołu = admini. Bez bazy danych, sesja w podpisanym ciasteczku.
+- **Testy API bez internetu:** udawany GitHub w `services/api/test/mock-github.ts`. Testy HEIC
+  wymagają `heif-dec`, więc w pełni przechodzą w kontenerze (zadanie `api` w `ci.yml`).
+- Akceptacja admina zamiast auto-merge: `REQUIRES_ADMIN_APPROVAL` w `zasady-wpisow.ts`.
+- **Cały dostęp do danych strony przez `src/lib/`** (`getLatestPosts()`, `getAchievements()`).
+  Dziś czytają Content Collections, a komponenty nie wiedzą, skąd są dane.
 
 ## Treść i migracja z Hugo
 
@@ -168,6 +189,15 @@ npm install
 npm run dev      # podgląd lokalny: http://localhost:4321
 npm run check    # typy i schematy treści
 npm run build    # build produkcyjny do dist/
+```
+
+API (w `services/api/`, szczegóły w `services/api/README.md`):
+
+```bash
+npm run check && npm test   # typy i Vitest (HEIC pominięte bez heif-dec)
+npm run test:e2e            # kreator + API z udawanym GitHubem (Playwright)
+npm run dev:mock            # API z udawanym GitHubem do klikania kreatora
+podman compose up --build   # kontener jak na serwerze (docker compose też działa)
 ```
 
 Stara strona (z katalogu głównego): `hugo server --source old-website`.

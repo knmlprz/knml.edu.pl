@@ -39,3 +39,23 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Testy w przeglądarce (Playwright)
         run: npx playwright test
+      - name: Zainstaluj zależności API publikacji
+        working-directory: services/api
+        run: npm ci
+      - name: Test publikacji z kreatora (API z udawanym GitHubem, Playwright)
+        working-directory: services/api
+        run: node build.mjs test/e2e-server.ts && npx playwright test
+
+  # API publikacji wpisów (services/api) w tym samym obrazie co na serwerze, bo tylko tam jest
+  # heif-dec do zdjęć HEIC. W kontenerze testy HEIC nie mogą się pominąć.
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobierz kod
+        uses: actions/checkout@v7
+      - name: Zbuduj obraz testowy API
+        run: docker build --target test -t knml-api-test -f services/api/Dockerfile .
+      - name: Sprawdź typy i uruchom testy API (Vitest, z HEIC)
+        run: docker run --rm knml-api-test
+      - name: Zbuduj obraz produkcyjny API
+        run: docker build -t knml-api -f services/api/Dockerfile .

@@ -6,7 +6,7 @@ export default defineConfig({
     alias: { 'astro:content': new URL('./test/astro-content.ts', import.meta.url).pathname },
   },
   test: {
-    include: ['test/lib/**/*.test.ts'],
+    include: ['test/lib/**/*.test.ts', 'test/redakcja/**/*.test.ts'],
     // Daty formatujemy w strefie czasowej maszyny, więc ustalamy ją, żeby testy dawały ten sam wynik wszędzie.
     env: { TZ: 'Europe/Warsaw' },
   },

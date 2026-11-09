@@ -9,6 +9,11 @@ export async function getPosts(): Promise<Post[]> {
   return posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
+// Nazwy folderów wszystkich wpisów, także szkiców (draft): kreator nie może nadać nowemu wpisowi zajętego adresu.
+export async function getPostSlugs(): Promise<string[]> {
+  return (await getCollection('blog')).map((post) => post.id);
+}
+
 export interface TagGroup {
   slug: string;
   name: string;

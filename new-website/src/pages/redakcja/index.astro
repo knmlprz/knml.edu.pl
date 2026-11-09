@@ -1,0 +1,794 @@
+---
+// Kreator wpisów (docs/plan-kreator.md): formularz, podgląd i szkic w przeglądarce.
+// Z adresem API publikacji (PUBLIC_API_URL, usługa services/api) dochodzi logowanie przez GitHub
+// i „Opublikuj”. „Pobierz wpis” (paczka .zip z folderem wpisu) zostaje jako zapas.
+// Strona tylko po polsku, poza menu i sitemapą, z noindex. Logika wpisu: src/redakcja/.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import PostTile from '../../components/PostTile.astro';
+import Tag from '../../components/ui/Tag.astro';
+import { MAX_EXCERPT_LENGTH, MAX_TAG_LENGTH, MAX_TAGS, POST_CATEGORIES } from '../../config/zasady-wpisow';
+import { t } from '../../i18n';
+import { getPostSlugs, getTags } from '../../lib/posts';
+import '../../styles/post.css';
+
+// Pusty adres: strona bez publikacji, tylko „Pobierz wpis” (np. gdy serwer koła jeszcze nie działa).
+const apiUrl: string = import.meta.env.PUBLIC_API_URL ?? '';
+const existingSlugs = await getPostSlugs();
+// Podpowiedzi tagów: tagi z opublikowanych wpisów, od najczęściej używanego.
+const existingTags = (await getTags()).sort((a, b) => b.posts.length - a.posts.length).map((tag) => tag.name);
+---
+
+<BaseLayout title="Redakcja: nowy wpis - KNML" description="Kreator wpisów na blog KNML." noindex>
+  <div class="container redakcja">
+    <h1 class="redakcja__title">Nowy wpis</h1>
+    <p class="redakcja__lead">
+      Wypełnij pola, sprawdź podgląd pod formularzem i {apiUrl ? 'opublikuj' : 'pobierz'} wpis. Szkic zapisuje się sam w tej przeglądarce.
+    </p>
+
+    {apiUrl && (
+      <div id="account" class="account" data-api-url={apiUrl}>
+        <p id="account-text" class="account__text">Sprawdzam logowanie…</p>
+        <a id="login" class="button" href={`${apiUrl}/auth/login`} hidden>Zaloguj się przez GitHub</a>
+        <button type="button" id="logout" class="button" hidden>Wyloguj</button>
+      </div>
+    )}
+
+    <form id="kreator" class="form" novalidate data-existing-slugs={JSON.stringify(existingSlugs)} data-existing-tags={JSON.stringify(existingTags)}>
+      <div class="field">
+        <label for="title">Tytuł</label>
+        <input id="title" name="title" type="text" autocomplete="off" />
+        <p class="field__hint">Adres wpisu: <output id="slug">knml.edu.pl/blog/nowy-wpis/</output></p>
+      </div>
+
+      <fieldset class="field">
+        <legend>Kategoria</legend>
+        <div class="choices">
+          {POST_CATEGORIES.map((category, index) => (
+            <label class="choice">
+              <input type="radio" name="category" value={category} checked={index === 0} data-label={t('pl', `category.${category}`)} />
+              {t('pl', `category.${category}`)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="author">Autor</label>
+        <input id="author" name="author" type="text" autocomplete="name" />
+        <p class="field__hint">Np. „Jan Kowalski” albo „J. Kowalski, A. Nowak”. Ta przeglądarka zapamięta autora.</p>
+      </div>
+
+      <div class="field">
+        <span class="field__label" id="body-label">Treść</span>
+        <div class="toolbar" role="toolbar" aria-label="Formatowanie treści" aria-controls="body-editor">
+          <button type="button" class="toolbar__button" data-format="bold" aria-pressed="false"><b>B</b><span class="sr-only"> Pogrubienie</span></button>
+          <button type="button" class="toolbar__button" data-format="heading" aria-pressed="false">Nagłówek</button>
+          <button type="button" class="toolbar__button" data-format="bulletList" aria-pressed="false">Lista</button>
+          <button type="button" class="toolbar__button" data-format="link" aria-pressed="false">Link</button>
+        </div>
+        <div id="body-editor" class="editor"></div>
+        <p class="field__hint">Wklejony tekst traci kolory, czcionki i tabele: wygląd wpisu ustala strona.</p>
+      </div>
+
+      <fieldset class="field">
+        <legend>Zdjęcia</legend>
+        <p class="field__hint">Pierwsze zdjęcie to okładka, pozostałe pojawią się na końcu wpisu w tej kolejności. Zdjęcia nie zapisują się w szkicu.</p>
+        <label class="dropzone" id="dropzone">
+          <input id="images" type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" class="sr-only" />
+          <span>Wybierz zdjęcia albo przeciągnij je tutaj</span>
+        </label>
+        <ol id="image-list" class="images"></ol>
+        <template id="image-item">
+          <li class="image">
+            <div class="image__thumb"></div>
+            <div class="image__body">
+              <p class="image__name"><span class="image__cover">Okładka</span> <span data-name></span></p>
+              <label class="image__alt-label">Opis zdjęcia (co na nim widać)</label>
+              <input class="image__alt" type="text" />
+              <div class="image__actions">
+                <button type="button" class="button button--small" data-action="up">↑<span class="sr-only"> Przesuń wyżej</span></button>
+                <button type="button" class="button button--small" data-action="down">↓<span class="sr-only"> Przesuń niżej</span></button>
+                <button type="button" class="button button--small" data-action="remove">Usuń</button>
+              </div>
+            </div>
+          </li>
+        </template>
+      </fieldset>
+
+      <div class="field">
+        <label for="tag-input">Tagi (opcjonalnie)</label>
+        <p class="field__hint" id="tags-hint">
+          Wpisz tag i wybierz podpowiedź albo dodaj nowy. Najwyżej {MAX_TAGS} tagów, każdy do {MAX_TAG_LENGTH} znaków.
+        </p>
+        <ul id="selected-tags" class="chips" aria-label="Wybrane tagi"></ul>
+        <div class="tag-entry">
+          <input id="tag-input" type="text" autocomplete="off" autocapitalize="none" enterkeyhint="done" maxlength={MAX_TAG_LENGTH} aria-describedby="tags-hint" aria-controls="tag-suggestions" />
+          <button type="button" id="tag-add" class="button">Dodaj</button>
+        </div>
+        <ul id="tag-suggestions" class="suggestions" aria-label="Podpowiedzi tagów"></ul>
+        <template id="tag-chip">
+          <li class="chip"><span data-tag></span><span class="badge">nowy</span><button type="button" class="chip__remove">×<span class="sr-only"></span></button></li>
+        </template>
+        <template id="tag-suggestion">
+          <li><button type="button" class="suggestion"><span data-tag></span><span class="badge">nowy</span></button></li>
+        </template>
+      </div>
+
+      <div class="field">
+        <label for="excerpt">Zajawka (opcjonalnie)</label>
+        <textarea id="excerpt" name="excerpt" rows="3" aria-describedby="excerpt-hint excerpt-count"></textarea>
+        <p class="field__hint" id="excerpt-hint">
+          1-2 zdania widoczne na dużym kafelku najnowszego wpisu na stronie głównej, w Google i w podglądzie
+          linku na Discordzie/Facebooku. Jeśli zostawisz puste, Google i podgląd linku pokażą początek tekstu,
+          a kafelek sam tytuł.
+        </p>
+        <p class="field__hint counter" id="excerpt-count" data-max={MAX_EXCERPT_LENGTH}></p>
+      </div>
+
+      <div class="field">
+        <label for="githubLink">Link do kodu na GitHubie (opcjonalnie)</label>
+        <input id="githubLink" name="githubLink" type="url" inputmode="url" placeholder="https://github.com/knmlprz/..." />
+      </div>
+
+      <div id="errors" class="check" tabindex="-1">
+        <h2 class="check__title" data-title>Do poprawienia przed {apiUrl ? 'publikacją' : 'pobraniem'}</h2>
+        <ul data-list></ul>
+      </div>
+
+      <div class="actions">
+        {apiUrl && <button type="button" id="publish" class="button button--primary" hidden>Opublikuj</button>}
+        <button type="button" id="download" class={apiUrl ? 'button' : 'button button--primary'}>Pobierz wpis</button>
+        <button type="button" id="clear" class="button">Wyczyść szkic</button>
+      </div>
+      <div id="status" class="status" role="status"></div>
+    </form>
+  </div>
+
+  <section id="podglad" class="preview" aria-labelledby="podglad-title">
+    <div class="container">
+      <h2 id="podglad-title" class="preview__title">Podgląd</h2>
+      <p class="field__hint">Tak wpis będzie wyglądał na stronie. Na telefonie zobaczysz wersję na telefon.</p>
+    </div>
+    <!-- Ten sam układ i te same klasy co src/pages/blog/[...slug].astro (style: src/styles/post.css). -->
+    <article class="container article">
+      <header class="article__head">
+        <p class="article__meta">
+          <Tag variant="accent"><span data-preview="category"></span></Tag>
+          <time data-preview="date"></time>
+          <span data-preview="author"></span>
+        </p>
+        <h1 class="article__title" data-preview="title"></h1>
+        <ul class="article__tags" aria-label="Tagi" data-preview="tags"></ul>
+      </header>
+      <div data-preview="cover"></div>
+      <div class="prose" data-preview="body"></div>
+      <p class="article__github" data-preview="github" hidden><a>Kod na GitHubie ↗</a></p>
+    </article>
+    <!-- Te same komponenty co lista /blog/ (PostGrid) i sekcja wpisów na stronie głównej (LatestPosts). -->
+    <div class="container preview__tiles">
+      <div>
+        <h3 class="preview__subtitle">Karta na liście wpisów (/blog/, strony tagów)</h3>
+        <div class="preview__card" data-preview="card">
+          <PostCard category="-" dateLabel="-" title="-" />
+        </div>
+      </div>
+      <div>
+        <h3 class="preview__subtitle">Kafelek na stronie głównej, gdy wpis jest najnowszy</h3>
+        <div class="preview__tile" data-preview="tile">
+          <PostTile variant="lead" category="-" dateLabel="-" title="-" excerpt="-" />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { strToU8, zipSync, type Zippable } from 'fflate';
+  import { marked } from 'marked';
+  import { createEditor } from '../../redakcja/edytor';
+  import { MAX_TAGS, normalizeTag } from '../../config/zasady-wpisow';
+  import { buildPost, suggestTags, validateDraft, type Draft } from '../../redakcja/wpis';
+
+  const DRAFT_KEY = 'knml-redakcja-szkic';
+  const AUTHOR_KEY = 'knml-redakcja-autor';
+
+  type ImageEntry = { file: File; url: string; alt: string };
+
+  const form = document.querySelector<HTMLFormElement>('#kreator')!;
+  const existingSlugs: string[] = JSON.parse(form.dataset.existingSlugs!);
+  const existingTags: string[] = JSON.parse(form.dataset.existingTags!);
+  const field = <Element extends HTMLElement>(selector: string) => form.querySelector<Element>(selector)!;
+  const title = field<HTMLInputElement>('#title');
+  const author = field<HTMLInputElement>('#author');
+  const excerpt = field<HTMLTextAreaElement>('#excerpt');
+  const githubLink = field<HTMLInputElement>('#githubLink');
+  const imageInput = field<HTMLInputElement>('#images');
+  const dropzone = field<HTMLLabelElement>('#dropzone');
+  const imageList = field<HTMLOListElement>('#image-list');
+  const imageTemplate = field<HTMLTemplateElement>('#image-item');
+  const errorsBox = field<HTMLDivElement>('#errors');
+  const status = field<HTMLDivElement>('#status');
+  const tagInput = field<HTMLInputElement>('#tag-input');
+  const excerptCount = field<HTMLParagraphElement>('#excerpt-count');
+  const preview = (name: string) => document.querySelector<HTMLElement>(`[data-preview="${name}"]`)!;
+  const apiUrl = document.querySelector<HTMLElement>('#account')?.dataset.apiUrl ?? '';
+  const publishButton = form.querySelector<HTMLButtonElement>('#publish');
+
+  let images: ImageEntry[] = [];
+  let body = '';
+  let tags: string[] = [];
+
+  // Przeglądarka może zablokować localStorage (tryb prywatny), wtedy kreator działa bez szkicu.
+  const storage = {
+    get: (key: string) => {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    set: (key: string, value: string | null) => {
+      try {
+        if (value === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, value);
+      } catch {}
+    },
+  };
+
+  const isHeic = (file: File) => /\.(heic|heif)$/i.test(file.name) || /image\/hei[cf]/.test(file.type);
+
+  function readDraft(): Draft {
+    return {
+      title: title.value,
+      category: form.querySelector<HTMLInputElement>('[name="category"]:checked')!.value as Draft['category'],
+      author: author.value,
+      body,
+      tags: [...tags],
+      excerpt: excerpt.value,
+      githubLink: githubLink.value,
+      images: images.map(({ file, alt }) => ({ name: file.name, size: file.size, alt })),
+    };
+  }
+
+  function saveDraft(draft: Draft) {
+    const { images: _, author: __, ...text } = draft;
+    storage.set(DRAFT_KEY, JSON.stringify(text));
+    storage.set(AUTHOR_KEY, draft.author);
+  }
+
+  function loadDraft() {
+    author.value = storage.get(AUTHOR_KEY) ?? '';
+    const saved = JSON.parse(storage.get(DRAFT_KEY) ?? 'null') as Partial<Draft> | null;
+    if (!saved) return;
+    title.value = saved.title ?? '';
+    excerpt.value = saved.excerpt ?? '';
+    githubLink.value = saved.githubLink ?? '';
+    body = saved.body ?? '';
+    form.querySelectorAll<HTMLInputElement>('[name="category"]').forEach((input) => (input.checked = input.value === saved.category));
+    if (!form.querySelector('[name="category"]:checked')) form.querySelector<HTMLInputElement>('[name="category"]')!.checked = true;
+    tags = saved.tags ?? [];
+  }
+
+  // Zamiast zdjęcia HEIC (większość przeglądarek go nie pokaże). Serwer zamieni je na JPG.
+  function heicTile(extraClass = '') {
+    const tile = document.createElement('div');
+    tile.className = `placeholder heic-tile ${extraClass}`;
+    tile.textContent = 'Zdjęcie HEIC: podgląd po publikacji';
+    return tile;
+  }
+
+  function renderImages() {
+    imageList.replaceChildren(
+      ...images.map((image, index) => {
+        const item = imageTemplate.content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+        const thumb = item.querySelector('.image__thumb')!;
+        if (isHeic(image.file)) thumb.append(heicTile());
+        else thumb.append(Object.assign(document.createElement('img'), { src: image.url, alt: '' }));
+        item.querySelector('.image__cover')!.toggleAttribute('hidden', index > 0);
+        item.querySelector('[data-name]')!.textContent = image.file.name;
+        const alt = item.querySelector<HTMLInputElement>('.image__alt')!;
+        alt.id = `alt-${index}`;
+        alt.value = image.alt;
+        alt.addEventListener('input', () => {
+          image.alt = alt.value;
+          update();
+        });
+        item.querySelector('label')!.htmlFor = alt.id;
+        item.querySelectorAll<HTMLButtonElement>('[data-action]').forEach((button) => {
+          button.dataset.index = String(index);
+          const action = button.dataset.action;
+          if (action === 'up') button.disabled = index === 0;
+          if (action === 'down') button.disabled = index === images.length - 1;
+          button.querySelector('.sr-only')?.prepend(`Zdjęcie ${index + 1}: `);
+        });
+        return item;
+      }),
+    );
+  }
+
+  function addImages(files: Iterable<File>) {
+    const skipped: string[] = [];
+    for (const file of files) {
+      if (file.type.startsWith('image/') || isHeic(file)) images.push({ file, url: URL.createObjectURL(file), alt: '' });
+      else skipped.push(file.name);
+    }
+    status.textContent = skipped.length ? `Pominięto pliki, które nie są zdjęciami: ${skipped.join(', ')}.` : '';
+    renderImages();
+    update();
+  }
+
+  imageList.addEventListener('click', (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>('[data-action]');
+    if (!button) return;
+    const index = Number(button.dataset.index);
+    const action = button.dataset.action;
+    if (action === 'remove') {
+      URL.revokeObjectURL(images[index].url);
+      images.splice(index, 1);
+    } else {
+      const target = action === 'up' ? index - 1 : index + 1;
+      [images[index], images[target]] = [images[target], images[index]];
+    }
+    renderImages();
+    update();
+    // Po przebudowie listy focus wraca w to samo miejsce, żeby można było przesuwać dalej z klawiatury.
+    const nextIndex = action === 'remove' ? Math.min(index, images.length - 1) : action === 'up' ? index - 1 : index + 1;
+    const nextButton = imageList.querySelector<HTMLButtonElement>(`[data-index="${nextIndex}"][data-action="${action === 'remove' ? 'remove' : action}"]:not(:disabled)`);
+    (nextButton ?? imageList.querySelector<HTMLButtonElement>(`[data-index="${nextIndex}"][data-action]:not(:disabled)`) ?? imageInput).focus();
+  });
+
+  imageInput.addEventListener('change', () => {
+    addImages(imageInput.files ?? []);
+    imageInput.value = '';
+  });
+  dropzone.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    dropzone.classList.add('dropzone--over');
+  });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dropzone--over'));
+  dropzone.addEventListener('drop', (event) => {
+    event.preventDefault();
+    dropzone.classList.remove('dropzone--over');
+    addImages(event.dataTransfer?.files ?? []);
+  });
+
+  // Tagi: wybrane jako „chipy” z przyciskiem usuwania, pod polem podpowiedzi z istniejących wpisów.
+  // Tag spoza istniejących ma etykietę „nowy”, żeby autor widział, że tworzy nową stronę /tags/…/.
+  function fillTag(element: Element, tag: string) {
+    element.querySelector('[data-tag]')!.textContent = `#${tag}`;
+    element.querySelector('.badge')!.toggleAttribute('hidden', existingTags.includes(tag));
+  }
+
+  function renderTags() {
+    field('#selected-tags').replaceChildren(
+      ...tags.map((tag) => {
+        const chip = field<HTMLTemplateElement>('#tag-chip').content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+        fillTag(chip, tag);
+        const remove = chip.querySelector<HTMLButtonElement>('.chip__remove')!;
+        remove.querySelector('.sr-only')!.textContent = ` Usuń tag ${tag}`;
+        remove.addEventListener('click', () => {
+          tags = tags.filter((selected) => selected !== tag);
+          renderTags();
+          update();
+          tagInput.focus();
+        });
+        return chip;
+      }),
+    );
+
+    const typed = tagInput.value.trim() ? normalizeTag(tagInput.value, existingTags) : '';
+    const isNew = typed && !existingTags.includes(typed) && !tags.includes(typed);
+    const full = tags.length >= MAX_TAGS;
+    tagInput.disabled = full;
+    field<HTMLButtonElement>('#tag-add').disabled = full;
+    // Nowy tag na końcu: niedokończone „hackath” nie może wyprzedzić istniejącego „hackathon”.
+    const suggestions = full ? [] : [...suggestTags(tagInput.value, existingTags, tags), ...(isNew ? [typed] : [])];
+    field('#tag-suggestions').replaceChildren(
+      ...suggestions.map((tag) => {
+        const item = field<HTMLTemplateElement>('#tag-suggestion').content.firstElementChild!.cloneNode(true) as HTMLLIElement;
+        fillTag(item, tag);
+        item.querySelector('button')!.addEventListener('click', () => addTag(tag));
+        return item;
+      }),
+    );
+  }
+
+  function addTag(input: string) {
+    const tag = normalizeTag(input, existingTags);
+    if (tag && !tags.includes(tag) && tags.length < MAX_TAGS) tags.push(tag);
+    tagInput.value = '';
+    renderTags();
+    update();
+    if (!tagInput.disabled) tagInput.focus();
+  }
+
+  tagInput.addEventListener('input', renderTags);
+  tagInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    addTag(tagInput.value);
+  });
+  field('#tag-add').addEventListener('click', () => addTag(tagInput.value));
+
+  // Okładka w kafelkach: to samo zdjęcie co w podglądzie wpisu. HEIC się nie wyświetli, wtedy zostaje tło.
+  function coverImage() {
+    const [cover] = images;
+    return cover && !isHeic(cover.file) ? [Object.assign(document.createElement('img'), { src: cover.url, alt: '' })] : [];
+  }
+
+  function renderPreview(draft: Draft, post: ReturnType<typeof buildPost>) {
+    preview('title').textContent = draft.title;
+    preview('category').textContent = form.querySelector<HTMLInputElement>('[name="category"]:checked')!.dataset.label!;
+    // Tak samo jak formatDate() w src/lib/posts.ts (tamtego pliku nie da się wczytać w przeglądarce).
+    preview('date').textContent = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    preview('author').textContent = draft.author;
+    preview('tags').replaceChildren(
+      ...draft.tags.map((tag) => {
+        const item = document.createElement('li');
+        item.append(Object.assign(document.createElement('a'), { textContent: `#${tag}` }));
+        return item;
+      }),
+    );
+    preview('tags').hidden = draft.tags.length === 0;
+
+    const [cover] = images;
+    if (!cover) preview('cover').replaceChildren();
+    else if (isHeic(cover.file)) preview('cover').replaceChildren(heicTile('article__cover'));
+    else preview('cover').replaceChildren(Object.assign(document.createElement('img'), { className: 'article__cover', src: cover.url, alt: cover.alt }));
+
+    // Treść pisze sam autor w swojej przeglądarce, więc wstawienie HTML z Markdowna jest bezpieczne.
+    preview('body').innerHTML = marked.parse(post.body, { async: false });
+    const urlByPath = new Map(post.files.map((file, index) => [file.postPath, images[index]]));
+    preview('body').querySelectorAll('img').forEach((img) => {
+      const image = urlByPath.get(img.getAttribute('src')!);
+      if (!image) return;
+      if (isHeic(image.file)) img.replaceWith(heicTile());
+      else img.src = image.url;
+    });
+
+    const card = preview('card');
+    const categoryLabel = preview('category').textContent!;
+    const dateLabel = preview('date').textContent!;
+    card.querySelector('.post__img')!.replaceChildren(...coverImage());
+    card.querySelector('.tag')!.textContent = categoryLabel;
+    card.querySelector('time')!.textContent = dateLabel;
+    card.querySelector('.post__title')!.textContent = draft.title;
+
+    const tile = preview('tile');
+    tile.querySelector('.tile > img')?.remove();
+    tile.querySelector('.tile')!.prepend(...coverImage());
+    tile.querySelector('.tag')!.textContent = categoryLabel;
+    tile.querySelector('time')!.textContent = dateLabel;
+    tile.querySelector('.tile__title')!.textContent = draft.title;
+    const tileExcerpt = tile.querySelector<HTMLElement>('.tile__excerpt')!;
+    tileExcerpt.textContent = draft.excerpt.trim();
+    tileExcerpt.hidden = !draft.excerpt.trim();
+
+    preview('github').hidden = !draft.githubLink.trim();
+    preview('github').querySelector('a')!.href = draft.githubLink.trim();
+  }
+
+  function renderErrors(errors: string[]) {
+    errorsBox.querySelector('[data-title]')!.textContent = errors.length
+      ? `Do poprawienia przed ${apiUrl ? 'publikacją' : 'pobraniem'}`
+      : `Wpis spełnia zasady. Możesz go ${apiUrl ? 'opublikować' : 'pobrać'}.`;
+    errorsBox.querySelector('[data-list]')!.replaceChildren(...errors.map((error) => Object.assign(document.createElement('li'), { textContent: error })));
+    errorsBox.classList.toggle('check--ok', errors.length === 0);
+  }
+
+  function update() {
+    const draft = readDraft();
+    const post = buildPost(draft, { today: new Date(), existingSlugs });
+    field<HTMLOutputElement>('#slug').textContent = `knml.edu.pl/blog/${post.slug}/`;
+    excerptCount.textContent = `${draft.excerpt.trim().length} / ${excerptCount.dataset.max} znaków`;
+    renderErrors(validateDraft(draft, existingSlugs));
+    renderPreview(draft, post);
+    saveDraft(draft);
+  }
+
+  loadDraft();
+  const editor = createEditor(
+    field('#body-editor'),
+    body,
+    (markdown) => {
+      body = markdown;
+      update();
+    },
+    { 'aria-labelledby': 'body-label', role: 'textbox', 'aria-multiline': 'true', class: 'editor__content prose' },
+  );
+
+  // Kliknięcie przycisku formatowania nie zabiera focusu edytorowi: tekst pisany zaraz po nim
+  // nie ginie, a na telefonie nie chowa się klawiatura.
+  field('.toolbar').addEventListener('mousedown', (event) => event.preventDefault());
+  const toolbarButtons = form.querySelectorAll<HTMLButtonElement>('[data-format]');
+  const isFormatActive = (format: string) => (format === 'heading' ? editor.isActive('heading', { level: 2 }) : editor.isActive(format));
+  editor.on('transaction', () => {
+    toolbarButtons.forEach((button) => button.setAttribute('aria-pressed', String(isFormatActive(button.dataset.format!))));
+  });
+  toolbarButtons.forEach((button) =>
+    button.addEventListener('click', () => {
+      const chain = editor.chain().focus();
+      const format = button.dataset.format;
+      if (format === 'bold') chain.toggleBold().run();
+      if (format === 'heading') chain.toggleHeading({ level: 2 }).run();
+      if (format === 'bulletList') chain.toggleBulletList().run();
+      if (format !== 'link') return;
+      if (editor.isActive('link')) return chain.unsetLink().run();
+      const href = prompt('Adres linku, np. https://knml.edu.pl/')?.trim();
+      if (!href) return;
+      if (editor.state.selection.empty) chain.insertContent({ type: 'text', text: href, marks: [{ type: 'link', attrs: { href } }] }).run();
+      else chain.setLink({ href }).run();
+    }),
+  );
+
+  form.addEventListener('input', (event) => {
+    if (!(event.target as Element).closest('.editor, .images, .tag-entry')) update();
+  });
+
+  function clearDraft() {
+    storage.set(DRAFT_KEY, null);
+    const savedAuthor = author.value;
+    form.reset();
+    author.value = savedAuthor;
+    images.forEach((image) => URL.revokeObjectURL(image.url));
+    images = [];
+    renderImages();
+    tags = [];
+    renderTags();
+    editor.commands.clearContent(true);
+  }
+
+  field('#clear').addEventListener('click', () => {
+    if (!confirm('Wyczyścić szkic? Tytuł, treść, zdjęcia i tagi znikną. Autor zostanie.')) return;
+    clearDraft();
+    status.textContent = 'Szkic wyczyszczony.';
+  });
+
+  function showErrors(errors: string[], message: string) {
+    renderErrors(errors);
+    status.textContent = message;
+    errorsBox.focus();
+  }
+
+  // Szkic gotowy do wysłania albo null, gdy ma błędy (wtedy lista błędów dostaje focus).
+  function finishedDraft(): Draft | null {
+    const draft = readDraft();
+    const errors = validateDraft(draft, existingSlugs);
+    if (!errors.length) return draft;
+    showErrors(errors, 'Wpis ma błędy, popraw je według listy powyżej.');
+    return null;
+  }
+
+  field('#download').addEventListener('click', async () => {
+    const draft = finishedDraft();
+    if (!draft) return;
+    const post = buildPost(draft, { today: new Date(), existingSlugs });
+    const files: Zippable = { [`${post.slug}/index.md`]: strToU8(post.markdown) };
+    for (const [index, file] of post.files.entries()) {
+      // Zdjęcia są już skompresowane, ponowna kompresja tylko spowolniłaby telefon.
+      files[`${post.slug}/${file.fileName}`] = [new Uint8Array(await images[index].file.arrayBuffer()), { level: 0 }];
+    }
+    const url = URL.createObjectURL(new Blob([zipSync(files)], { type: 'application/zip' }));
+    Object.assign(document.createElement('a'), { href: url, download: `${post.slug}.zip` }).click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+
+    const toConvert = post.files.filter((file) => file.needsConversion);
+    status.textContent =
+      `Pobrano ${post.slug}.zip. Rozpakuj folder ${post.slug} do new-website/src/content/blog/ i otwórz Pull Request (README, „Jak dodać wpis na blog”).` +
+      (toConvert.length
+        ? ` Uwaga: zdjęcia HEIC trzeba przed tym przekonwertować na JPG i zapisać pod nazwą, której używa wpis: ${toConvert
+            .map((file) => `${file.fileName} → ${file.postPath.slice(2)}`)
+            .join(', ')}.`
+        : '');
+  });
+
+  // Publikacja przez API (services/api). Logowanie przez GitHub ustawia ciasteczko sesji na adresie API,
+  // dlatego każde zapytanie idzie z credentials: 'include'.
+  const api = (path: string, init: RequestInit = {}) => fetch(`${apiUrl}${path}`, { credentials: 'include', ...init });
+
+  async function checkLogin() {
+    const text = document.querySelector('#account-text')!;
+    const login = document.querySelector<HTMLAnchorElement>('#login')!;
+    const logout = document.querySelector<HTMLButtonElement>('#logout')!;
+    let response: Response;
+    try {
+      response = await api('/me');
+    } catch {
+      text.textContent = 'Serwer publikacji nie odpowiada. Możesz pobrać wpis i wysłać go adminowi strony.';
+      return;
+    }
+    const body = await response.json().catch(() => ({}));
+    login.hidden = response.status !== 401;
+    // Konto spoza redakcji też może się wylogować, np. żeby zalogować się innym.
+    logout.hidden = response.status !== 200 && response.status !== 403;
+    publishButton!.hidden = !response.ok;
+    if (response.ok) {
+      text.textContent = `Zalogowano jako ${body.name} (${body.login}).`;
+      if (!author.value.trim()) {
+        author.value = body.name;
+        update();
+      }
+    } else if (response.status === 401) {
+      text.textContent = 'Zaloguj się, żeby opublikować wpis. Najlepiej przed dodaniem zdjęć: zdjęcia nie zapisują się w szkicu.';
+    } else {
+      text.textContent = body.error ?? `Nie udało się sprawdzić logowania (błąd ${response.status}).`;
+    }
+  }
+
+  function showPublished({ postUrl, prUrl, autoMerge }: { postUrl: string; prUrl: string; autoMerge: boolean }) {
+    const link = (href: string, textContent: string) => Object.assign(document.createElement('a'), { href, textContent });
+    status.replaceChildren(
+      autoMerge
+        ? 'Gotowe! Wpis pojawi się na stronie za kilka minut, gdy przejdzie automatyczne sprawdzenie: '
+        : 'Gotowe! Wpis czeka na akceptację admina redakcji, potem pojawi się pod adresem ',
+      link(postUrl, postUrl.replace(/^https?:\/\//, '')),
+      '. Postęp widać w ',
+      link(prUrl, 'Pull Requeście na GitHubie'),
+      '.',
+    );
+  }
+
+  publishButton?.addEventListener('click', async () => {
+    const draft = finishedDraft();
+    if (!draft) return;
+    const { images: _, ...fields } = draft;
+    const data = new FormData();
+    data.set('wpis', JSON.stringify({ ...fields, alts: draft.images.map((image) => image.alt) }));
+    images.forEach(({ file }) => data.append('zdjecia', file));
+
+    publishButton.disabled = true;
+    status.textContent = 'Publikuję…';
+    try {
+      const response = await api('/wpisy', { method: 'POST', body: data });
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 201) {
+        clearDraft();
+        showPublished(body);
+        return;
+      }
+      if (response.status === 401) await checkLogin();
+      if (body.errors) showErrors(body.errors, 'Serwer nie przyjął wpisu, popraw go według listy powyżej.');
+      else status.textContent = body.error ?? `Nie udało się opublikować (błąd ${response.status}). Szkic jest zapisany w przeglądarce.`;
+    } catch {
+      status.textContent = 'Nie udało się połączyć z serwerem publikacji. Sprawdź internet i spróbuj ponownie. Szkic jest zapisany w przeglądarce, możesz też pobrać wpis.';
+    } finally {
+      publishButton.disabled = false;
+    }
+  });
+
+  document.querySelector('#logout')?.addEventListener('click', async () => {
+    await api('/auth/logout', { method: 'POST' }).catch(() => {});
+    await checkLogin();
+  });
+
+  renderTags();
+  update();
+  if (apiUrl) {
+    // Powrót z GitHuba po nieudanym logowaniu (services/api, /auth/callback).
+    const url = new URL(location.href);
+    if (url.searchParams.get('logowanie') === 'blad') {
+      status.textContent = 'Logowanie przez GitHub się nie udało. Spróbuj jeszcze raz.';
+      url.searchParams.delete('logowanie');
+      history.replaceState(null, '', url);
+    }
+    checkLogin();
+  }
+</script>
+
+<style>
+  .redakcja { max-width: 820px; padding-block: 40px 24px; }
+  .redakcja__title { margin: 0 0 12px; font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 44px); font-weight: 500; letter-spacing: -0.03em; }
+  .redakcja__lead { margin: 0 0 32px; font-size: 17px; line-height: 1.6; color: var(--body); }
+
+  .form { display: flex; flex-direction: column; gap: 28px; }
+  .field { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+  .field > label, .field > legend, .field__label { font-weight: 600; font-size: 16px; padding: 0; margin-bottom: 0; }
+  .field > legend { margin-bottom: 8px; }
+  .field__hint { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+
+  input[type='text'], input[type='url'], textarea {
+    width: 100%; min-height: 48px; padding: 10px 14px;
+    font: inherit; font-size: 16px; color: var(--ink);
+    background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius-sm);
+  }
+  textarea { resize: vertical; }
+  input:focus-visible, textarea:focus-visible, .editor :global(.editor__content:focus-visible), .check:focus-visible {
+    outline: 2px solid var(--color-brand); outline-offset: 2px;
+  }
+
+  .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px;
+    border-radius: var(--radius-pill); background: var(--tag-bg); color: var(--ink-3); font-size: 15px; cursor: pointer;
+  }
+  .choice:has(input:checked) { background: var(--color-brand); color: var(--on-brand); }
+  .choice:has(input:focus-visible) { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+  .choice input { accent-color: var(--color-brand); width: 18px; height: 18px; margin: 0; }
+
+  .chips, .suggestions { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips:empty, .suggestions:empty { display: none; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding-left: 16px; border-radius: var(--radius-pill); background: var(--color-brand); color: var(--on-brand); font-size: 15px; }
+  .chip__remove { min-width: 44px; min-height: 44px; border: 0; border-radius: var(--radius-pill); background: transparent; color: inherit; font: inherit; font-size: 20px; cursor: pointer; }
+  .chip__remove:focus-visible { outline-color: var(--color-accent); outline-offset: -4px; }
+  .suggestion {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px;
+    border: 0; border-radius: var(--radius-pill); background: var(--tag-bg); color: var(--ink-3); font: inherit; font-size: 15px; cursor: pointer;
+  }
+  .suggestion:hover { text-decoration: underline; }
+  .badge { padding: 2px 8px; border-radius: var(--radius-pill); background: var(--color-accent); color: var(--ink); font-size: 12px; font-weight: 600; }
+  .badge[hidden] { display: none; }
+  .tag-entry { display: flex; gap: 8px; }
+  .tag-entry input { flex: 1; min-width: 0; }
+  .counter { text-align: right; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
+  .toolbar__button, .button {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 16px;
+    font: inherit; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer;
+    background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius-pill);
+  }
+  .toolbar__button[aria-pressed='true'] { background: var(--color-brand); border-color: var(--color-brand); color: var(--on-brand); }
+  .button:disabled { opacity: 0.4; cursor: default; }
+  .button--primary { min-height: 52px; padding: 0 26px; font-size: 17px; background: var(--color-brand); border-color: var(--color-brand); color: var(--on-brand); }
+  .button--primary:hover { filter: brightness(1.15); }
+  .button--small { padding: 0 14px; }
+
+  .editor :global(.editor__content) {
+    min-height: 240px; padding: 4px 16px; font-size: 17px;
+    background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius-sm);
+  }
+  .editor :global(.editor__content h2:first-child) { margin-top: 0.6em; }
+
+  .dropzone {
+    display: flex; align-items: center; justify-content: center; min-height: 96px; padding: 16px;
+    border: 2px dashed var(--placeholder-line); border-radius: var(--radius-md);
+    color: var(--ink-2); font-weight: 600; text-align: center; cursor: pointer;
+  }
+  .dropzone:focus-within, .dropzone--over { border-color: var(--color-brand); background: var(--section); }
+  .dropzone:focus-within { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+
+  .images { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .images :global(.image) {
+    display: grid; grid-template-columns: 96px 1fr; gap: 14px; padding: 12px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md);
+  }
+  .images :global(.image__thumb img), .images :global(.image__thumb .heic-tile) { width: 96px; height: 96px; object-fit: cover; border-radius: var(--radius-sm); }
+  .images :global(.image__thumb .heic-tile) { padding: 6px; font-size: 11px; }
+  .images :global(.image__body) { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .images :global(.image__name) { margin: 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+  .images :global(.image__cover) { display: inline-flex; padding: 2px 10px; border-radius: var(--radius-pill); background: var(--color-accent); color: var(--ink); font-weight: 600; }
+  .images :global(.image__cover[hidden]) { display: none; }
+  .images :global(.image__alt-label) { font-weight: 600; font-size: 15px; }
+  .images :global(.image__actions) { display: flex; flex-wrap: wrap; gap: 6px; }
+  @media (max-width: 480px) {
+    .images :global(.image) { grid-template-columns: 1fr; }
+  }
+
+  .check { padding: 16px 20px; border-radius: var(--radius-md); background: var(--section); }
+  .check__title { margin: 0; font-size: 17px; }
+  .check ul { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 1.5; }
+  .check--ok ul { display: none; }
+
+  .button[hidden] { display: none; }
+
+  .account { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 32px; padding: 16px 20px; border-radius: var(--radius-md); background: var(--section); }
+  .account__text { flex: 1 1 260px; margin: 0; font-size: 15px; line-height: 1.5; }
+  a.button { text-decoration: none; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .status { font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+  .status:empty { display: none; }
+
+  .preview { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 32px; }
+  .preview__title { margin: 0 0 6px; font-family: var(--font-display); font-weight: 500; font-size: 24px; }
+  .preview :global(.heic-tile) { display: flex; width: 100%; aspect-ratio: 3 / 2; margin-bottom: 36px; }
+  .preview :global(.prose .heic-tile) { margin: 1.5em 0 0.5em; }
+  .preview__tiles { display: flex; flex-wrap: wrap; gap: 32px; padding-bottom: clamp(56px, 7vw, 96px); }
+  .preview__tiles > div { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .preview__tiles > div:first-child { flex: 1 1 300px; max-width: 440px; }
+  .preview__tiles > div:last-child { flex: 2 1 320px; }
+  .preview__subtitle { margin: 0; font-size: 16px; font-weight: 600; }
+  /* Kafelek bez okładki (jeszcze nie dodana albo HEIC): ciemne tło, żeby jasny tekst był czytelny. */
+  .preview__tile { border-radius: var(--radius-lg); background: var(--shade); }
+</style>

@@ -12,7 +12,10 @@ import {
   MAX_IMAGE_FILE_MB,
   MAX_IMAGES,
   MAX_TITLE_LENGTH,
+  MAX_TAG_LENGTH,
+  MAX_TAGS,
   MIN_BODY_LENGTH,
+  normalizeTag,
   validatePost,
   type PostToValidate,
 } from '../../src/config/zasady-wpisow';
@@ -184,16 +187,56 @@ describe('formaty zdjęć', () => {
 });
 
 describe('tagi', () => {
-  it('tag spoza listy pokazuje, który i gdzie go dopisać', () => {
-    expectOnlyError(errorsFor({ tags: ['hackaton'] }), /Tagu „hackaton” nie ma.*ALLOWED_TAGS/);
+  it('nowy tag spoza istniejących jest dozwolony', () => {
+    expect(errorsFor({ tags: ['zupełnie nowy tag', 'ai-2026'] })).toEqual([]);
   });
 
-  it('wielkość liter ma znaczenie, żeby nie było dwóch wersji jednego tagu', () => {
-    expectOnlyError(errorsFor({ tags: ['Python'] }), /Tagu „Python”/);
+  it('stare tagi z wielkimi literami (NLP, OpenSearch) dalej przechodzą', () => {
+    expect(errorsFor({ tags: ['NLP', 'OpenSearch'] })).toEqual([]);
+  });
+
+  it(`tag dłuższy niż ${MAX_TAG_LENGTH} znaków pokazuje, który i o ile`, () => {
+    const tag = 'a'.repeat(MAX_TAG_LENGTH + 1);
+    expectOnlyError(errorsFor({ tags: [tag] }), new RegExp(`Tag „${tag}” ma ${MAX_TAG_LENGTH + 1} znaków.*najwyżej ${MAX_TAG_LENGTH}`));
+    expect(errorsFor({ tags: ['a'.repeat(MAX_TAG_LENGTH)] })).toEqual([]);
+  });
+
+  it(`najwyżej ${MAX_TAGS} tagów we wpisie`, () => {
+    const tags = Array.from({ length: MAX_TAGS + 1 }, (_, index) => `tag ${index}`);
+    expectOnlyError(errorsFor({ tags }), new RegExp(`${MAX_TAGS + 1} tagów.*najwyżej ${MAX_TAGS}`));
+    expect(errorsFor({ tags: tags.slice(0, MAX_TAGS) })).toEqual([]);
+  });
+
+  // Z tagu powstaje adres /tags/<tag>/: ukośnik, # czy ? by go zepsuły.
+  it.each(['ai/ml', 'c#', 'co?', ' ', ''])('„%s”: tylko litery, cyfry, spacje i myślniki', (tag) => {
+    expectOnlyError(errorsFor({ tags: [tag] }), /litery, cyfry, spacje i myślniki/);
   });
 
   it('tagi muszą być listą', () => {
     expectOnlyError(errorsFor({ tags: 'python' }), /muszą być listą/);
+  });
+});
+
+describe('normalizeTag', () => {
+  const existing = ['hackathon', 'aktualności', 'NLP', 'quantum computing'];
+
+  it('nowy tag: małe litery, bez spacji na brzegach i podwójnych w środku', () => {
+    expect(normalizeTag('  Uczenie   Maszynowe ', existing)).toBe('uczenie maszynowe');
+  });
+
+  it.each([
+    ['Hackathon', 'hackathon'],
+    ['HACKATHON', 'hackathon'],
+    ['aktualnosci', 'aktualności'],
+    ['Aktualnośći', 'aktualności'],
+    ['nlp', 'NLP'],
+    ['Quantum  Computing', 'quantum computing'],
+  ])('„%s” różni się od istniejącego tylko literami → „%s”', (input, expected) => {
+    expect(normalizeTag(input, existing)).toBe(expected);
+  });
+
+  it('podobny, ale inny tag zostaje nowym tagiem', () => {
+    expect(normalizeTag('hackaton', existing)).toBe('hackaton');
   });
 });
 

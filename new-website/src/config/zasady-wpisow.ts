@@ -15,23 +15,14 @@ export const MAX_IMAGE_FILE_MB = 10;
 // HEIC z telefonu przyjmie dopiero kreator: serwer zamieni go na JPG, bo w pliku wpisu
 // nie obsługuje go ani Astro, ani większość przeglądarek.
 export const ALLOWED_IMAGE_FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
-export const ALLOWED_TAGS = [
-  'aktualności',
-  'art',
-  'digit detection',
-  'hackathon',
-  'hackyeah',
-  'mnist',
-  'NLP',
-  'OpenSearch',
-  'projekt',
-  'python',
-  'pytorch',
-  'quantum computing',
-  'streamlit',
-  'web-scraping',
-  'wmifs',
-] as const;
+// Tagi wpisuje autor. Podpowiedzi to tagi z istniejących wpisów (getTags() w src/lib/posts.ts),
+// a normalizeTag() niżej pilnuje, żeby „Hackathon” nie stał się drugim tagiem obok „hackathon”.
+export const MAX_TAG_LENGTH = 30;
+export const MAX_TAGS = 8;
+// false: wpis z kreatora trafia na stronę sam, gdy CI jest zielone (auto-merge).
+// true: Pull Request z wpisem czeka, aż zatwierdzi go admin redakcji. Ustawienia repo do obu
+// wariantów: services/api/README.md, „Ustawienia repo na GitHubie”.
+export const REQUIRES_ADMIN_APPROVAL = false;
 
 // Stare wpisy z formatem spoza listy. Nowych tu nie dopisujemy, koło decyduje, co z tymi zrobić.
 export const IMAGE_FORMAT_EXCEPTIONS: Record<string, string[]> = {
@@ -52,6 +43,9 @@ export const dateField = () =>
 
 const requiredText = (message: string) => z.string({ error: message }).trim().min(1, { error: message });
 
+// Litery (także polskie), cyfry, myślniki i pojedyncze spacje w środku, np. „quantum computing”.
+const TAG_CHARACTERS = /^[\p{L}\p{N}]+(?:[ -][\p{L}\p{N}]+)*$/u;
+
 const textLength = (input: unknown) => (typeof input === 'string' ? input.trim().length : 0);
 
 const TITLE_MISSING = 'Brakuje tytułu (pole title). Dopisz go w metadanych wpisu.';
@@ -70,6 +64,8 @@ export const postFieldsSchema = z.object({
   }),
   tags: z.array(z.string(), { error: 'Tagi (pole tags) muszą być listą. Każdy tag w osobnej linijce, zaczynając od „- ”.' }).default([]),
   cover: requiredText('Brakuje okładki (pole cover). Dodaj zdjęcie do folderu wpisu i wpisz np. cover: ./okladka.jpg.'),
+  // Opis okładki dla czytników ekranu. Kreator wymaga go zawsze; w starszych wpisach go nie ma.
+  coverAlt: z.string({ error: 'Opis okładki (pole coverAlt) musi być tekstem. Wpisz go albo usuń całą linijkę.' }).optional(),
   excerpt: z.string({ error: EXCERPT_NOT_TEXT }).optional(),
   githubLink: z.url({ error: 'Błędny link do GitHuba (pole githubLink). Wpisz pełny adres zaczynający się od https://.' }).optional(),
   draft: z.boolean({ error: 'Pole draft może mieć tylko wartość true albo false.' }).default(false),
@@ -88,11 +84,17 @@ const postRulesSchema = postFieldsSchema.extend({
     .optional(),
   tags: z
     .array(
-      z.enum(ALLOWED_TAGS, {
-        error: ({ input }) => `Tagu „${String(input)}” nie ma na liście dozwolonych. Popraw literówkę albo dopisz go do ALLOWED_TAGS w src/config/zasady-wpisow.ts.`,
-      }),
+      z
+        .string({ error: 'Każdy tag musi być tekstem.' })
+        .regex(TAG_CHARACTERS, {
+          error: ({ input }) => `Tag „${String(input)}” może mieć tylko litery, cyfry, spacje i myślniki (z tagu powstaje adres strony /tags/…/).`,
+        })
+        .max(MAX_TAG_LENGTH, {
+          error: ({ input }) => `Tag „${String(input)}” ma ${textLength(input)} znaków, a może mieć najwyżej ${MAX_TAG_LENGTH}. Skróć go.`,
+        }),
       { error: 'Tagi (pole tags) muszą być listą. Każdy tag w osobnej linijce, zaczynając od „- ”.' },
     )
+    .max(MAX_TAGS, { error: ({ input }) => `Wpis ma ${(input as unknown[]).length} tagów, a może mieć najwyżej ${MAX_TAGS}. Zostaw najważniejsze.` })
     .default([]),
 });
 
@@ -176,6 +178,16 @@ function checkBodyLength(body: string): string[] {
   if (length < MIN_BODY_LENGTH) return [`Treść ma ${length} znaków, a musi mieć co najmniej ${MIN_BODY_LENGTH}. Rozwiń ją.`];
   if (length > MAX_BODY_LENGTH) return [`Treść ma ${length} znaków, a może mieć najwyżej ${MAX_BODY_LENGTH}. Skróć ją albo podziel na dwa wpisy.`];
   return [];
+}
+
+// Do porównywania tagów: bez wielkich liter, polskich znaków i nadmiarowych spacji.
+export const tagKey = (tag: string) =>
+  tag.trim().replace(/\s+/g, ' ').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/ł/g, 'l');
+
+// Tag wpisany przez autora: małe litery, bez nadmiarowych spacji. Jeśli taki tag już jest
+// (różni się tylko wielkością liter albo polskimi znakami), zwraca istniejący.
+export function normalizeTag(input: string, existingTags: readonly string[]): string {
+  return existingTags.find((tag) => tagKey(tag) === tagKey(input)) ?? input.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
 export type PostToValidate = {

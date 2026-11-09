@@ -51,7 +51,29 @@ test('sitemap', async ({ request }) => {
   expect(xml).toContain('<loc>https://knml.edu.pl/</loc>');
   expect(xml).toContain(`<loc>https://knml.edu.pl${REAL_POST}</loc>`);
   expect(xml).not.toContain('/blog/test-');
+  expect(xml).not.toContain('/redakcja/');
 });
+
+test('kreator /redakcja/ działa, ale wyszukiwarki go nie indeksują', async ({ page }) => {
+  const response = await page.goto('/redakcja/');
+  expect(response?.status()).toBe(200);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  await expect(page.locator('#body-editor [contenteditable="true"]')).toBeVisible();
+  await expect(page.locator('header a[href="/redakcja/"]')).toHaveCount(0);
+});
+
+// Edytor (Tiptap, ProseMirror) waży kilkaset KB i ma być tylko w kreatorze.
+for (const url of ['/', '/en/', '/blog/', REAL_POST]) {
+  test(`${url}: bez kodu edytora`, async ({ page }) => {
+    const scripts: string[] = [];
+    page.on('response', async (response) => {
+      if (response.request().resourceType() === 'script') scripts.push(await response.text());
+    });
+    await page.goto(url, { waitUntil: 'networkidle' });
+    const inlineScripts = await page.locator('script:not([src])').allTextContents();
+    for (const code of [...scripts, ...inlineScripts]) expect(code).not.toMatch(/ProseMirror|tiptap/i);
+  });
+}
 
 test('404 dla nieistniejącego adresu', async ({ page }) => {
   const response = await page.goto('/nie-ma-takiej-strony/');

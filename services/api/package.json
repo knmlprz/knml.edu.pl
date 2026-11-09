@@ -1,0 +1,30 @@
+{
+  "name": "knml-api",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node dist/server.js",
+    "dev": "node build.mjs && node --env-file=.env dist/server.js",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "npm --prefix ../../new-website run build:test && node build.mjs test/e2e-server.ts && playwright test",
+    "dev:mock": "node build.mjs test/e2e-server.ts && node dist/e2e-server.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.6",
+    "hono": "^4.13.17",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^22.20.5",
+    "esbuild": "^0.28.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

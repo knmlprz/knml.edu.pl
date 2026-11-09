@@ -21,7 +21,9 @@ src/
 ├── layouts/           BaseLayout.astro, szkielet każdej strony (<head>, menu, stopka)
 ├── data/site.ts       stałe: e-mail, linki social, Discord, Wiki, menu, statystyki „O nas”
 ├── i18n/              teksty interfejsu po polsku (pl.ts) i angielsku (en.ts), funkcja t()
-├── styles/            tokens.css (kolory, fonty, odstępy) i global.css (style wspólne)
+├── config/            zasady-wpisow.ts: zasady wpisów (build, kreator, później serwer)
+├── redakcja/          logika kreatora /redakcja/: wpis.ts (index.md, adres, sprawdzanie), edytor.ts (Tiptap)
+├── styles/            tokens.css, global.css (style wspólne), post.css (wpis i podgląd w kreatorze)
 └── assets/            logo i obrazki używane w kodzie (logo PRz w assets/partners/)
 ```
 
@@ -80,6 +82,13 @@ sekcjom (`<Hero locale={locale} />`). Decyzja: [docs/adr/0002-wersja-en.md](../d
 - `pages/tags/[tag]/page/[page].astro` i `redirects` w `astro.config.mjs`: przekierowania
   starych adresów stronicowania z Hugo. Nie usuwaj: mogą do nich prowadzić stare linki.
 - `pages/404.astro`: strona „nie znaleziono” (GitHub Pages pokazuje ją sam).
+- `pages/redakcja/index.astro`: kreator wpisów. Jedyna strona z większym JS (edytor Tiptap,
+  podgląd przez `marked`, paczka `.zip` przez `fflate`), wczytywanym tylko na niej. Tylko po
+  polsku, `noindex`, celowo poza menu i poza `staticPages` w sitemapie. Z `PUBLIC_API_URL`
+  (`.env.example`) ma logowanie i „Opublikuj” przez [API publikacji](../services/api/README.md);
+  build testowy (`npm run build:test`) ustawia go na `http://localhost:8787`. Podgląd ma ten sam
+  układ i te same klasy co `pages/blog/[...slug].astro`: zmieniasz jedno, zmień drugie
+  (`test/e2e/redakcja.spec.ts` to wyłapie).
 
 ## Skrypty w `scripts/`
 
@@ -101,14 +110,14 @@ Zdjęcia w treści wpisów (Markdown) mają `srcset` w kilku rozmiarach WebP dop
 kolumny tekstu, a `src` każdego obrazu z `srcset` wskazuje największy wariant zamiast oryginału.
 Robią to dwie rzeczy:
 
-- **wtyczka `responsivePostImages` w `astro.config.mjs`** — ustawia zdjęciom z Markdowna
+- **wtyczka `responsivePostImages` w `astro.config.mjs`** ustawia zdjęciom z Markdowna
   `layout`, `widths` i `sizes`. Zależy od **wewnętrznej paczki Astro `@astrojs/markdown-satteri`**
   (procesor Markdowna, który instaluje samo Astro, nie ma jej w naszym `package.json`) i od jej
   API wtyczek (`element.filter`, `visit(node, ctx)`, `ctx.setProperty`). Zwykłe
   `markdown.rehypePlugins` nie wchodzą w grę: w Astro 7 wymagają dodatkowej paczki
   `@astrojs/markdown-remark` i są oznaczone jako przestarzałe;
-- **`src/image-service.ts`** — domyślny serwis obrazów Astro (sharp) z jedną zmianą: `src` = największy
-  wariant z `srcset`. Korzysta z publicznego API (`astro/assets/services/sharp`, `image.service`).
+- **`src/image-service.ts`** to domyślny serwis obrazów Astro (sharp) z jedną zmianą: `src` wskazuje
+  największy wariant z `srcset`. Korzysta z publicznego API (`astro/assets/services/sharp`, `image.service`).
 
 **Po aktualizacji Astro sprawdź:**
 
